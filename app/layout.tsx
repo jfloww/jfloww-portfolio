@@ -42,7 +42,7 @@ export default function RootLayout({
         <Header mobile={mobile} />
         {mobile && (
           <main
-            className="flex-grow m-auto w-5/6 flex py-4"
+            className="flex-grow m-auto w-full flex py-4"
             data-mobile={mobile}
           >
             {children}
