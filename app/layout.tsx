@@ -16,7 +16,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-white dark:bg-black text-black dark:text-white flex flex-col min-h-screen min-w-screen">
+      <head>
+        <title>jfloww</title>
+        <link rel="icon" href="/icons/jfloww.png" sizes="any" />
+      </head>
+      <body
+        className="bg-white dark:bg-black text-black dark:text-white flex flex-col min-h-screen min-w-screen"
+        style={{ fontFamily: "cursive" }}
+      >
         <SpeedInsights />
         <Header />
         <main className="flex-grow m-auto w-2/3 flex py-8">{children}</main>
