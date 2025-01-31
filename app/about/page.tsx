@@ -1,9 +1,33 @@
+"use client";
 import Image from "next/image";
+import clsx from "clsx";
+import { useEffect, useState } from "react";
 
 export default function About() {
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => {
+      setMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
   return (
-    <div className="flex flex-col items-center justify-center p-8 w-full min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-3xl w-full text-center bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
+    <div
+      className={clsx(
+        "flex flex-col items-center justify-center  w-full min-h-screen ",
+        mobile ? "p-4" : "bg-gray-50 dark:bg-gray-900 p-8"
+      )}
+    >
+      <div
+        className={clsx(
+          "max-w-3xl w-full text-center bg-white dark:bg-gray-800  rounded-lg shadow-lg",
+          mobile ? "py-4 px-2" : "p-8"
+        )}
+      >
         <div className="flex flex-col items-center">
           <Image
             src="/photo/jj.png"

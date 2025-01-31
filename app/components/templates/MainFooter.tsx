@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import clsx from "clsx"; // clsx 라이브러리 추가
+import clsx from "clsx";
 
 export default function Footer({ mobile }: { mobile: boolean }) {
   return (
