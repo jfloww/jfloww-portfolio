@@ -14,11 +14,11 @@ export default function Home() {
         </Link>
       </section>
       <section className="w-full flex mt-24">
-        <section className="w-1/2 justify-center">
-          <h1>Projects</h1>
+        <section className="w-1/2 justify-center text-center">
+          <h1 className="text-3xl font-bold">Projects</h1>
         </section>
-        <section className="w-1/2 justify-center">
-          <h1>Posts</h1>
+        <section className="w-1/2 justify-center text-center">
+          <h1 className="text-3xl font-bold">Posts</h1>
         </section>
       </section>
     </div>

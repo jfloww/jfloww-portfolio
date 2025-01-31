@@ -5,14 +5,14 @@ export default function About() {
         {/* Name & Title */}
         <h1 className="text-4xl font-bold mb-2">Jay (Jaehoon) Jung</h1>
         <p className="text-lg text-gray-400">Software Engineer</p>
-        <button className="bg-blue-500 w-48 p-2 rounded text-3xl hover:bg-blue-800 hover:scale-110 text-white font-bold">
+        <button className="bg-blue-500 w-40 p-2 rounded text-2xl hover:bg-blue-800 hover:scale-110 text-white font-bold">
           Resume
         </button>
 
         {/* Tech Stack */}
         <div className="mt-6 text-left">
           <h2 className="text-2xl font-semibold mb-2">Tech Stack</h2>
-          <ul className="space-y-2 text-gray-300 p-4">
+          <ul className="space-y-2 p-4">
             <li>
               <span className="font-semibold">Languages:</span> Java,
               JavaScript/TypeScript, SQL, HTML, CSS
@@ -48,16 +48,16 @@ export default function About() {
               <p className="text-gray-400 text-sm">
                 Feb 2023 - Present • Auburn, AL (On-site)
               </p>
-              <p className="mt-2 text-gray-300">
+              <p className="mt-2">
                 • Working on enterprise solutions using TypeScript, Node.js, and
                 other modern technologies.
               </p>
-              <p className="text-gray-300">
+              <p className="">
                 • Developed and deployed backend services and APIs for
                 high-traffic applications.
               </p>
               <p className="mt-2 text-sm text-gray-400">
-                🔹 TypeScript, Node.js, AWS, SQL, Docker
+                🔹 TypeScript, Node.js, SQL, Docker
               </p>
             </div>
 
@@ -69,10 +69,10 @@ export default function About() {
               <p className="text-gray-400 text-sm">
                 Jan 2020 - Aug 2021 • Gangwon, South Korea
               </p>
-              <p className="mt-2 text-gray-300">
+              <p className="mt-2">
                 • Gained significant leadership experience managing 12 soldiers.
               </p>
-              <p className="text-gray-300">
+              <p className="">
                 • Led training programs for new recruits and conducted real-time
                 monitoring operations.
               </p>
@@ -85,26 +85,28 @@ export default function About() {
         {/* Education */}
         <div className="mt-6 text-left">
           <h2 className="text-2xl font-semibold mb-2">Education</h2>
-          <p className="text-gray-300">
-            M.S. Computer Science at{" "}
-            <a href="https://www.cc.gatech.edu/" className="font-semibold">
-              Georgia Institute of Technology
-            </a>
-          </p>
-          <p className="text-gray-300">
-            B.S. Applied Mathematics and Statistics at{" "}
-            <a
-              href="https://www.stonybrook.edu/commcms/ams/"
-              className="font-semibold"
-            >
-              State University of New York, Stony Brook
-            </a>
-          </p>
+          <div className="p-4">
+            <p className="">
+              M.S. Computer Science at{" "}
+              <a href="https://www.cc.gatech.edu/" className="font-semibold">
+                Georgia Institute of Technology
+              </a>
+            </p>
+            <p className="">
+              B.S. Applied Mathematics and Statistics at{" "}
+              <a
+                href="https://www.stonybrook.edu/commcms/ams/"
+                className="font-semibold"
+              >
+                State University of New York, Stony Brook
+              </a>
+            </p>
+          </div>
         </div>
         {/* Languages */}
         <div className="mt-6 text-left">
           <h2 className="text-2xl font-semibold mb-2">Languages</h2>
-          <ul className="space-y-2 text-gray-300">
+          <ul className="space-y-2 p-4">
             <li>
               <span className="font-semibold">English:</span> Proficient
             </li>
@@ -117,7 +119,7 @@ export default function About() {
         {/* Location */}
         <div className="mt-6 text-left">
           <h2 className="text-2xl font-semibold mb-2">Location</h2>
-          <div className="grid grid-cols-2 gap-4 text-gray-300">
+          <div className="grid grid-cols-2 gap-4 p-4">
             <div>
               <h3 className="font-semibold">South Korea</h3>
               <p>Seoul</p>
