@@ -6,6 +6,8 @@ import { useState } from "react";
 export default function Header({ mobile }: { mobile: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const closeMenu = () => setMenuOpen(false);
+
   return (
     <header className="w-full h-24 bg-white dark:bg-gray-900 text-black dark:text-white flex items-center justify-between px-6 shadow-md">
       <div className="text-xl font-bold m-auto w-2/3 flex justify-between">
@@ -33,28 +35,46 @@ export default function Header({ mobile }: { mobile: boolean }) {
 
         {mobile && (
           <button
-            className="md:hidden flex flex-col space-y-1 bg-gray-200 dark:bg-gray-700 p-2 rounded"
+            className="md:hidden  bg-gray-200 dark:bg-gray-700 p-2 rounded h-10"
             onClick={() => setMenuOpen(!menuOpen)}
           >
-            <span className="block w-6 h-0.5 bg-black dark:bg-white"></span>
-            <span className="block w-6 h-0.5 bg-black dark:bg-white"></span>
-            <span className="block w-6 h-0.5 bg-black dark:bg-white"></span>
+            <div className="flex flex-col space-y-1 m-auto">
+              <span className="block w-6 h-0.5 bg-black dark:bg-white"></span>
+              <span className="block w-6 h-0.5 bg-black dark:bg-white"></span>
+              <span className="block w-6 h-0.5 bg-black dark:bg-white"></span>
+            </div>
           </button>
         )}
       </div>
 
       {mobile && menuOpen && (
         <nav className="absolute top-24 left-0 w-full bg-white dark:bg-gray-900 shadow-md flex flex-col items-center space-y-4 py-4 md:hidden transition-transform transform">
-          <Link href="/about" className="header-button text-lg">
+          <Link
+            href="/about"
+            className="header-button text-lg"
+            onClick={closeMenu}
+          >
             About
           </Link>
-          <Link href="/projects" className="header-button text-lg">
+          <Link
+            href="/projects"
+            className="header-button text-lg"
+            onClick={closeMenu}
+          >
             Projects
           </Link>
-          <Link href="/posts" className="header-button text-lg">
+          <Link
+            href="/posts"
+            className="header-button text-lg"
+            onClick={closeMenu}
+          >
             Posts
           </Link>
-          <Link href="/contact" className="header-button text-lg">
+          <Link
+            href="/contact"
+            className="header-button text-lg"
+            onClick={closeMenu}
+          >
             Contact
           </Link>
         </nav>
