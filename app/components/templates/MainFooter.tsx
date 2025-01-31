@@ -1,39 +1,46 @@
 import Link from "next/link";
-import Image from "next/image";
+// import Image from "next/image";
+
 export default function Footer() {
   return (
     <footer className="w-full h-14 bg-gray-900 text-white flex items-center justify-center">
-      <div className="flex space-x-4">
+      <div className="flex space-x-6 items-center">
+        {/* GitHub */}
         <a
           target="_blank"
           href="https://github.com/jfloww"
           rel="noopener noreferrer"
         >
-          <Image src="/icons/github.svg" alt="Logo" className="footer-icon" />
+          <div className="footer-icon"></div>
         </a>
+
+        {/* LinkedIn */}
         <a
           target="_blank"
           href="https://www.linkedin.com/in/jfloww/"
           rel="noopener noreferrer"
         >
-          <Image src="/icons/linkedin.svg" alt="Logo" className="footer-icon" />
+          <div className="footer-icon"></div>
         </a>
+
+        {/* Instagram */}
         <a
           target="_blank"
           href="https://www.instagram.com/jaehoon_jung98/"
           rel="noopener noreferrer"
         >
-          <Image
-            src="/icons/icons8-instagram.svg"
-            alt="Logo"
-            className="footer-icon"
-          />
+          <div className="footer-icon"></div>
         </a>
 
-        <div>© {new Date().getFullYear()} ©jfloww</div>
-        <Link href="/contact" className="header-button ">
+        {/* Contact Link */}
+        <Link href="/contact" className="text-blue-400 hover:underline">
           Contact
         </Link>
+
+        {/* Copyright */}
+        <div className="text-gray-400 text-sm ml-4">
+          © {new Date().getFullYear()} jfloww
+        </div>
       </div>
     </footer>
   );
