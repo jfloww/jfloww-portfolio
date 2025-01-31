@@ -2,6 +2,7 @@ import DarkModeToggle from "./organisms/DarkModeToggle";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import clsx from "clsx";
 
 export default function Header({ mobile }: { mobile: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -35,7 +36,10 @@ export default function Header({ mobile }: { mobile: boolean }) {
 
         {mobile && (
           <button
-            className="md:hidden  bg-gray-200 dark:bg-gray-700 p-2 rounded h-10"
+            className={clsx(
+              "md:hidden p-2 ml-10 rounded h-10 mt-1",
+              menuOpen ? "bg-gray-200 dark:bg-gray-700" : ""
+            )}
             onClick={() => setMenuOpen(!menuOpen)}
           >
             <div className="flex flex-col space-y-1 m-auto">
