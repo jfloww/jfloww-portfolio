@@ -11,7 +11,12 @@ export default function Header({ mobile }: { mobile: boolean }) {
 
   return (
     <header className="w-full h-24 bg-white dark:bg-gray-900 text-black dark:text-white flex items-center justify-between px-6 shadow-md">
-      <div className="text-xl font-bold m-auto w-2/3 flex justify-between">
+      <div
+        className={clsx(
+          "text-xl font-bold m-auto flex justify-between",
+          mobile ? "w-full" : "w-2/3"
+        )}
+      >
         <div className="flex items-center">
           <Link href="/" className="header-button text-3xl flex">
             <Image src="/icons/jfloww.png" width={25} height={20} alt="J" />
