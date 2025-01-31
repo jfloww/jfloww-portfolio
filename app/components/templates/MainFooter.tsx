@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 
-export default function Footer() {
+export default function Footer({ mobile }: { mobile: boolean }) {
   return (
     <footer className="w-full h-14 bg-gray-900 text-white flex items-center justify-center">
       <div className="flex items-center justify-between w-1/2">

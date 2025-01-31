@@ -2,17 +2,24 @@ export default function About() {
   return (
     <div className="flex flex-col items-center justify-center p-8 w-full">
       <div className="max-w-2xl w-full text-center">
-        {/* Name & Title */}
         <h1 className="text-4xl font-bold mb-2">Jay (Jaehoon) Jung</h1>
-        <p className="text-lg text-gray-400">Software Engineer</p>
-        <button className="bg-blue-500 w-40 p-2 rounded text-2xl hover:bg-blue-800 hover:scale-110 text-white font-bold">
+        <p className="text-lg text-gray-500 dark:text-gray-400">
+          Software Engineer
+        </p>
+        <div className="mb-4">
+          <img
+            src="/photo/jj22.jpg"
+            alt="Jay Jung"
+            className="w-32 h-32 rounded-full mx-auto shadow-lg"
+          />
+        </div>
+        <button className="bg-blue-500 w-40 p-2 rounded text-2xl hover:bg-blue-800 hover:scale-110 transition text-white font-bold">
           Resume
         </button>
 
-        {/* Tech Stack */}
-        <div className="mt-6 text-left">
+        <div className="mt-6 text-left border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-lg bg-gray-50 dark:bg-gray-800">
           <h2 className="text-2xl font-semibold mb-2">Tech Stack</h2>
-          <ul className="space-y-2 p-4">
+          <ul className="space-y-2">
             <li>
               <span className="font-semibold">Languages:</span> Java,
               JavaScript/TypeScript, SQL, HTML, CSS
@@ -37,14 +44,15 @@ export default function About() {
             </li>
           </ul>
         </div>
-        {/* Experience */}
+
         <div className="mt-6 text-left">
-          <h2 className="text-2xl font-semibold mb-2">Experience</h2>
           <div className="space-y-6">
-            {/* Software Engineer */}
-            <div className="p-4 rounded-lg shadow-lg">
+            <div className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800">
+              <h2 className="text-2xl font-semibold mb-2">Experience</h2>
               <h3 className="text-xl font-semibold">Software Engineer</h3>
-              <p className="text-gray-400">ComGen America • Full-time</p>
+              <p className="text-gray-500 dark:text-gray-400">
+                ComGen America • Full-time
+              </p>
               <p className="text-gray-400 text-sm">
                 Feb 2023 - Present • Auburn, AL (On-site)
               </p>
@@ -52,7 +60,7 @@ export default function About() {
                 • Working on enterprise solutions using TypeScript, Node.js, and
                 other modern technologies.
               </p>
-              <p className="">
+              <p>
                 • Developed and deployed backend services and APIs for
                 high-traffic applications.
               </p>
@@ -60,53 +68,34 @@ export default function About() {
                 🔹 TypeScript, Node.js, SQL, Docker
               </p>
             </div>
+          </div>
+        </div>
 
-            <div className="p-4 rounded-lg shadow-lg">
-              <h3 className="text-xl font-semibold">Monitoring Analyst</h3>
-              <p className="text-gray-400">
-                Republic of Korea Army • Full-time
-              </p>
-              <p className="text-gray-400 text-sm">
-                Jan 2020 - Aug 2021 • Gangwon, South Korea
-              </p>
-              <p className="mt-2">
-                • Gained significant leadership experience managing 12 soldiers.
-              </p>
-              <p className="">
-                • Led training programs for new recruits and conducted real-time
-                monitoring operations.
-              </p>
-              <p className="mt-2 text-sm text-gray-400">
-                🔹 Team Leadership, Microsoft Office
-              </p>
-            </div>
-          </div>
-        </div>
-        {/* Education */}
-        <div className="mt-6 text-left">
+        <div className="mt-6 text-left border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-lg bg-gray-50 dark:bg-gray-800">
           <h2 className="text-2xl font-semibold mb-2">Education</h2>
-          <div className="p-4">
-            <p className="">
-              M.S. Computer Science at{" "}
-              <a href="https://www.cc.gatech.edu/" className="font-semibold">
-                Georgia Institute of Technology
-              </a>
-            </p>
-            <p className="">
-              B.S. Applied Mathematics and Statistics at{" "}
-              <a
-                href="https://www.stonybrook.edu/commcms/ams/"
-                className="font-semibold"
-              >
-                State University of New York, Stony Brook
-              </a>
-            </p>
-          </div>
+          <p>
+            M.S. Computer Science at{" "}
+            <a
+              href="https://www.cc.gatech.edu/"
+              className="font-semibold text-blue-600 dark:text-blue-400"
+            >
+              Georgia Institute of Technology
+            </a>
+          </p>
+          <p>
+            B.S. Applied Mathematics and Statistics at{" "}
+            <a
+              href="https://www.stonybrook.edu/commcms/ams/"
+              className="font-semibold text-blue-600 dark:text-blue-400"
+            >
+              SUNY Stony Brook
+            </a>
+          </p>
         </div>
-        {/* Languages */}
-        <div className="mt-6 text-left">
+
+        <div className="mt-6 text-left border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-lg bg-gray-50 dark:bg-gray-800">
           <h2 className="text-2xl font-semibold mb-2">Languages</h2>
-          <ul className="space-y-2 p-4">
+          <ul className="space-y-2">
             <li>
               <span className="font-semibold">English:</span> Proficient
             </li>
@@ -116,10 +105,9 @@ export default function About() {
           </ul>
         </div>
 
-        {/* Location */}
-        <div className="mt-6 text-left">
+        <div className="mt-6 text-left border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-lg bg-gray-50 dark:bg-gray-800">
           <h2 className="text-2xl font-semibold mb-2">Location</h2>
-          <div className="grid grid-cols-2 gap-4 p-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <h3 className="font-semibold">South Korea</h3>
               <p>Seoul</p>
