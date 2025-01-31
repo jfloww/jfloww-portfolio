@@ -40,7 +40,12 @@ export default function RootLayout({
       >
         <SpeedInsights />
         <Header mobile={mobile} />
-        <main className="flex-grow m-auto w-2/3 flex py-8">{children}</main>
+        {mobile && (
+          <main className="flex-grow m-auto w-5/6 flex py-8">{children}</main>
+        )}
+        {!mobile && (
+          <main className="flex-grow m-auto w-5/6 flex py-8">{children}</main>
+        )}
         <Footer mobile={mobile} />
       </body>
     </html>
