@@ -44,7 +44,7 @@ export default function RootLayout({
           <main className="flex-grow m-auto w-5/6 flex py-8">{children}</main>
         )}
         {!mobile && (
-          <main className="flex-grow m-auto w-5/6 flex py-8">{children}</main>
+          <main className="flex-grow m-auto w-2/3 flex py-8">{children}</main>
         )}
         <Footer mobile={mobile} />
       </body>

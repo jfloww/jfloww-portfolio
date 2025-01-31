@@ -1,13 +1,18 @@
 import Link from "next/link";
 import Image from "next/image";
+import clsx from "clsx"; // clsx 라이브러리 추가
 
 export default function Footer({ mobile }: { mobile: boolean }) {
-  console.log(mobile);
   return (
     <footer className="w-full h-14 bg-gray-900 text-white flex items-center justify-center">
-      <div className="flex items-center justify-between w-1/2">
-        <div></div>
-        <div className="flex space-x-6">
+      <div
+        className={clsx(
+          "flex items-center justify-between",
+          mobile ? "w-full px-4" : "w-1/2"
+        )}
+      >
+        {!mobile && <div></div>}
+        <div className={clsx("flex", mobile ? "space-x-3" : "space-x-6")}>
           <a
             target="_blank"
             href="https://github.com/jfloww"
@@ -28,15 +33,12 @@ export default function Footer({ mobile }: { mobile: boolean }) {
             rel="noopener noreferrer"
           >
             <div className="footer-icon">
-              {" "}
-              <div className="footer-icon">
-                <Image
-                  src="/icons/linkedin.svg"
-                  width={20}
-                  height={20}
-                  alt="LinkedIn"
-                />
-              </div>
+              <Image
+                src="/icons/linkedin.svg"
+                width={20}
+                height={20}
+                alt="LinkedIn"
+              />
             </div>
           </a>
           <a
@@ -45,15 +47,12 @@ export default function Footer({ mobile }: { mobile: boolean }) {
             rel="noopener noreferrer"
           >
             <div className="footer-icon">
-              {" "}
-              <div className="footer-icon">
-                <Image
-                  src="/icons/insta.svg"
-                  width={20}
-                  height={20}
-                  alt="Insta"
-                />
-              </div>
+              <Image
+                src="/icons/insta.svg"
+                width={20}
+                height={20}
+                alt="Insta"
+              />
             </div>
           </a>
           <Link href="/contact" className="text-blue-400 footer-icon ml-12">
