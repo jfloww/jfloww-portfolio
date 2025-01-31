@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div className="p-6 w-full justify-center">
       <section className="flex flex-col items-center text-center mt-16 w-full">
-        <h1 className="text-5xl font-bold w-full">Hi, I'm Jay!</h1>
+        <h1 className="text-5xl font-bold w-full">Hi, I&apos;m Jay!</h1>
         <h2 className="">Software Engineer</h2>
         <Link
           href="/about"

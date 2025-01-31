@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 export default function Footer() {
   return (
     <footer className="w-full h-14 bg-gray-900 text-white flex items-center justify-center">
@@ -8,21 +9,21 @@ export default function Footer() {
           href="https://github.com/jfloww"
           rel="noopener noreferrer"
         >
-          <img src="/icons/github.svg" alt="Logo" className="footer-icon" />
+          <Image src="/icons/github.svg" alt="Logo" className="footer-icon" />
         </a>
         <a
           target="_blank"
           href="https://www.linkedin.com/in/jfloww/"
           rel="noopener noreferrer"
         >
-          <img src="/icons/linkedin.svg" alt="Logo" className="footer-icon" />
+          <Image src="/icons/linkedin.svg" alt="Logo" className="footer-icon" />
         </a>
         <a
           target="_blank"
           href="https://www.instagram.com/jaehoon_jung98/"
           rel="noopener noreferrer"
         >
-          <img
+          <Image
             src="/icons/icons8-instagram.svg"
             alt="Logo"
             className="footer-icon"
