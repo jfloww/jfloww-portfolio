@@ -1,26 +1,7 @@
-import Link from "next/link";
+import ClientHome from "./components/templates/ClientHome";
+import { getPostList } from "./components/functions/postList";
 
-export default function Home() {
-  return (
-    <div className="p-6 w-full justify-center">
-      <section className="flex flex-col items-center text-center mt-16 w-full">
-        <h1 className="text-5xl font-bold w-full">Hi, I&apos;m Jay!</h1>
-        <h2 className="">Software Engineer</h2>
-        <Link
-          href="/about"
-          className="mt-6 bg-blue-500 px-6 py-3 rounded-lg shadow-md hover:bg-blue-600"
-        >
-          More About Me
-        </Link>
-      </section>
-      <section className="w-full flex mt-24">
-        <section className="w-1/2 justify-center text-center">
-          <h1 className="text-3xl font-bold">Projects</h1>
-        </section>
-        <section className="w-1/2 justify-center text-center">
-          <h1 className="text-3xl font-bold">Posts</h1>
-        </section>
-      </section>
-    </div>
-  );
+export default async function HomePage() {
+  const postList = await getPostList("projects", 5);
+  return <ClientHome postList={postList} />;
 }

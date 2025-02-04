@@ -11,8 +11,12 @@
     "vercel-deploy": "next build && next export"
   },
   "dependencies": {
+    "@types/glob": "^8.1.0",
     "@vercel/speed-insights": "^1.1.0",
     "clsx": "^2.1.1",
+    "dayjs": "^1.11.13",
+    "glob": "^11.0.1",
+    "gray-matter": "^4.0.3",
     "next": "15.1.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

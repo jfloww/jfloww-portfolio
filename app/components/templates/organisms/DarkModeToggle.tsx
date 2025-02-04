@@ -6,8 +6,8 @@ export default function DarkModeToggle() {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    setDarkMode(true);
-    localStorage.setItem("theme", "dark");
+    // setDarkMode(true);
+    // localStorage.setItem("theme", "dark");
     const storedTheme = localStorage.getItem("theme");
     if (storedTheme === "dark") {
       document.documentElement.classList.add("dark");
@@ -27,15 +27,17 @@ export default function DarkModeToggle() {
   };
 
   return (
-    <button
-      onClick={toggleDarkMode}
-      className={`w-12 h-6 flex items-center bg-gray-300 dark:bg-gray-600 rounded-full p-1 transition duration-300`}
-    >
-      <div
-        className={`w-5 h-5 bg-white dark:bg-black rounded-full shadow-md transform transition ${
-          darkMode ? "translate-x-6" : "translate-x-0"
-        }`}
-      ></div>
-    </button>
+    <div className="pt-1">
+      <button
+        onClick={toggleDarkMode}
+        className={`w-12 h-6 flex items-center bg-gray-300 dark:bg-gray-600 rounded-full p-1 transition duration-300`}
+      >
+        <div
+          className={`w-5 h-5 bg-white dark:bg-black rounded-full shadow-md transform transition ${
+            darkMode ? "translate-x-6" : "translate-x-0"
+          }`}
+        ></div>
+      </button>
+    </div>
   );
 }
