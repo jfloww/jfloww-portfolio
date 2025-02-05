@@ -12,7 +12,7 @@ export default async function Projects() {
             <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow hover:shadow-xl transition-transform transform hover:scale-105 cursor-pointer">
               <div className="relative w-full h-48 rounded-t-lg overflow-hidden rounded-lg">
                 <Image
-                  src={post.image}
+                  src={post.image ?? "/default-image.jpg"}
                   alt="proj image"
                   fill
                   className="m-auto p-4"

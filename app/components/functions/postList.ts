@@ -1,16 +1,24 @@
-// lib/postList.ts
+// ./app/components/functions/postList.ts
 import { sync } from "glob";
 import path from "path";
 import fs from "fs";
 import matter from "gray-matter";
 
+export interface PostMeta {
+  title: string;
+  date: string;
+  techStack?: string;
+  image?: string;
+  id: string;
+}
+
 export async function parsePost(postPath: string) {
   const fileContent = fs.readFileSync(postPath, "utf-8");
   const { data } = matter(fileContent);
-  return data;
+  return data as PostMeta;
 }
 
-export function getPostPaths(basePath: string, count: number): string[] {
+export function getPostPaths(basePath: string): string[] {
   let baseDir = "";
   if (basePath === "projects") {
     baseDir = "app/projects/contents";
@@ -28,9 +36,11 @@ export function getPostPaths(basePath: string, count: number): string[] {
 export async function getPostList(
   basePath: string,
   count: number
-): Promise<any[]> {
-  const paths: string[] = getPostPaths(basePath, count);
-  const posts = await Promise.all(paths.map((postPath) => parsePost(postPath)));
+): Promise<PostMeta[]> {
+  const paths: string[] = getPostPaths(basePath);
+  const posts: PostMeta[] = await Promise.all(
+    paths.map((postPath) => parsePost(postPath))
+  );
   posts.sort((a, b) => parseInt(b.date) - parseInt(a.date));
-  return posts.slice(0, count);
+  return posts.slice(0, count) as PostMeta[];
 }

@@ -6,9 +6,8 @@ import { serialize } from "next-mdx-remote/serialize";
 import ClientMDXRemote from "../../components/templates/ClientMDXRemote";
 
 interface ProjectPageProps {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export async function generateStaticParams() {
@@ -21,9 +20,13 @@ export async function generateStaticParams() {
     }));
 }
 
-export default async function ProjectPage({ params }: ProjectPageProps) {
-  const resolvedParams = await Promise.resolve(params);
-  const { id } = resolvedParams;
+export default async function ProjectPage({
+  params,
+  searchParams,
+}: ProjectPageProps) {
+  const { id } = await params;
+  const sp = await searchParams;
+  console.log(sp);
   const projectPath = path.join(
     process.cwd(),
     "app/projects/contents",
