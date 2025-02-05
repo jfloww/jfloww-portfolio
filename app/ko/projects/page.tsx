@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { getPostList } from "../../components/functions/postList";
 export default async function Projects() {
