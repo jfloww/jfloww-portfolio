@@ -6,7 +6,6 @@ import matter from "gray-matter";
 
 export async function parsePost(postPath: string) {
   const fileContent = fs.readFileSync(postPath, "utf-8");
-  console.log("test:", fileContent);
   const { data } = matter(fileContent);
   return data;
 }
@@ -14,10 +13,8 @@ export async function parsePost(postPath: string) {
 export function getPostPaths(basePath: string, count: number): string[] {
   let baseDir = "";
   if (basePath === "projects") {
-    // 기존: baseDir = "../../projects/contents";
     baseDir = "app/projects/contents";
   } else if (basePath === "posts") {
-    // 기존: baseDir = "posts/contents";
     baseDir = "app/posts/contents";
   } else {
     throw new Error("Invalid basePath");

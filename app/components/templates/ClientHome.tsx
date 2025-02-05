@@ -1,11 +1,11 @@
-// app/ClientHome.tsx
 "use client";
 import Link from "next/link";
-import Image from "next/image";
 import { useEffect } from "react";
+import { useMobileCheck } from "../functions/mobileCheck";
 
 interface ClientHomeProps {
   postList: {
+    id: string;
     title: string;
     date: string;
     techStack?: string;
@@ -14,6 +14,8 @@ interface ClientHomeProps {
 }
 
 export default function ClientHome({ postList }: ClientHomeProps) {
+  const isMobile = useMobileCheck();
+
   useEffect(() => {
     localStorage.setItem("theme", "dark");
   }, []);
@@ -33,27 +35,55 @@ export default function ClientHome({ postList }: ClientHomeProps) {
         </Link>
       </section>
       <section className="w-full mt-24 flex">
-        <section className="w-1/2 flex flex-col items-center">
-          <h1 className="text-3xl font-bold pb-4">Projects</h1>
-          <div className="w-2/3 space-y-2">
-            {postList.map((post, idx) => (
-              <div key={idx} className="p-2 w-full flex justify-between">
-                <h2 className="text-md font-bold">{post.title}</h2>
-                <p className="text-gray-500">{`${post.date.substring(
-                  0,
-                  4
-                )}-${post.date.substring(4, 6)}-${post.date.substring(
-                  6,
-                  8
-                )}`}</p>
+        {isMobile ? (
+          <div className="w-full flex flex-col items-center">
+            <section className="w-full flex flex-col items-center mb-8">
+              <h1 className="text-3xl font-bold pb-4">Projects</h1>
+              <div className="w-full space-y-2">
+                {postList.map((post) => (
+                  <Link href={`/projects/${post.id}`} key={post.id}>
+                    <div className="p-2 w-full flex  justify-between hover:scale-110 ease-in-out duration-300 cursor-pointer">
+                      <h2 className="text-md font-bold">{post.title}</h2>
+                      <p className="text-gray-500">
+                        {`${post.date.substring(0, 4)}-${post.date.substring(
+                          4,
+                          6
+                        )}-${post.date.substring(6, 8)}`}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
               </div>
-            ))}
+            </section>
+            <section className="w-full flex flex-col items-center">
+              <h1 className="text-3xl font-bold">Posts</h1>
+            </section>
           </div>
-        </section>
-
-        <section className="w-1/2 flex flex-col items-center">
-          <h1 className="text-3xl font-bold">Posts</h1>
-        </section>
+        ) : (
+          <>
+            <section className="w-1/2 flex flex-col items-center">
+              <h1 className="text-3xl font-bold pb-4">Projects</h1>
+              <div className="w-2/3 space-y-2">
+                {postList.map((post) => (
+                  <Link href={`/projects/${post.id}`} key={post.id}>
+                    <div className="p-2 w-full flex justify-between hover:scale-110 ease-in-out duration-300 cursor-pointer">
+                      <h2 className="text-md font-bold">{post.title}</h2>
+                      <p className="text-gray-500">
+                        {`${post.date.substring(0, 4)}-${post.date.substring(
+                          4,
+                          6
+                        )}-${post.date.substring(6, 8)}`}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+            <section className="w-1/2 flex flex-col items-center">
+              <h1 className="text-3xl font-bold">Posts</h1>
+            </section>
+          </>
+        )}
       </section>
     </div>
   );

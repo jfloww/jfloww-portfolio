@@ -1,32 +1,22 @@
+// layout.tsx
 "use client";
 import "./globals.css";
 import Header from "./components/templates/MainHeader";
 import Footer from "./components/templates/MainFooter";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { useEffect, useState } from "react";
+import { useMobileCheck } from "./components/functions/mobileCheck";
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // 커스텀 훅을 최상위에서 호출합니다.
+  const mobile = useMobileCheck();
   const [fontFamily, setFontFamily] = useState("cursive");
-  const [mobile, setMobile] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => {
-      if (window.innerWidth <= 768) {
-        setFontFamily("sans-serif");
-        setMobile(true);
-      } else {
-        setFontFamily("cursive");
-        setMobile(false);
-      }
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+    setFontFamily(mobile ? "sans-serif" : "cursive");
+  }, [mobile]);
 
   return (
     <html lang="en">
@@ -40,17 +30,16 @@ export default function RootLayout({
       >
         <SpeedInsights />
         <Header mobile={mobile} />
-        {mobile && (
+        {mobile ? (
           <main
             className="flex-grow m-auto w-full flex py-4"
             data-mobile={mobile}
           >
             {children}
           </main>
-        )}
-        {!mobile && (
+        ) : (
           <main
-            className="flex-grow m-auto w-2/3 flex py-8"
+            className="flex-grow m-auto w-2/3 flex py-4"
             data-mobile={mobile}
           >
             {children}

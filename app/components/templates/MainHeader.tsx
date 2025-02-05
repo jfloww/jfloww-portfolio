@@ -47,7 +47,6 @@ export default function Header({ mobile }: { mobile: boolean }) {
           mobile ? "w-full" : "w-2/3"
         )}
       >
-        {/* 로고 */}
         <div className="flex items-center">
           <Link
             href={getLocalizedPath("/")}
@@ -60,16 +59,40 @@ export default function Header({ mobile }: { mobile: boolean }) {
 
         {/* PC용 네비게이션 */}
         <nav className="hidden md:flex space-x-12">
-          <Link href={getLocalizedPath("/about")} className="header-button">
+          <Link
+            href={getLocalizedPath("/about")}
+            className={clsx("header-button", {
+              "text-blue-500 font-bold":
+                pathname === getLocalizedPath("/about"),
+            })}
+          >
             About
           </Link>
-          <Link href={getLocalizedPath("/projects")} className="header-button">
+          <Link
+            href={getLocalizedPath("/projects")}
+            className={clsx("header-button", {
+              "text-blue-500 font-bold":
+                pathname === getLocalizedPath("/projects"),
+            })}
+          >
             Projects
           </Link>
-          <Link href={getLocalizedPath("/posts")} className="header-button">
+          <Link
+            href={getLocalizedPath("/posts")}
+            className={clsx("header-button", {
+              "text-blue-500 font-bold":
+                pathname === getLocalizedPath("/posts"),
+            })}
+          >
             Posts
           </Link>
-          <Link href={getLocalizedPath("/contact")} className="header-button">
+          <Link
+            href={getLocalizedPath("/contact")}
+            className={clsx("header-button", {
+              "text-blue-500 font-bold":
+                pathname === getLocalizedPath("/contact"),
+            })}
+          >
             Contact
           </Link>
         </nav>
@@ -162,28 +185,40 @@ export default function Header({ mobile }: { mobile: boolean }) {
               </div>
               <Link
                 href={getLocalizedPath("/about")}
-                className="header-button text-lg"
+                className={clsx("header-button text-lg", {
+                  "text-blue-500 font-bold":
+                    pathname === getLocalizedPath("/about"),
+                })}
                 onClick={closeMenu}
               >
                 About
               </Link>
               <Link
                 href={getLocalizedPath("/projects")}
-                className="header-button text-lg"
+                className={clsx("header-button text-lg", {
+                  "text-blue-500 font-bold":
+                    pathname === getLocalizedPath("/projects"),
+                })}
                 onClick={closeMenu}
               >
                 Projects
               </Link>
               <Link
                 href={getLocalizedPath("/posts")}
-                className="header-button text-lg"
+                className={clsx("header-button text-lg", {
+                  "text-blue-500 font-bold":
+                    pathname === getLocalizedPath("/posts"),
+                })}
                 onClick={closeMenu}
               >
                 Posts
               </Link>
               <Link
                 href={getLocalizedPath("/contact")}
-                className="header-button text-lg"
+                className={clsx("header-button text-lg", {
+                  "text-blue-500 font-bold":
+                    pathname === getLocalizedPath("/contact"),
+                })}
                 onClick={closeMenu}
               >
                 Contact

@@ -15,14 +15,17 @@ export default function HomeKO() {
           더보기
         </Link>
       </section>
-      <section className="w-full flex mt-24">
+      <section className="text-5xl m-auto text-center mt-20">
+        Comming Soon!
+      </section>
+      {/* <section className="w-full flex mt-24">
         <section className="w-1/2 justify-center text-center">
           <h1 className="text-3xl font-bold">Projects</h1>
         </section>
         <section className="w-1/2 justify-center text-center">
           <h1 className="text-3xl font-bold">Posts</h1>
         </section>
-      </section>
+      </section> */}
     </div>
   );
 }
