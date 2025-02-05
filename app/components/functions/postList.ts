@@ -12,7 +12,6 @@ export async function parsePost(postPath: string) {
 
 export function getPostPaths(basePath: string, count: number): string[] {
   let baseDir = "";
-  console.log(count);
   if (basePath === "projects") {
     baseDir = "app/projects/contents";
   } else if (basePath === "posts") {
@@ -26,7 +25,10 @@ export function getPostPaths(basePath: string, count: number): string[] {
   return paths;
 }
 
-export async function getPostList(basePath: string, count: number) {
+export async function getPostList(
+  basePath: string,
+  count: number
+): Promise<any[]> {
   const paths: string[] = getPostPaths(basePath, count);
   const posts = await Promise.all(paths.map((postPath) => parsePost(postPath)));
   posts.sort((a, b) => parseInt(b.date) - parseInt(a.date));

@@ -3,12 +3,17 @@ import { promises as fs } from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { serialize } from "next-mdx-remote/serialize";
-import ClientMDXRemote from "../../components/templates/ClientMDXRemote"; // 직접 임포트
+import ClientMDXRemote from "../../components/templates/ClientMDXRemote";
+
+interface ProjectPageProps {
+  params: {
+    id: string;
+  };
+}
 
 export async function generateStaticParams() {
   const projectsPath = path.join(process.cwd(), "app/projects/contents");
   const files = await fs.readdir(projectsPath);
-
   return files
     .filter((file) => file.endsWith(".mdx"))
     .map((file) => ({
@@ -16,11 +21,9 @@ export async function generateStaticParams() {
     }));
 }
 
-export default async function ProjectPage(props: { params: { id: string } }) {
-  // params를 await 처리하여 사용
-  const resolvedParams = await Promise.resolve(props.params);
+export default async function ProjectPage({ params }: ProjectPageProps) {
+  const resolvedParams = await Promise.resolve(params);
   const { id } = resolvedParams;
-
   const projectPath = path.join(
     process.cwd(),
     "app/projects/contents",
@@ -31,7 +34,7 @@ export default async function ProjectPage(props: { params: { id: string } }) {
   const mdxSource = await serialize(content);
 
   return (
-    <div className="p-4">
+    <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">{data.title}</h1>
       <article className="prose">
         <ClientMDXRemote source={mdxSource} />
