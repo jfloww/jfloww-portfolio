@@ -98,38 +98,42 @@ export default function Header({ mobile }: { mobile: boolean }) {
         </nav>
 
         <div className="flex items-center space-x-4">
-          <div className="relative">
-            <button
-              onClick={() => setLangMenuOpen(!langMenuOpen)}
-              className="bg-gray-200 dark:bg-gray-700 p-3 rounded-lg text-sm hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center"
-            >
-              {currentLocale === "en-US" ? "English" : "한국어"}
-              <span
-                className={clsx(
-                  "ml-1 transition-transform duration-200",
-                  langMenuOpen ? "rotate-180" : "rotate-0"
+          {!mobile && (
+            <>
+              <div className="relative">
+                <button
+                  onClick={() => setLangMenuOpen(!langMenuOpen)}
+                  className="bg-gray-200 dark:bg-gray-700 p-3 rounded-lg text-sm hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center"
+                >
+                  {currentLocale === "en-US" ? "English" : "한국어"}
+                  <span
+                    className={clsx(
+                      "ml-1 transition-transform duration-200",
+                      langMenuOpen ? "rotate-180" : "rotate-0"
+                    )}
+                  >
+                    ▼
+                  </span>
+                </button>
+                {langMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 shadow-lg rounded-lg py-2 transition-opacity duration-200">
+                    <button
+                      onClick={() => changeLanguage("en-US")}
+                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      🇺🇸 English
+                    </button>
+                    <button
+                      onClick={() => changeLanguage("ko")}
+                      className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      🇰🇷 한국어
+                    </button>
+                  </div>
                 )}
-              >
-                ▼
-              </span>
-            </button>
-            {langMenuOpen && (
-              <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 shadow-lg rounded-lg py-2 transition-opacity duration-200">
-                <button
-                  onClick={() => changeLanguage("en-US")}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  🇺🇸 English
-                </button>
-                <button
-                  onClick={() => changeLanguage("ko")}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  🇰🇷 한국어
-                </button>
               </div>
-            )}
-          </div>
+            </>
+          )}
 
           {mobile && (
             <button
@@ -223,6 +227,39 @@ export default function Header({ mobile }: { mobile: boolean }) {
               >
                 Contact
               </Link>
+            </div>
+
+            <div className="mt-20">
+              <button
+                onClick={() => setLangMenuOpen(!langMenuOpen)}
+                className="bg-gray-200 dark:bg-gray-700 p-3 rounded-lg text-sm hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center m-auto"
+              >
+                {currentLocale === "en-US" ? "English" : "한국어"}
+                <span
+                  className={clsx(
+                    "ml-1 transition-transform duration-200",
+                    langMenuOpen ? "rotate-180" : "rotate-0"
+                  )}
+                >
+                  ▼
+                </span>
+              </button>
+              {langMenuOpen && (
+                <div className="absolute right-0 mt-2 w-28 bg-white dark:bg-gray-800 shadow-lg rounded-lg py-2 transition-opacity duration-200">
+                  <button
+                    onClick={() => changeLanguage("en-US")}
+                    className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    🇺🇸 English
+                  </button>
+                  <button
+                    onClick={() => changeLanguage("ko")}
+                    className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    🇰🇷 한국어
+                  </button>
+                </div>
+              )}
             </div>
           </nav>
         </>
