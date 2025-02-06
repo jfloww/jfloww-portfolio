@@ -10,16 +10,17 @@ import { useMobileCheck } from "./components/functions/mobileCheck";
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  // 커스텀 훅을 최상위에서 호출합니다.
   const mobile = useMobileCheck();
   const [fontFamily, setFontFamily] = useState("cursive");
 
   useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    document.documentElement.setAttribute("data-theme", savedTheme);
     setFontFamily(mobile ? "sans-serif" : "cursive");
   }, [mobile]);
 
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <title>jfloww</title>
         <link rel="icon" href="/icons/jfloww.png" sizes="any" />
@@ -30,21 +31,14 @@ export default function RootLayout({
       >
         <SpeedInsights />
         <Header mobile={mobile} />
-        {mobile ? (
-          <main
-            className="flex-grow m-auto w-full flex py-4"
-            data-mobile={mobile}
-          >
-            {children}
-          </main>
-        ) : (
-          <main
-            className="flex-grow m-auto w-2/3 flex py-4"
-            data-mobile={mobile}
-          >
-            {children}
-          </main>
-        )}
+        <main
+          className={`flex-grow m-auto ${
+            mobile ? "w-full" : "w-2/3"
+          } flex py-4`}
+          data-mobile={mobile}
+        >
+          {children}
+        </main>
         <Footer mobile={mobile} />
       </body>
     </html>
