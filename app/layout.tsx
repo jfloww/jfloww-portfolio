@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "./components/templates/MainHeader";
 import Footer from "./components/templates/MainFooter";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
 import { useEffect, useState } from "react";
 import { useMobileCheck } from "./components/functions/mobileCheck";
 
@@ -30,6 +31,7 @@ export default function RootLayout({
         style={{ fontFamily }}
       >
         <SpeedInsights />
+        <Analytics />
         <Header mobile={mobile} />
         <main
           className={`flex-grow m-auto ${
