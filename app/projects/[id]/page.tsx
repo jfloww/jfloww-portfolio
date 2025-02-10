@@ -4,6 +4,8 @@ import path from "path";
 import matter from "gray-matter";
 import { serialize } from "next-mdx-remote/serialize";
 import ClientMDXRemote from "../../components/templates/ClientMDXRemote";
+import ImageSlider from "@/app/components/templates/ImageSlider";
+import { imageType } from "@/app/components/templates/ImageSlider";
 
 interface ProjectPageProps {
   params: Promise<{ id: string }>;
@@ -34,11 +36,13 @@ export default async function ProjectPage({
   );
   const fileContent = await fs.readFile(projectPath, "utf-8");
   const { content, data } = matter(fileContent);
+  const imageList: imageType[] = Object.values(data.images);
   const mdxSource = await serialize(content);
 
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">{data.title}</h1>
+      <ImageSlider {...imageList} />
       <article className="prose">
         <ClientMDXRemote source={mdxSource} />
       </article>

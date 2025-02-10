@@ -3,12 +3,13 @@ import { sync } from "glob";
 import path from "path";
 import fs from "fs";
 import matter from "gray-matter";
+import { imageType } from "../templates/ImageSlider";
 
 export interface PostMeta {
   title: string;
   date: string;
   techStack?: string;
-  image?: string;
+  images: imageType[];
   id: string;
 }
 
