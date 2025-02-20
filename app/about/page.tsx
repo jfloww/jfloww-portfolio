@@ -79,9 +79,13 @@ export default function About() {
               <h3 className="text-xl font-semibold text-blue-600 dark:text-blue-400">
                 Software Engineer
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <a
+                href="https://www.comgenamerica.com/"
+                className="text-gray-600 dark:text-gray-400"
+                target="_blank"
+              >
                 ComGen America • Full-time
-              </p>
+              </a>
               <p className="text-gray-400 text-sm">
                 Feb 2023 - Present • Auburn, AL
               </p>
@@ -101,9 +105,13 @@ export default function About() {
               <h3 className="text-xl font-semibold text-blue-600 dark:text-blue-400">
                 Monitoring Analyst
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <a
+                href="https://www.army.mil.kr/english/index..do"
+                className="text-gray-600 dark:text-gray-400"
+                target="_blank"
+              >
                 Republic of Korea Army • Full-time
-              </p>
+              </a>
               <p className="text-gray-400 text-sm">
                 Jan 2020 - Aug 2021 • South Korea
               </p>
@@ -125,6 +133,7 @@ export default function About() {
             <a
               href="https://www.cc.gatech.edu/"
               className="text-blue-600 dark:text-blue-400"
+              target="_blank"
             >
               Georgia Institute of Technology
             </a>
@@ -137,6 +146,7 @@ export default function About() {
             <a
               href="https://www.stonybrook.edu/commcms/ams/"
               className="text-blue-600 dark:text-blue-400"
+              target="_blank"
             >
               SUNY Stony Brook
             </a>

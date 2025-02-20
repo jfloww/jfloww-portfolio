@@ -44,7 +44,7 @@ export default function ImageSlider(params: imageType[]) {
             key={index}
             className="min-w-full flex-shrink-0 flex items-center justify-center"
           >
-            <div className="relative w-full h-[500px] flex items-center justify-center">
+            <div className="relative w-full h-[500px] flex items-center justify-center rounded-lg">
               <Image
                 src={image.src}
                 width={800}

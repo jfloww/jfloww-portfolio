@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getPostList } from "../components/functions/postList";
+import { getPostList } from "../components/functions/importList";
 
 export default async function Projects() {
   const postList = await getPostList("projects", 5);
