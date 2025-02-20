@@ -4,8 +4,8 @@ import path from 'path';
 import matter from 'gray-matter';
 import { serialize } from 'next-mdx-remote/serialize';
 import ClientMDXRemote from '../../components/templates/ClientMDXRemote';
-import ImageSlider from '@/app/components/templates/ImageSlider';
-import { imageType } from '@/app/components/templates/ImageSlider';
+// import ImageSlider from '@/app/components/templates/ImageSlider';
+// import { imageType } from '@/app/components/templates/ImageSlider';
 
 interface ProjectPageProps {
   params: Promise<{ id: string }>;
