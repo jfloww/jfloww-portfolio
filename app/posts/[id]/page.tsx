@@ -24,8 +24,7 @@ export async function generateStaticParams() {
 
 export default async function ProjectPage({ params, searchParams }: ProjectPageProps) {
   const { id } = await params;
-  const sp = await searchParams;
-  console.log(sp);
+  await searchParams;
   const projectPath = path.join(process.cwd(), 'app/posts/contents', `${id}.mdx`);
   const fileContent = await fs.readFile(projectPath, 'utf-8');
   const { content, data } = matter(fileContent);

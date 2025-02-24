@@ -1,37 +1,47 @@
-"use client"; // Required for useState in Next.js
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
+    name: '',
+    email: '',
+    message: '',
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Development In Progress");
-    // You can integrate with an email API like Formspree, Nodemailer, or Firebase
+
+    try {
+      const response = await fetch('/api/sendMail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert('Email sent successfully!');
+        setFormData({ name: '', email: '', message: '' });
+      } else {
+        alert('Failed to send email. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred while sending the email.');
+    }
   };
 
   return (
     <div className="flex flex-col items-center justify-center p-8 w-full">
       <h1 className="text-4xl font-bold mb-4">Get in Touch</h1>
-      <p className="text-lg text-gray-400">
-        Fill out the form below to send me a message.
-      </p>
+      <p className="text-lg text-gray-400">Fill out the form below to send me a message.</p>
 
-      <form
-        onSubmit={handleSubmit}
-        className="mt-6 w-full max-w-lg bg-gray-800 p-6 rounded-lg shadow-lg"
-      >
+      <form onSubmit={handleSubmit} className="mt-6 w-full max-w-lg bg-gray-800 p-6 rounded-lg shadow-lg">
         <div className="mb-4">
           <label className="block text-gray-300">Name</label>
           <input
@@ -64,10 +74,7 @@ export default function Contact() {
             required
           />
         </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-        >
+        <button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
           Send Message
         </button>
       </form>
