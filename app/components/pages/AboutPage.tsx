@@ -31,19 +31,16 @@ export default function AboutPage() {
           <h2 className="text-2xl font-semibold mb-3">Tech Stack</h2>
           <ul className="space-y-2">
             <li>
-              <span className="font-semibold">Languages:</span> Java, Python, TypeScript, SQL, HTML, CSS
+              <span className="font-semibold">Language:</span> TypeScript, JavaScript, SQL, C#, Python
             </li>
             <li>
-              <span className="font-semibold">Frameworks:</span> Vue.js, Next.js, React.js, Angular
+              <span className="font-semibold">Framework:</span> Vue.js, React.js, Next.js, Node.js, Django
             </li>
             <li>
-              <span className="font-semibold">Databases:</span> OracleDB, MySQL, MSSQL
+              <span className="font-semibold">Database:</span> OracleDB, MySQL, MSSQL
             </li>
             <li>
-              <span className="font-semibold">Deployment:</span> Docker, AWS, Apache Tomcat
-            </li>
-            <li>
-              <span className="font-semibold">Version Control:</span> Git, GitHub
+              <span className="font-semibold">DevOps & Tools:</span> Git, Docker, AWS, Tomcat, Apache
             </li>
           </ul>
         </div>
@@ -57,8 +54,11 @@ export default function AboutPage() {
               </a>
               <p className="text-gray-400 text-sm">Feb 2023 - Present • Auburn, AL</p>
               <ul className="list-disc ml-5 mt-2 text-gray-700 dark:text-gray-300 space-y-1">
-                <li>Developed enterprise applications using TypeScript and Node.js.</li>
-                <li>Designed and deployed scalable backend services & APIs.</li>
+                <li>Developed and maintained full-stack web applications (Vue.js, Node.js, OracleDB, C#) for logistics automation.</li>
+                <li>Migrated legacy projects (Visual Basic, C#, .NET Core) to modern Vue + TypeScript, Node.js, and Python stack.</li>
+                <li>Performed Oracle DB version upgrades and data migrations.</li>
+                <li>Managed HTTPS migrations, including certificate renewal, AS2 protocol setup, and firewall configurations.</li>
+                <li>Troubleshot complex networking issues (TCP resets, firewall timeouts, Telnet routing errors).</li>
               </ul>
               <p className="mt-2 text-sm text-gray-400">🔹 TypeScript, Node.js, SQL, Docker</p>
             </div>
@@ -70,8 +70,12 @@ export default function AboutPage() {
               </a>
               <p className="text-gray-400 text-sm">Jan 2020 - Aug 2021 • South Korea</p>
               <ul className="list-disc ml-5 mt-2 text-gray-700 dark:text-gray-300 space-y-1">
-                <li>Managed and led a team of 12 soldiers.</li>
-                <li>Conducted real-time security monitoring operations.</li>
+                <li>Sergeant (Honorably Discharged)</li>
+                <li>Executed a mission to monitor and analyze the enemies.</li>
+                <li>
+                  Experienced Significant leadership experience managing 12 soldiers; responsibilities included managing soldiers’
+                  onboarding/education and leadership development.
+                </li>
               </ul>
               <p className="mt-2 text-sm text-gray-400">🔹 Leadership, Microsoft Office</p>
             </div>
