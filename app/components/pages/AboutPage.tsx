@@ -60,7 +60,7 @@ export default function AboutPage() {
                 <li>Managed HTTPS migrations, including certificate renewal, AS2 protocol setup, and firewall configurations.</li>
                 <li>Troubleshot complex networking issues (TCP resets, firewall timeouts, Telnet routing errors).</li>
               </ul>
-              <p className="mt-2 text-sm text-gray-400">🔹 TypeScript, Node.js, SQL, Docker</p>
+              <p className="mt-2 text-sm text-gray-400">🔹 Vue.js, TypeScript, Node.js, SQL, Docker</p>
             </div>
 
             <div>
