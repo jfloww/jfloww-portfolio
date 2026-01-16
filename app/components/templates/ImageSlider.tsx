@@ -64,7 +64,7 @@ export default function ImageSlider(params: imageType[]) {
         </button>
       </div>
 
-      <div className="flex space-x-2 justify-center py-4">
+      <div className="flex space-x-2 justify-center py-4 bg-[#1A1A1F]">
         {images.map((_, index) => (
           <button
             key={index}

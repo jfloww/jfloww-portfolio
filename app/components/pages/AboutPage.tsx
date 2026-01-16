@@ -22,7 +22,10 @@ export default function AboutPage() {
           <Image src="/photo/jj.png" alt="Jay Jung" width={480} height={480} className="w-60 rounded-lg shadow-md mb-4" />
           <h1 className="text-4xl font-bold text-gray-800 dark:text-white">Jay (Jaehoon) Jung</h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">Software Engineer</p>
-          <button className="bg-blue-600 w-40 p-2 rounded-lg text-xl hover:bg-blue-800 hover:scale-105 transition text-white font-semibold mt-4 shadow-md">
+          <button
+            className="bg-blue-600 w-40 p-2 rounded-lg text-xl hover:bg-blue-800 hover:scale-105 transition text-white font-semibold mt-4 shadow-md"
+            onClick={() => window.alert('Coming Soon')}
+          >
             View Resume
           </button>
         </div>
