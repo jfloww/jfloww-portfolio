@@ -65,7 +65,9 @@ export default function ClientHome({ projList }: ClientHomeProps) {
                 className="group rounded-2xl overflow-hidden border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors"
               >
                 <div className="relative aspect-[4/3] w-full bg-gray-50 dark:bg-white/5">
-                  <Image src={cover} alt={proj.title} fill className="object-cover" sizes="(max-width: 768px) 50vw, 33vw" />
+                  <div className="absolute inset-4">
+                    <Image src={cover} alt={proj.title} fill className="object-contain" sizes="(max-width: 768px) 50vw, 33vw" />
+                  </div>
                   {/* stack only */}
                   {proj.techStack && (
                     <div className="absolute inset-x-0 bottom-0 p-3">

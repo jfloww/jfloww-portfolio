@@ -1,33 +1,40 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import clsx from 'clsx';
 
 export default function Footer() {
   return (
-    <footer className="w-full h-14 bg-[#1A1A1F] text-white flex items-center justify-center">
-      <div className={clsx('flex items-center justify-between w-full px-4 md:w-1/2')}>
-        <div className="hidden md:block"></div>
-        <div className={clsx('flex space-x-3 md:space-x-6')}>
-          <a target="_blank" href="https://github.com/jfloww" rel="noopener noreferrer">
-            <div className="footer-icon">
+    <footer className="w-full border-t border-gray-200/70 dark:border-white/10 bg-white/70 dark:bg-[#1A1A1F]/80 backdrop-blur">
+      <div className="mx-auto w-full max-w-5xl px-6 py-4">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-5">
+            <a aria-label="GitHub" target="_blank" href="https://github.com/jfloww" rel="noopener noreferrer" className="footer-icon">
               <Image src="/icons/github.svg" width={20} height={20} alt="GitHub" />
-            </div>
-          </a>
-          <a target="_blank" href="https://www.linkedin.com/in/jfloww/" rel="noopener noreferrer">
-            <div className="footer-icon">
+            </a>
+            <a aria-label="LinkedIn" target="_blank" href="https://www.linkedin.com/in/jfloww/" rel="noopener noreferrer" className="footer-icon">
               <Image src="/icons/linkedin.svg" width={20} height={20} alt="LinkedIn" />
-            </div>
-          </a>
-          <a target="_blank" href="https://www.instagram.com/jaehoon_jung98/" rel="noopener noreferrer">
-            <div className="footer-icon">
-              <Image src="/icons/insta.svg" width={20} height={20} alt="Insta" />
-            </div>
-          </a>
-          <Link href="/contact" className="text-blue-400 footer-icon ml-12">
-            Contact
-          </Link>
+            </a>
+            <a
+              aria-label="Instagram"
+              target="_blank"
+              href="https://www.instagram.com/jaehoon_jung98/"
+              rel="noopener noreferrer"
+              className="footer-icon"
+            >
+              <Image src="/icons/insta.svg" width={20} height={20} alt="Instagram" />
+            </a>
+
+            <span className="h-5 w-px bg-gray-200/80 dark:bg-white/10" />
+
+            <Link
+              href="/contact"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-white/70 dark:hover:text-white transition-colors"
+            >
+              Contact
+            </Link>
+          </div>
+
+          <div className="text-sm text-gray-500 dark:text-white/60">© {new Date().getFullYear()} jfloww</div>
         </div>
-        <div className="text-gray-400 text-sm">© {new Date().getFullYear()} jfloww</div>
       </div>
     </footer>
   );
