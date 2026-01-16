@@ -1,9 +1,11 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import ImageSlider from '@/app/components/templates/ImageSlider';
 import { imageType } from '@/app/components/templates/ImageSlider';
 import ClientMDXRemote from '../../components/templates/ClientMDXRemote';
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote';
+import { dateFormat } from '@/app/components/functions/dateFormat';
 
 interface ProjectClientProps {
   title: string;
@@ -14,40 +16,60 @@ interface ProjectClientProps {
 }
 
 export default function ProjectClient({ title, date, techStack, images, mdxSource }: ProjectClientProps) {
+  const router = useRouter();
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-4xl mx-auto p-6">
-        {/* Header Section */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">{title}</h1>
-          <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
-            <span>{date}</span>
-            <span>•</span>
-            <span>{techStack}</span>
+    <div className="w-full px-6 py-10 md:py-16">
+      <section className="mx-auto w-full max-w-5xl">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 pb-8 border-b border-gray-200/80 dark:border-white/10">
+          <div className="min-w-0">
+            <p className="text-sm tracking-wide text-gray-500 dark:text-white/60 mb-3">Project</p>
+            <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 dark:text-white leading-tight">{title}</h1>
+          </div>
+
+          <div className="flex flex-col gap-2 md:items-end">
+            <p className="text-sm text-gray-600 dark:text-white/70 tabular-nums">{dateFormat(date)}</p>
+            <p className="text-sm text-gray-600 dark:text-white/70">{techStack}</p>
           </div>
         </div>
 
-        {/* Image Slider */}
-        <div className="mb-12">
-          <ImageSlider {...images} />
+        {/* Slider */}
+        <div className="mt-8 pb-10 border-b border-gray-200/80 dark:border-white/10">
+          <div className="rounded-2xl overflow-hidden border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-white/5">
+            <ImageSlider {...images} />
+          </div>
         </div>
 
         {/* Content */}
-        <article
-          className="prose prose-lg prose-gray dark:prose-invert max-w-none
-          prose-headings:text-gray-900 dark:prose-headings:text-white
-          prose-h1:text-3xl prose-h1:font-bold prose-h1:mb-6
-          prose-h2:text-2xl prose-h2:font-semibold prose-h2:mt-8 prose-h2:mb-4
-          prose-h3:text-xl prose-h3:font-medium prose-h3:mt-6 prose-h3:mb-3
-          prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-p:mb-4
-          prose-ul:space-y-2 prose-li:text-gray-700 dark:prose-li:text-gray-300
-          prose-strong:text-gray-900 dark:prose-strong:text-white prose-strong:font-semibold
-          prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm
-          prose-pre:bg-gray-900 prose-pre:text-gray-100"
-        >
-          <ClientMDXRemote source={mdxSource} />
-        </article>
-      </div>
+        <div className="mt-10">
+          <article
+            className="prose prose-lg prose-gray dark:prose-invert max-w-none
+            prose-headings:font-semibold
+            prose-p:text-gray-700 dark:prose-p:text-white/75 prose-p:leading-relaxed
+            prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
+            prose-code:bg-gray-100 dark:prose-code:bg-white/10 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm
+            prose-pre:rounded-xl prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-white/10"
+          >
+            <ClientMDXRemote source={mdxSource} />
+          </article>
+        </div>
+
+        {/* Back */}
+        <div className="mt-14 flex justify-center">
+          <button
+            onClick={() => router.push('/projects')}
+            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium rounded-full
+            border border-gray-300/80 text-gray-900 hover:bg-gray-50
+            dark:border-white/20 dark:text-white dark:hover:bg-white/5 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Projects
+          </button>
+        </div>
+      </section>
     </div>
   );
 }

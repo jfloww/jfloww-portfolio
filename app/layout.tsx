@@ -1,47 +1,35 @@
 // layout.tsx
-"use client";
-import "./globals.css";
-import Header from "./components/templates/MainHeader";
-import Footer from "./components/templates/MainFooter";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Analytics } from "@vercel/analytics/react";
-import { useEffect, useState } from "react";
-import { useMobileCheck } from "./components/functions/mobileCheck";
+import './globals.css';
+import Header from './components/templates/MainHeader';
+import Footer from './components/templates/MainFooter';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from '@vercel/analytics/react';
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
-  const mobile = useMobileCheck();
-  const [fontFamily, setFontFamily] = useState("cursive");
+const themeInitScript = `
+(() => {
+  try {
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = saved ? saved === 'dark' : prefersDark;
+    document.documentElement.classList.toggle('dark', isDark);
+  } catch (e) {}
+})();
+`;
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") || "dark";
-    document.documentElement.setAttribute("data-theme", savedTheme);
-    setFontFamily(mobile ? "sans-serif" : "cursive");
-  }, [mobile]);
-
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <title>jfloww</title>
         <link rel="icon" href="/icons/jfloww.png" sizes="any" />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body
-        className="bg-white dark:bg-black text-black dark:text-white flex flex-col min-h-screen min-w-screen"
-        style={{ fontFamily }}
-      >
+      <body className="bg-white dark:bg-[#1A1A1F] text-black dark:text-white flex flex-col min-h-screen min-w-screen">
         <SpeedInsights />
         <Analytics />
-        <Header mobile={mobile} />
-        <main
-          className={`flex-grow m-auto ${
-            mobile ? "w-full" : "w-2/3"
-          } flex py-4`}
-          data-mobile={mobile}
-        >
-          {children}
-        </main>
-        <Footer mobile={mobile} />
+        <Header />
+        <main className="flex-grow m-auto w-full md:w-2/3 flex py-4">{children}</main>
+        <Footer />
       </body>
     </html>
   );
