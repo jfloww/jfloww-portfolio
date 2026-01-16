@@ -12,10 +12,6 @@ interface ClientHomeProps {
   }[];
 }
 
-function formatDate(date: string) {
-  return `${date.substring(0, 4)}-${date.substring(4, 6)}-${date.substring(6, 8)}`;
-}
-
 export default function ClientHome({ projList }: ClientHomeProps) {
   return (
     <div className="w-full px-6 py-10 md:py-16">
