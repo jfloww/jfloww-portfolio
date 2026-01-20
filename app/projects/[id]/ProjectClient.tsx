@@ -73,3 +73,4 @@ export default function ProjectClient({ title, date, techStack, images, mdxSourc
     </div>
   );
 }
+ 

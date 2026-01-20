@@ -32,21 +32,21 @@ export default async function ProjectsPage() {
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </div>
-                </div>
+              </div>
 
                 <div className="p-4">
                   <div className="flex items-start justify-between gap-4">
                     <h2 className="text-base font-medium text-gray-900 dark:text-white leading-snug">{post.title}</h2>
                     <p className="text-xs text-gray-500 dark:text-white/60 tabular-nums shrink-0 pt-1">
-                      {`${post.date.substring(0, 4)}-${post.date.substring(4, 6)}-${post.date.substring(6, 8)}`}
-                    </p>
-                  </div>
-                  {post.techStack && <p className="mt-2 text-sm text-gray-600 dark:text-white/70 line-clamp-2">{post.techStack}</p>}
+                    {`${post.date.substring(0, 4)}-${post.date.substring(4, 6)}-${post.date.substring(6, 8)}`}
+                  </p>
                 </div>
-              </Link>
+                  {post.techStack && <p className="mt-2 text-sm text-gray-600 dark:text-white/70 line-clamp-2">{post.techStack}</p>}
+            </div>
+          </Link>
             );
           })}
-        </div>
+      </div>
       </section>
     </div>
   );

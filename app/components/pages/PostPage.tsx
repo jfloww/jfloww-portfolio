@@ -11,7 +11,7 @@ export default async function PostsPage() {
           <Link href={`/posts/${post.id}`} key={post.id}>
             <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg shadow hover:shadow-xl transition-transform transform hover:scale-105 cursor-pointer">
               <div className="relative w-full h-48 rounded-t-lg overflow-hidden rounded-lg bg-black">
-                <Image src={post.images?.[0].src ?? '/default-image.jpg'} alt="post image" fill className="m-auto p-4" />
+                <Image src={post.images?.[0].src ?? '/photo/defualt.png'} alt="post image" fill className="m-auto p-4" />
               </div>
               <div className="p-4 flex flex-col w-full">
                 <div className="flex w-full justify-between">

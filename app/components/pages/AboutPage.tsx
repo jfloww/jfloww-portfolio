@@ -5,16 +5,23 @@ export default function AboutPage() {
     <div className="w-full px-6 py-10 md:py-16">
       <section className="mx-auto w-full max-w-5xl">
         {/* Header */}
-        <div className="flex flex-col md:flex-row items-center md:items-start gap-10 pb-10 border-b border-gray-200/80 dark:border-white/10">
-          <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-2xl overflow-hidden border border-gray-200/70 dark:border-white/15 bg-gray-50 dark:bg-white/5 shrink-0">
-            <Image src="/photo/jj.png" alt="Jay Jung" fill className="object-contain p-2" priority />
+        <div className="flex flex-col md:flex-row items-center md:items-stretch gap-8 pb-10 border-b border-gray-200/80 dark:border-white/10">
+          {/* Photo (no container box; match header height on md) */}
+          <div className="shrink-0 self-center md:self-stretch">
+            <Image
+              src="/photo/my-profile.png"
+              alt="Jay Jung"
+              width={250}
+              height={250}
+              className="h-44 md:h-full w-auto rounded-3xl object-contain"
+              priority
+            />
           </div>
 
           <div className="w-full text-center md:text-left">
-            <p className="text-sm tracking-wide text-gray-500 dark:text-white/60 mb-3">Software Engineer</p>
             <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 dark:text-white leading-tight">Jay (Jaehoon) Jung</h1>
             <p className="mt-3 text-base text-gray-600 dark:text-white/70 max-w-2xl mx-auto md:mx-0">
-              Building clean, fast web experiences with a focus on maintainable code and thoughtful UI details.
+              Full Stack Software Engineer
             </p>
 
             <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
@@ -28,7 +35,7 @@ export default function AboutPage() {
                 Resume (Coming soon)
               </button>
               <a
-                href="mailto:jfloww@proton.me"
+                href="mailto:hoon7589@gmail.com"
                 className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium
                 border border-gray-300/80 text-gray-900 hover:bg-gray-50
                 dark:border-white/20 dark:text-white dark:hover:bg-white/5 transition-colors"
@@ -51,7 +58,7 @@ export default function AboutPage() {
                 <span className="font-medium text-gray-900 dark:text-white">Framework:</span> Vue.js, React.js, Next.js, Node.js, Django
               </li>
               <li>
-                <span className="font-medium text-gray-900 dark:text-white">Database:</span> OracleDB, MySQL, MSSQL
+                <span className="font-medium text-gray-900 dark:text-white">Database:</span> OracleDB, MSSQL, SQLite
               </li>
               <li>
                 <span className="font-medium text-gray-900 dark:text-white">DevOps & Tools:</span> Git, Docker, AWS, Tomcat, Apache
