@@ -6,6 +6,7 @@ export default function Footer() {
     <footer className="w-full border-t border-gray-200/70 dark:border-white/10 bg-white/70 dark:bg-[#1A1A1F]/80 backdrop-blur">
       <div className="mx-auto w-full max-w-5xl px-6 py-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="text-sm text-gray-500 dark:text-white/60">© {new Date().getFullYear()} jfloww</div>
           <div className="flex items-center gap-5">
             <a aria-label="GitHub" target="_blank" href="https://github.com/jfloww" rel="noopener noreferrer" className="footer-icon">
               <Image src="/icons/github.svg" width={20} height={20} alt="GitHub" />
@@ -32,8 +33,6 @@ export default function Footer() {
               Contact
             </Link>
           </div>
-
-          <div className="text-sm text-gray-500 dark:text-white/60">© {new Date().getFullYear()} jfloww</div>
         </div>
       </div>
     </footer>
