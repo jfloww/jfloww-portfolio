@@ -55,7 +55,7 @@ export default function ClientHome({ projList }: ClientHomeProps) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
           {projList.map((proj) => {
             const cover = proj.images?.[0]?.src ?? '/temp/test1.jpg';
             return (
@@ -64,18 +64,27 @@ export default function ClientHome({ projList }: ClientHomeProps) {
                 href={`/projects/${proj.id}`}
                 className="group rounded-2xl overflow-hidden border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors"
               >
-                <div className="relative aspect-[4/3] w-full bg-gray-50 dark:bg-white/5">
-                  <div className="absolute inset-4">
-                    <Image src={cover} alt={proj.title} fill className="object-contain" sizes="(max-width: 768px) 50vw, 33vw" />
-                  </div>
-                  {/* stack only */}
-                  {proj.techStack && (
-                    <div className="absolute inset-x-0 bottom-0 p-3">
-                      <div className="inline-flex max-w-full rounded-full px-3 py-1 text-xs font-medium bg-white/90 text-gray-900 backdrop-blur dark:bg-black/40 dark:text-white border border-black/5 dark:border-white/10">
-                        <span className="truncate">{proj.techStack}</span>
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 dark:bg-white/5">
+                  <Image
+                    src={cover}
+                    alt={proj.title}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                    sizes="(max-width: 768px) 50vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-70" />
+
+                  <div className="absolute inset-x-0 bottom-0 p-3">
+                    <div className="flex items-end justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-white truncate">{proj.title}</p>
+                        {proj.techStack && <p className="mt-1 text-[11px] uppercase tracking-wide text-white/80 truncate">{proj.techStack}</p>}
                       </div>
+                      <p className="text-[11px] text-white/70 tabular-nums shrink-0">
+                        {`${proj.date.substring(0, 4)}-${proj.date.substring(4, 6)}-${proj.date.substring(6, 8)}`}
+                      </p>
                     </div>
-                  )}
+                  </div>
                 </div>
               </Link>
             );

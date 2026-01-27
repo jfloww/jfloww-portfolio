@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write \"app/**/*.{ts,tsx,mdx}\"",
+    "nb2mdx": "node scripts/nb2mdx.cjs",
     "deploy": "next build && echo \"\" > out/.nojekyll && git add -f out/ && git commit -m \"Deploy\" && git subtree push --prefix out origin gh-pages",
     "vercel-deploy": "next build && next export"
   },

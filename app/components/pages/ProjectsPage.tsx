@@ -22,27 +22,30 @@ export default async function ProjectsPage() {
                 key={post.id}
                 className="group rounded-2xl overflow-hidden border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors"
               >
-                <div className="relative aspect-[4/3] w-full bg-gray-50 dark:bg-white/5">
-                  <div className="absolute inset-4">
-                    <Image
-                      src={cover}
-                      alt={post.title}
-                      fill
-                      className="object-contain"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    />
-                  </div>
-              </div>
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 dark:bg-white/5">
+                  <Image
+                    src={cover}
+                    alt={post.title}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-70" />
+                </div>
 
                 <div className="p-4">
                   <div className="flex items-start justify-between gap-4">
-                    <h2 className="text-base font-medium text-gray-900 dark:text-white leading-snug">{post.title}</h2>
+                    <h2 className="text-base font-semibold text-gray-900 dark:text-white leading-snug">{post.title}</h2>
                     <p className="text-xs text-gray-500 dark:text-white/60 tabular-nums shrink-0 pt-1">
-                    {`${post.date.substring(0, 4)}-${post.date.substring(4, 6)}-${post.date.substring(6, 8)}`}
-                  </p>
+                      {`${post.date.substring(0, 4)}-${post.date.substring(4, 6)}-${post.date.substring(6, 8)}`}
+                    </p>
+                  </div>
+                  {post.techStack && (
+                    <p className="mt-2 text-xs text-gray-600 dark:text-white/70 uppercase tracking-wide">
+                      {post.techStack}
+                    </p>
+                  )}
                 </div>
-                  {post.techStack && <p className="mt-2 text-sm text-gray-600 dark:text-white/70 line-clamp-2">{post.techStack}</p>}
-            </div>
           </Link>
             );
           })}

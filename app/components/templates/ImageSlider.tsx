@@ -13,6 +13,16 @@ export default function ImageSlider(params: imageType[]) {
   const [current, setCurrent] = useState(0);
   const [animating, setAnimating] = useState(false);
 
+  if (images.length === 0) {
+    return (
+      <div className="relative w-full bg-gray-900 rounded-lg">
+        <div className="relative w-full h-[500px] overflow-hidden rounded-lg flex items-center justify-center text-white/70">
+          No images
+        </div>
+      </div>
+    );
+  }
+
   const nextImage = () => {
     if (animating) return;
     setAnimating(true);

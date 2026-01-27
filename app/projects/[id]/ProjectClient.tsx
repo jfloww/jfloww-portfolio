@@ -13,9 +13,10 @@ interface ProjectClientProps {
   techStack: string;
   images: imageType[];
   mdxSource: MDXRemoteSerializeResult;
+  showSlider?: boolean;
 }
 
-export default function ProjectClient({ title, date, techStack, images, mdxSource }: ProjectClientProps) {
+export default function ProjectClient({ title, date, techStack, images, mdxSource, showSlider = true }: ProjectClientProps) {
   const router = useRouter();
 
   return (
@@ -35,11 +36,13 @@ export default function ProjectClient({ title, date, techStack, images, mdxSourc
         </div>
 
         {/* Slider */}
-        <div className="mt-8 pb-10 border-b border-gray-200/80 dark:border-white/10">
-          <div className="rounded-2xl overflow-hidden border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-white/5">
-            <ImageSlider {...images} />
+        {showSlider && images.length > 0 && (
+          <div className="mt-8 pb-10 border-b border-gray-200/80 dark:border-white/10">
+            <div className="rounded-2xl overflow-hidden border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-white/5">
+              <ImageSlider {...images} />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Content */}
         <div className="mt-10">
@@ -48,8 +51,12 @@ export default function ProjectClient({ title, date, techStack, images, mdxSourc
             prose-headings:font-semibold
             prose-p:text-gray-700 dark:prose-p:text-white/75 prose-p:leading-relaxed
             prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
-            prose-code:bg-gray-100 dark:prose-code:bg-white/10 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm
-            prose-pre:rounded-xl prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-white/10"
+            prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm
+            prose-pre:rounded-xl prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-white/10
+            prose-pre:bg-gray-50 prose-pre:text-gray-900 dark:prose-pre:bg-[#0b0f19] dark:prose-pre:text-gray-100
+            prose-img:rounded-xl prose-img:border prose-img:border-gray-200/80 dark:prose-img:border-white/10
+            prose-img:shadow-sm prose-img:mx-auto
+            dark:prose-img:bg-white dark:prose-img:p-3 dark:prose-img:brightness-125 dark:prose-img:contrast-115"
           >
             <ClientMDXRemote source={mdxSource} />
           </article>
@@ -73,4 +80,3 @@ export default function ProjectClient({ title, date, techStack, images, mdxSourc
     </div>
   );
 }
- 
