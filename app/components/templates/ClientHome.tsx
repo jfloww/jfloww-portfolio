@@ -24,7 +24,7 @@ export default function ClientHome({ projList }: ClientHomeProps) {
 
           <div className="w-full text-center md:text-left">
             <p className="text-sm tracking-wide text-gray-500 dark:text-white/60 mb-3">Software Engineer</p>
-            <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 dark:text-white leading-tight">Hi, There<br/>Welcome to my page.</h1>
+            <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 dark:text-white leading-tight">Hi, there<br/>Welcome to my page.</h1>
 
             <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
               <Link
