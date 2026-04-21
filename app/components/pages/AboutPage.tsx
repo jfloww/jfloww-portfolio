@@ -25,15 +25,16 @@ export default function AboutPage() {
             </p>
 
             <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
-              <button
-                type="button"
-                disabled
+              <a
+                href="/resume/Jaehoon-Jung-resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium
-                bg-gray-900 text-white opacity-60 cursor-not-allowed
-                dark:bg-white dark:text-black transition-colors"
+                bg-gray-900 text-white hover:bg-gray-800
+                dark:bg-white dark:text-black dark:hover:bg-gray-200 transition-colors"
               >
-                Resume (Coming soon)
-              </button>
+                Resume
+              </a>
               <a
                 href="mailto:hoon7589@gmail.com"
                 className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium
