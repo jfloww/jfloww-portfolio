@@ -10,7 +10,6 @@ export default function DarkModeToggle() {
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDark = saved ? saved === 'dark' : prefersDark;
     document.documentElement.classList.toggle('dark', isDark);
-    setDarkMode(isDark);
   }, []);
 
   const toggleDarkMode = () => {

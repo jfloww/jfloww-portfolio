@@ -2,7 +2,7 @@
 import DarkModeToggle from './organisms/DarkModeToggle';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import clsx from 'clsx';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
@@ -10,22 +10,11 @@ import { usePathname } from 'next/navigation';
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
-  const [currentLocale, setCurrentLocale] = useState('en-US');
   const router = useRouter();
   const pathname = usePathname();
+  const currentLocale = pathname.startsWith('/ko') ? 'ko' : 'en-US';
 
   const closeMenu = () => setMenuOpen(false);
-
-  useEffect(() => {
-    if (pathname.startsWith('/ko')) {
-      setCurrentLocale('ko');
-    } else {
-      setCurrentLocale('en-US');
-    }
-    // close any open menus on navigation
-    setMenuOpen(false);
-    setLangMenuOpen(false);
-  }, [pathname]);
 
   const changeLanguage = (lang: string) => {
     let newPath = pathname;
