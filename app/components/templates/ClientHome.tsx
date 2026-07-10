@@ -1,8 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { imageType } from './ImageSlider';
+import { localePrefix } from '@/app/lib/i18n';
+import { dateFormat } from '../functions/dateFormat';
 
 interface ClientHomeProps {
+  locale?: string;
   projList: {
     id: string;
     title: string;
@@ -12,9 +15,10 @@ interface ClientHomeProps {
   }[];
 }
 
-export default function ClientHome({ projList }: ClientHomeProps) {
+export default function ClientHome({ projList, locale }: ClientHomeProps) {
+  const prefix = localePrefix(locale);
   return (
-    <div className="w-full px-6 py-10 md:py-16">
+    <div className="w-full px-3 py-3 md:py-3">
       {/* Hero (minimal / Apple-ish) */}
       <section className="mx-auto w-full max-w-5xl">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-10">
@@ -24,17 +28,21 @@ export default function ClientHome({ projList }: ClientHomeProps) {
 
           <div className="w-full text-center md:text-left">
             <p className="text-sm tracking-wide text-gray-500 dark:text-white/60 mb-3">Software Engineer</p>
-            <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 dark:text-white leading-tight">Hi, there<br/>Welcome to my page.</h1>
+            <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 dark:text-white leading-tight">
+              Hi, there
+              <br />
+              Welcome to my page.
+            </h1>
 
             <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
               <Link
-                href="/projects"
+                href={`${prefix}/projects`}
                 className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100 transition-colors"
               >
                 View Projects
               </Link>
               <Link
-                href="/about"
+                href={`${prefix}/about`}
                 className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium border border-gray-300/80 text-gray-900 hover:bg-gray-50 dark:border-white/20 dark:text-white dark:hover:bg-white/5 transition-colors"
               >
                 About Me
@@ -50,7 +58,10 @@ export default function ClientHome({ projList }: ClientHomeProps) {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Projects</h2>
             <p className="mt-1 text-sm text-gray-500 dark:text-white/60">A few things I’ve built recently.</p>
           </div>
-          <Link href="/projects" className="text-sm text-gray-600 hover:text-gray-900 dark:text-white/70 dark:hover:text-white transition-colors">
+          <Link
+            href={`${prefix}/projects`}
+            className="text-sm text-gray-600 hover:text-gray-900 dark:text-white/70 dark:hover:text-white transition-colors"
+          >
             See all →
           </Link>
         </div>
@@ -61,7 +72,7 @@ export default function ClientHome({ projList }: ClientHomeProps) {
             return (
               <Link
                 key={proj.id}
-                href={`/projects/${proj.id}`}
+                href={`${prefix}/projects/${proj.id}`}
                 className="group rounded-2xl overflow-hidden border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors"
               >
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 dark:bg-white/5">
@@ -80,9 +91,7 @@ export default function ClientHome({ projList }: ClientHomeProps) {
                         <p className="text-sm font-semibold text-white truncate">{proj.title}</p>
                         {proj.techStack && <p className="mt-1 text-[11px] uppercase tracking-wide text-white/80 truncate">{proj.techStack}</p>}
                       </div>
-                      <p className="text-[11px] text-white/70 tabular-nums shrink-0">
-                        {`${proj.date.substring(0, 4)}-${proj.date.substring(4, 6)}-${proj.date.substring(6, 8)}`}
-                      </p>
+                      <p className="text-[11px] text-white/70 tabular-nums shrink-0">{dateFormat(proj.date)}</p>
                     </div>
                   </div>
                 </div>

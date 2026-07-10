@@ -1,21 +1,27 @@
 import { serialize } from 'next-mdx-remote/serialize';
 import { notFound } from 'next/navigation';
-import ClientMDXRemote from '../../components/templates/ClientMDXRemote';
+import ClientMDXRemote from '@/app/components/templates/ClientMDXRemote';
 import { getContentById, getContentStaticParams } from '@/app/lib/content/loader';
 import { dateFormat } from '@/app/components/functions/dateFormat';
+import { isSupportedLocale } from '@/app/lib/i18n';
 
 interface PostPageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export async function generateStaticParams() {
-  return getContentStaticParams('posts');
+  const params = await getContentStaticParams('posts');
+  return params.flatMap((entry) => [
+    { locale: 'en', id: entry.id },
+    { locale: 'ko', id: entry.id },
+  ]);
 }
 
-export default async function PostDetailPage({ params, searchParams }: PostPageProps) {
-  const { id } = await params;
+export default async function LocalizedPostDetailPage({ params, searchParams }: PostPageProps) {
+  const { locale, id } = await params;
   await searchParams;
+  if (!isSupportedLocale(locale)) notFound();
 
   const entry = await getContentById('posts', id);
   if (!entry || entry.meta.hidden || entry.meta.draft) notFound();

@@ -40,33 +40,44 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="w-full px-6 py-10 md:py-16">
+    <div className="w-full px-3 py-3 md:py-3">
       <section className="mx-auto w-full max-w-5xl">
         <div className="pb-8 border-b border-gray-200/80 dark:border-white/10">
           <p className="text-sm tracking-wide text-gray-500 dark:text-white/60 mb-3">Contact</p>
           <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 dark:text-white leading-tight">Get in touch</h1>
-          <p className="mt-3 text-base text-gray-600 dark:text-white/70 max-w-2xl">
-            Send me a message and I’ll get back to you as soon as possible.
-          </p>
+          <p className="mt-3 text-base text-gray-600 dark:text-white/70 max-w-2xl">Send me a message and I’ll get back to you as soon as possible.</p>
         </div>
 
         <div className="mt-10 grid grid-cols-1 md:grid-cols-5 gap-8">
           {/* Left: info */}
           <div className="md:col-span-2">
             <div className="space-y-4 text-sm text-gray-700 dark:text-white/75">
-              <div>
-              
-              </div>
+              <div></div>
               <div>
                 <p className="text-gray-500 dark:text-white/60">Links</p>
                 <div className="mt-2 flex flex-wrap gap-3">
-                  <a className="font-medium text-gray-900 dark:text-white hover:underline underline-offset-4" href="https://github.com/jfloww" target="_blank" rel="noopener noreferrer">
+                  <a
+                    className="font-medium text-gray-900 dark:text-white hover:underline underline-offset-4"
+                    href="https://github.com/jfloww"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     GitHub
                   </a>
-                  <a className="font-medium text-gray-900 dark:text-white hover:underline underline-offset-4" href="https://www.linkedin.com/in/jfloww/" target="_blank" rel="noopener noreferrer">
+                  <a
+                    className="font-medium text-gray-900 dark:text-white hover:underline underline-offset-4"
+                    href="https://www.linkedin.com/in/jfloww/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     LinkedIn
                   </a>
-                  <a className="font-medium text-gray-900 dark:text-white hover:underline underline-offset-4" href="https://www.instagram.com/jaehoon_jung98/" target="_blank" rel="noopener noreferrer">
+                  <a
+                    className="font-medium text-gray-900 dark:text-white hover:underline underline-offset-4"
+                    href="https://www.instagram.com/jaehoon_jung98/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     Instagram
                   </a>
                 </div>

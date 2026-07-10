@@ -6,23 +6,27 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
+import { normalizeLocaleFromPath } from '@/app/lib/i18n';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  const currentLocale = pathname.startsWith('/ko') ? 'ko' : 'en-US';
+  const currentLocale = normalizeLocaleFromPath(pathname);
 
   const closeMenu = () => setMenuOpen(false);
 
+  const stripLocalePrefix = (value: string) => {
+    if (value === '/en' || value === '/ko') return '/';
+    if (value.startsWith('/en/')) return value.replace('/en', '');
+    if (value.startsWith('/ko/')) return value.replace('/ko', '');
+    return value;
+  };
+
   const changeLanguage = (lang: string) => {
-    let newPath = pathname;
-    if (lang === 'ko' && !pathname.startsWith('/ko')) {
-      newPath = `/ko${pathname}`;
-    } else if (lang === 'en-US' && pathname.startsWith('/ko')) {
-      newPath = pathname.replace('/ko', '') || '/';
-    }
+    const basePath = stripLocalePrefix(pathname);
+    const newPath = lang === 'ko' ? `/ko${basePath}` : basePath;
     router.push(newPath);
     setLangMenuOpen(false);
   };
@@ -83,13 +87,13 @@ export default function Header() {
               border border-gray-300/80 text-gray-900 hover:bg-gray-50
               dark:border-white/20 dark:text-white dark:hover:bg-white/5 transition-colors"
             >
-              {currentLocale === 'en-US' ? 'English' : '한국어'}
+              {currentLocale === 'en' ? 'English' : '한국어'}
               <span className={clsx('ml-1 transition-transform duration-200', langMenuOpen ? 'rotate-180' : 'rotate-0')}>▼</span>
             </button>
             {langMenuOpen && (
               <div className="absolute right-0 mt-2 w-32 rounded-xl border border-gray-200/80 dark:border-white/10 bg-white/95 dark:bg-[#1A1A1F]/95 backdrop-blur shadow-sm py-2">
                 <button
-                  onClick={() => changeLanguage('en-US')}
+                  onClick={() => changeLanguage('en')}
                   className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100/80 dark:hover:bg-white/5"
                 >
                   🇺🇸 English
@@ -175,13 +179,13 @@ export default function Header() {
                 border border-gray-300/80 text-gray-900 hover:bg-gray-50
                 dark:border-white/20 dark:text-white dark:hover:bg-white/5 transition-colors"
               >
-                {currentLocale === 'en-US' ? 'English' : '한국어'}
+                {currentLocale === 'en' ? 'English' : '한국어'}
                 <span className={clsx('ml-1 transition-transform duration-200', langMenuOpen ? 'rotate-180' : 'rotate-0')}>▼</span>
               </button>
               {langMenuOpen && (
                 <div className="absolute right-6 mt-2 w-32 rounded-xl border border-gray-200/80 dark:border-white/10 bg-white/95 dark:bg-[#1A1A1F]/95 backdrop-blur shadow-sm py-2">
                   <button
-                    onClick={() => changeLanguage('en-US')}
+                    onClick={() => changeLanguage('en')}
                     className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100/80 dark:hover:bg-white/5"
                   >
                     🇺🇸 English

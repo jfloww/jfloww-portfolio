@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-const APP_VERSION = 'v0.1.1';
+const APP_VERSION = 'v0.2.1';
 
 export default function Footer() {
   return (

@@ -6,6 +6,7 @@ import { imageType } from '@/app/components/templates/ImageSlider';
 import ClientMDXRemote from '../../components/templates/ClientMDXRemote';
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote';
 import { dateFormat } from '@/app/components/functions/dateFormat';
+import { localePrefix } from '@/app/lib/i18n';
 
 interface ProjectClientProps {
   title: string;
@@ -14,13 +15,15 @@ interface ProjectClientProps {
   images: imageType[];
   mdxSource: MDXRemoteSerializeResult;
   showSlider?: boolean;
+  locale?: string;
 }
 
-export default function ProjectClient({ title, date, techStack, images, mdxSource, showSlider = true }: ProjectClientProps) {
+export default function ProjectClient({ title, date, techStack, images, mdxSource, showSlider = true, locale }: ProjectClientProps) {
   const router = useRouter();
+  const prefix = localePrefix(locale);
 
   return (
-    <div className="w-full px-6 py-10 md:py-16">
+    <div className="w-full px-3 py-3 md:py-3">
       <section className="mx-auto w-full max-w-5xl">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 pb-8 border-b border-gray-200/80 dark:border-white/10">
@@ -65,7 +68,7 @@ export default function ProjectClient({ title, date, techStack, images, mdxSourc
         {/* Back */}
         <div className="mt-14 flex justify-center">
           <button
-            onClick={() => router.push('/projects')}
+            onClick={() => router.push(`${prefix}/projects`)}
             className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium rounded-full
             border border-gray-300/80 text-gray-900 hover:bg-gray-50
             dark:border-white/20 dark:text-white dark:hover:bg-white/5 transition-colors"

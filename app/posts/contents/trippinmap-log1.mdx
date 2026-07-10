@@ -1,0 +1,96 @@
+---
+title: 'TripPinMap-log1'
+date: '20260526'
+id: trippinmap-log1
+category: 'TripPinMap'
+tags: ['TripPin', 'devlog']
+techStack: 'Planning'
+hidden: false
+---
+
+## Context
+
+- Build a travel app where users can track visited places, planned trips, and wishlist locations on a world map.
+- This log defines product scope and records the first planning decisions before implementation.
+
+## Scope
+
+- In scope:
+  - Core product idea and user flow
+  - Feature definition for `visited`, `planned`, `wishlist`
+  - MVP boundary and non-goals
+- Out of scope:
+  - Final stack selection
+  - Detailed DB schema
+  - UI design system
+
+## Product Goal
+
+TripPinMap helps users visualize where they have been, where they plan to go, and where they want to go next, with map-first interaction and lightweight trip records.
+
+## Core User Flow
+
+1. User signs in.
+2. User sees world map.
+3. User pins a location with one status:
+   - `visited` (green)
+   - `planned` (yellow)
+   - `wishlist` (blue)
+4. User adds details based on status.
+5. User returns to map and sees status reflected immediately.
+
+## Feature Definition by Status
+
+### 1) Visited (Green)
+
+- Required:
+  - Visit date range
+  - Nights/days
+  - Timeline or activity history
+- Optional:
+  - Photos
+  - Notes and highlights
+
+### 2) Planned (Yellow)
+
+- Required:
+  - Planned date range
+  - Expected nights/days
+- Optional:
+  - Planned timeline
+  - Activity checklist
+
+### 3) Wishlist (Blue)
+
+- Required:
+  - Destination
+- Optional:
+  - Things to do
+  - Notes/motivation
+
+## MVP Boundary (v1)
+
+1. Social login (start with Google).
+2. Map with color-coded pins by status.
+3. CRUD for pinned locations.
+4. Status-specific detail forms.
+5. Basic activity/timeline text records.
+
+## Non-Goals (v1)
+
+- Advanced social sharing
+- AI recommendations
+- Offline-first mode
+- Full photo pipeline optimization
+
+## Risks
+
+- Map interaction complexity on mobile UX.
+- Scope creep from timeline and media features.
+- Data model drift if status-specific rules are not fixed early.
+
+## Next Actions
+
+1. Write `TripPinMap-log2` for stack decision.
+2. Finalize backend approach and data ownership boundaries.
+3. Draft initial DB schema and API contract in `TripPinMap-log3`.

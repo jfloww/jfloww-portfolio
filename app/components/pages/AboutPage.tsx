@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 export default function AboutPage() {
   return (
-    <div className="w-full px-6 py-10 md:py-16">
+    <div className="w-full px-3 py-3 md:py-3">
       <section className="mx-auto w-full max-w-5xl">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-center md:items-stretch gap-8 pb-10 border-b border-gray-200/80 dark:border-white/10">
@@ -20,9 +20,7 @@ export default function AboutPage() {
 
           <div className="w-full text-center md:text-left">
             <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 dark:text-white leading-tight">Jay (Jaehoon) Jung</h1>
-            <p className="mt-3 text-base text-gray-600 dark:text-white/70 max-w-2xl mx-auto md:mx-0">
-              Full Stack Software Engineer
-            </p>
+            <p className="mt-3 text-base text-gray-600 dark:text-white/70 max-w-2xl mx-auto md:mx-0">Full Stack Software Engineer</p>
 
             <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
               <a
@@ -121,7 +119,12 @@ export default function AboutPage() {
             <div className="mt-4 space-y-2 text-gray-700 dark:text-white/75">
               <p>
                 <span className="font-medium text-gray-900 dark:text-white">M.S. Computer Science</span> —{' '}
-                <a href="https://www.cc.gatech.edu/" className="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">
+                <a
+                  href="https://www.cc.gatech.edu/"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Georgia Institute of Technology
                 </a>
               </p>

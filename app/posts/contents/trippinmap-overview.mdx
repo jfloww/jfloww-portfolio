@@ -1,0 +1,101 @@
+---
+title: 'TripPinMap-overview'
+date: '20260526'
+id: trippinmap-overview
+category: 'TripPinMap'
+tags: ['overview', 'product', 'planning']
+techStack: 'Product Planning'
+hidden: false
+---
+
+## Problem
+People save travel memories and plans across multiple apps (notes, photos, maps, bookmarks), which makes it hard to see a complete travel story in one place.
+
+## Why This Project
+I like traveling, and I have many places I want to visit in the future.  
+I wanted one app where I can:
+- organize future destinations clearly,
+- keep real trip records in one place,
+- and revisit travel memories later without searching across multiple apps.
+
+## Vision
+TripPinMap is a map-first travel app where users can track:
+- where they have been,
+- where they are planning to go,
+- and where they want to go next.
+
+The product goal is to keep travel planning and travel memory in one timeline-connected map experience.
+
+## Target Users
+1. Users who actively travel and want structured trip records.
+2. Users planning future trips with checklist-style preparation.
+3. Users collecting future destinations as a wishlist.
+
+## Core Experience
+1. User signs in.
+2. User sees world map.
+3. User adds a pin and selects one status:
+   - `visited` (green)
+   - `planned` (yellow)
+   - `wishlist` (blue)
+4. User fills status-specific details.
+5. Map and detail views stay synchronized.
+
+## App Flow (v1)
+1. Login:
+   - Start with social login (Google first).
+2. Map entry:
+   - User lands on a world map with existing color-coded pins.
+3. Pin creation:
+   - User selects a location and chooses one status (`visited`, `planned`, `wishlist`).
+4. Detail input:
+   - User saves timeline/activity details based on selected status.
+5. Review and update:
+   - User revisits any pin to edit, update status, or add records.
+6. Memory recall:
+   - User can quickly review past trips and future plans from the same map view.
+
+## Status Model
+### Visited (Green)
+- Visit date range
+- Nights/days
+- Timeline or activity history
+- Optional photos and notes
+
+### Planned (Yellow)
+- Planned date range
+- Expected nights/days
+- Planned timeline or activity checklist
+
+### Wishlist (Blue)
+- Destination
+- Things to do someday
+- Optional notes
+
+## MVP Scope (v1)
+1. Social login (Google first).
+2. Map with color-coded pins by status.
+3. Pin CRUD (create/read/update/delete).
+4. Status-based detail forms.
+5. Basic activity/timeline text records.
+
+## Out of Scope (v1)
+- Social feed / sharing
+- AI recommendation engine
+- Offline-first synchronization
+- Advanced media pipeline optimization
+
+## Success Criteria
+- Users can create and manage all 3 status types without confusion.
+- Users can navigate from map to details and back with low friction.
+- Data model supports future expansion (photos, sharing, analytics) without major schema rewrite.
+
+## Risks
+- Mobile map UX can become complex if interactions are overloaded.
+- Scope creep from rich timeline and media features.
+- Cross-platform behavior differences if map and auth stack are not stabilized early.
+
+## Next
+1. `TripPinMap-log1`: stack decision and why.
+2. `TripPinMap-log2`: DB schema and API contract draft.
+3. `TripPinMap-log3`: auth + map MVP implementation plan.
