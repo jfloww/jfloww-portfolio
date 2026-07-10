@@ -1,18 +1,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import type { imageType } from './ImageSlider';
 import { localePrefix } from '@/app/lib/i18n';
 import { dateFormat } from '../functions/dateFormat';
+import type { ContentMeta } from '@/app/lib/content/schema';
 
 interface ClientHomeProps {
   locale?: string;
-  projList: {
-    id: string;
-    title: string;
-    date: string;
-    techStack?: string;
-    images?: imageType[];
-  }[];
+  projList: ContentMeta[];
 }
 
 export default function ClientHome({ projList, locale }: ClientHomeProps) {
