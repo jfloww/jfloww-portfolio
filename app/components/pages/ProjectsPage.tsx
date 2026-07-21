@@ -2,14 +2,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getPostList } from '../functions/importList';
 import { localePrefix } from '@/app/lib/i18n';
+import type { SupportedLocale } from '@/app/lib/i18n';
 import { dateFormat } from '../functions/dateFormat';
 
 interface ProjectsPageProps {
-  locale?: string;
+  locale?: SupportedLocale;
 }
 
 export default async function ProjectsPage({ locale }: ProjectsPageProps) {
-  const postList = await getPostList('projects', 5);
+  const postList = await getPostList('projects', undefined, locale);
   const prefix = localePrefix(locale);
   return (
     <div className="w-full px-3 py-3 md:py-3">

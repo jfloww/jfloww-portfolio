@@ -11,6 +11,6 @@ export default async function LocalizedHomePage({ params }: LocalePageProps) {
   const { locale } = await params;
   if (!isSupportedLocale(locale)) notFound();
 
-  const projList = await getPostList('projects', 5);
+  const projList = await getPostList('projects', 5, locale);
   return <ClientHome projList={projList} locale={locale} />;
 }

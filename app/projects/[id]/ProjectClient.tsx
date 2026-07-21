@@ -1,10 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import type { ReactNode } from 'react';
 import ImageSlider from '@/app/components/templates/ImageSlider';
 import { imageType } from '@/app/components/templates/ImageSlider';
-import ClientMDXRemote from '../../components/templates/ClientMDXRemote';
-import type { MDXRemoteSerializeResult } from 'next-mdx-remote';
 import { dateFormat } from '@/app/components/functions/dateFormat';
 import { localePrefix } from '@/app/lib/i18n';
 
@@ -13,12 +12,12 @@ interface ProjectClientProps {
   date: string;
   techStack: string;
   images: imageType[];
-  mdxSource: MDXRemoteSerializeResult;
+  mdxContent: ReactNode;
   showSlider?: boolean;
   locale?: string;
 }
 
-export default function ProjectClient({ title, date, techStack, images, mdxSource, showSlider = true, locale }: ProjectClientProps) {
+export default function ProjectClient({ title, date, techStack, images, mdxContent, showSlider = true, locale }: ProjectClientProps) {
   const router = useRouter();
   const prefix = localePrefix(locale);
 
@@ -61,7 +60,7 @@ export default function ProjectClient({ title, date, techStack, images, mdxSourc
             prose-img:shadow-sm prose-img:mx-auto
             dark:prose-img:bg-white dark:prose-img:p-3 dark:prose-img:brightness-125 dark:prose-img:contrast-115"
           >
-            <ClientMDXRemote source={mdxSource} />
+            {mdxContent}
           </article>
         </div>
 

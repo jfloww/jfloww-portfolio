@@ -1,0 +1,75 @@
+---
+title: 'Picking Up Overview'
+date: '20260716'
+id: picking-up-overview-en
+category: 'Picking Up'
+tags: ['overview', 'product', 'planning', 'en']
+techStack: 'Next.js, Django, Oracle Database'
+locale: 'en'
+translationKey: picking-up-overview
+hidden: false
+---
+
+## Project Overview
+
+`Picking Up` is a to-do platform I started building for my own daily use.
+
+The initial goal was simple: add tasks quickly, see what needs to be done today, mark tasks as complete, and keep my data available across browsers. Instead of starting with collaboration, AI, recurring schedules, or notifications, I wanted to first prove that the daily task loop works well.
+
+## Product Direction
+
+The project is web-first. The first target is a desktop browser app built with Next.js, while still supporting narrow browser windows and mobile browsers through responsive design. After that, the app can move toward PWA support, and only if needed, a native iPhone app.
+
+Rather than building a mobile app first, the plan is to keep one Django API at the center so the web app and any future mobile client share the same users, tasks, and data.
+
+```text
+Next.js frontend
+        |
+        v
+Django REST API
+        |
+        v
+Oracle Database on OCI
+```
+
+## Tech Stack
+
+- Frontend: Next.js, React, TypeScript
+- Backend: Django, Django REST Framework
+- Auth: JWT, HTTP-only cookie
+- Database: Oracle Database on OCI
+- Local development DB: SQLite fallback
+- Hosting direction: Vercel + OCI VM
+
+The frontend follows a feature-based structure. The backend owns authentication, authorization, API contracts, task data, and migrations. The production database target is Oracle Database on OCI.
+
+## Design Principles
+
+Two principles guide this project.
+
+The first is to start small without building something that has to be rewritten later. Task data access is placed behind a repository interface. For now, tasks can persist in localStorage, but the UI should be able to switch to a Django API-backed repository later without a major rewrite.
+
+The second is to build an app that is actually useful, not just visually polished. The landing and auth screens are intentionally minimal, but the real product is the task workspace inside `/app`.
+
+## Core Feature Direction
+
+The `/app` workspace is not planned as a simple task list. It is a calendar-style to-do workspace with Daily, Weekly, Monthly, and Yearly views.
+
+The core concept is `zoomed-out context, focused present`: show the larger time container while making the current day, week, or month visually clear.
+
+For example, the Weekly view shows the current month but emphasizes the focused week. The Daily view shows one week while focusing on one day. The Monthly view shows all 12 months of a year, and the Yearly view handles year-level goals.
+
+## Current Status
+
+The project is now in the later part of Phase 1. The project foundation, authentication, design system, landing/auth pages, and the core task calendar logic are already in place. Some calendar views are implemented as well.
+
+The next goal is to finish the `/app` task calendar and then connect it to the Django task API.
+
+## Next Steps
+
+1. Finish Monthly and Yearly views
+2. Implement the view switcher and TaskCalendar shell
+3. Integrate the task calendar into `/app`
+4. Build the Django `tasks` app and task API
+5. Replace the localStorage repository with a Django API repository
+6. Verify migrations and backend tests against Oracle Database

@@ -1,26 +1,23 @@
-import { serialize } from 'next-mdx-remote/serialize';
+import { MDXRemote } from 'next-mdx-remote/rsc';
 import { notFound } from 'next/navigation';
-import ClientMDXRemote from '../../components/templates/ClientMDXRemote';
-import { getContentById, getContentStaticParams } from '@/app/lib/content/loader';
+import { getLocalizedContentById, getLocalizedContentStaticParams } from '@/app/lib/content/loader';
 import { dateFormat } from '@/app/components/functions/dateFormat';
 
 interface PostPageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export async function generateStaticParams() {
-  return getContentStaticParams('posts');
+  return getLocalizedContentStaticParams('posts');
 }
 
-export default async function PostDetailPage({ params, searchParams }: PostPageProps) {
+export const dynamicParams = false;
+
+export default async function PostDetailPage({ params }: PostPageProps) {
   const { id } = await params;
-  await searchParams;
 
-  const entry = await getContentById('posts', id);
-  if (!entry || entry.meta.hidden || entry.meta.draft) notFound();
-
-  const mdxSource = await serialize(entry.content);
+  const entry = await getLocalizedContentById('posts', id, 'en');
+  if (!entry) notFound();
 
   return (
     <div className="w-full px-3 py-3 md:py-3">
@@ -37,7 +34,7 @@ export default async function PostDetailPage({ params, searchParams }: PostPageP
           prose-p:my-2 prose-p:text-gray-700 dark:prose-p:text-white/75 prose-p:leading-relaxed
           prose-ul:my-2 prose-ol:my-2 prose-li:my-1"
         >
-          <ClientMDXRemote source={mdxSource} />
+          <MDXRemote source={entry.content} />
         </article>
       </section>
     </div>

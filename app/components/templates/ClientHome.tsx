@@ -1,16 +1,50 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { localePrefix } from '@/app/lib/i18n';
+import { localePrefix, SupportedLocale } from '@/app/lib/i18n';
 import { dateFormat } from '../functions/dateFormat';
 import type { ContentMeta } from '@/app/lib/content/schema';
 
 interface ClientHomeProps {
-  locale?: string;
+  locale?: SupportedLocale;
   projList: ContentMeta[];
 }
 
+const HOME_COPY: Record<
+  SupportedLocale,
+  {
+    role: string;
+    headline: string[];
+    projectsCta: string;
+    aboutCta: string;
+    projectsTitle: string;
+    projectsDescription: string;
+    seeAll: string;
+  }
+> = {
+  en: {
+    role: 'Software Engineer',
+    headline: ['Hi, there', 'Welcome to my page.'],
+    projectsCta: 'View Projects',
+    aboutCta: 'About Me',
+    projectsTitle: 'Projects',
+    projectsDescription: 'A few things I’ve built recently.',
+    seeAll: 'See all →',
+  },
+  ko: {
+    role: 'Software Engineer',
+    headline: ['안녕하세요,', '개발자 정재훈입니다.'],
+    projectsCta: 'Projects',
+    aboutCta: '소개 보기',
+    projectsTitle: 'Projects',
+    projectsDescription: '최근에 만들고 기록한 작업들입니다.',
+    seeAll: '전체 보기 →',
+  },
+};
+
 export default function ClientHome({ projList, locale }: ClientHomeProps) {
   const prefix = localePrefix(locale);
+  const copy = HOME_COPY[locale ?? 'en'];
+
   return (
     <div className="w-full px-3 py-3 md:py-3">
       {/* Hero (minimal / Apple-ish) */}
@@ -21,11 +55,11 @@ export default function ClientHome({ projList, locale }: ClientHomeProps) {
           </div>
 
           <div className="w-full text-center md:text-left">
-            <p className="text-sm tracking-wide text-gray-500 dark:text-white/60 mb-3">Software Engineer</p>
+            <p className="text-sm tracking-wide text-gray-500 dark:text-white/60 mb-3">{copy.role}</p>
             <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 dark:text-white leading-tight">
-              Hi, there
+              {copy.headline[0]}
               <br />
-              Welcome to my page.
+              {copy.headline[1]}
             </h1>
 
             <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
@@ -33,13 +67,13 @@ export default function ClientHome({ projList, locale }: ClientHomeProps) {
                 href={`${prefix}/projects`}
                 className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100 transition-colors"
               >
-                View Projects
+                {copy.projectsCta}
               </Link>
               <Link
                 href={`${prefix}/about`}
                 className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium border border-gray-300/80 text-gray-900 hover:bg-gray-50 dark:border-white/20 dark:text-white dark:hover:bg-white/5 transition-colors"
               >
-                About Me
+                {copy.aboutCta}
               </Link>
             </div>
           </div>
@@ -49,14 +83,14 @@ export default function ClientHome({ projList, locale }: ClientHomeProps) {
       <section className="mx-auto w-full max-w-5xl mt-14 md:mt-16">
         <div className="flex items-end justify-between gap-6 mb-5">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Projects</h2>
-            <p className="mt-1 text-sm text-gray-500 dark:text-white/60">A few things I’ve built recently.</p>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{copy.projectsTitle}</h2>
+            <p className="mt-1 text-sm text-gray-500 dark:text-white/60">{copy.projectsDescription}</p>
           </div>
           <Link
             href={`${prefix}/projects`}
             className="text-sm text-gray-600 hover:text-gray-900 dark:text-white/70 dark:hover:text-white transition-colors"
           >
-            See all →
+            {copy.seeAll}
           </Link>
         </div>
 

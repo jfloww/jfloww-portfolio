@@ -1,4 +1,4 @@
-import { serialize } from 'next-mdx-remote/serialize';
+import { MDXRemote } from 'next-mdx-remote/rsc';
 import { imageType } from '@/app/components/templates/ImageSlider';
 import ProjectClient from './ProjectClient';
 import { getContentById, getContentStaticParams } from '@/app/lib/content/loader';
@@ -6,16 +6,16 @@ import { notFound } from 'next/navigation';
 
 interface ProjectPageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export async function generateStaticParams() {
   return getContentStaticParams('projects');
 }
 
-export default async function ProjectPage({ params, searchParams }: ProjectPageProps) {
+export const dynamicParams = false;
+
+export default async function ProjectPage({ params }: ProjectPageProps) {
   const { id } = await params;
-  await searchParams;
   const entry = await getContentById('projects', id);
   if (!entry || entry.meta.hidden || entry.meta.draft) notFound();
 
@@ -31,9 +31,14 @@ export default async function ProjectPage({ params, searchParams }: ProjectPageP
             description: '',
           },
         ];
-  const mdxSource = await serialize(entry.content);
-
   return (
-    <ProjectClient title={entry.meta.title} date={entry.meta.date} techStack={entry.meta.techStack ?? ''} images={imageList} mdxSource={mdxSource} showSlider={showSlider} />
+    <ProjectClient
+      title={entry.meta.title}
+      date={entry.meta.date}
+      techStack={entry.meta.techStack ?? ''}
+      images={imageList}
+      mdxContent={<MDXRemote source={entry.content} />}
+      showSlider={showSlider}
+    />
   );
 }
