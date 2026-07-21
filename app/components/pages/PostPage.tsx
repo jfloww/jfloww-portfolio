@@ -1,13 +1,14 @@
 import { getPostList } from '../functions/importList';
 import { localePrefix } from '@/app/lib/i18n';
+import { SupportedLocale } from '@/app/lib/i18n';
 import PostListClient from './PostListClient';
 
 interface PostsPageProps {
-  locale?: string;
+  locale?: SupportedLocale;
 }
 
 export default async function PostsPage({ locale }: PostsPageProps) {
-  const postList = await getPostList('posts');
+  const postList = await getPostList('posts', undefined, locale);
   const prefix = localePrefix(locale);
   return (
     <div className="w-full px-3 py-3 md:py-3">

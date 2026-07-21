@@ -1,0 +1,139 @@
+---
+title: 'Picking Up Log 1'
+date: '20260716'
+id: picking-up-log1-en
+category: 'Picking Up'
+tags: ['devlog', 'phase-1', 'auth', 'task-calendar', 'en']
+techStack: 'Next.js, Django, Oracle Database'
+locale: 'en'
+translationKey: picking-up-log1
+hidden: false
+---
+
+## Starting Point: A Workspace I Can Use Every Day
+
+The original Phase 1 plan was a web prototype. I expected to build the UI with mock data, create screens such as Today, Inbox, Done, Archived, and Settings, and add a task detail panel.
+
+Once development started, a pure mock UI did not feel enough to evaluate the app properly. I needed the real flow: sign in, preserve user data, and access a protected `/app` workspace. Because of that, part of the authentication and backend foundation moved into Phase 1 earlier than planned.
+
+## Project Structure and Stack Decisions
+
+The initial workspace structure was:
+
+```text
+frontend/         -> Next.js web app
+backend/          -> Django REST API
+mobile-frontend/  -> future iPhone app
+docs/             -> planning and development history
+```
+
+Supabase and other backend options were considered early, but the final direction became Django + Oracle Database on OCI. The goal was not only to ship features, but also to work through backend ownership, API contracts, authentication, permissions, database migrations, and cloud deployment.
+
+The Django backend owns authentication, authorization, API contracts, task data, and migrations. The frontend and any future iPhone app should use the same API.
+
+## Authentication Foundation
+
+The first implementation work added login and signup pages to the Next.js frontend, along with a protected `/app` route. JWTs are not stored directly in browser localStorage. Instead, Next.js route handlers store them in HTTP-only cookies.
+
+The current authentication flow is:
+
+```text
+Browser login form
+  -> Next.js /api/auth/login
+  -> Django /api/auth/token/
+  -> Next.js stores JWT in HTTP-only cookies
+  -> /app is protected by middleware
+```
+
+The Django backend currently exposes these auth endpoints:
+
+```text
+POST /api/auth/register/
+POST /api/auth/token/
+POST /api/auth/token/refresh/
+GET  /api/auth/me/
+```
+
+Features like forgot password, email verification, OAuth, MFA, and account deletion were intentionally deferred. The core task workflow is not proven yet, so authentication is kept at the minimum level needed to use the app.
+
+## Landing and Auth Redesign
+
+The next step was rebuilding the landing, login, and signup pages on a cleaner design system.
+
+The design direction is close to Tesla-minimal: mostly black and white, with a small steel blue accent. Dark mode is included, and the default theme is dark.
+
+This work introduced Tailwind v4, shadcn/ui, and next-themes. Shared components such as `Wordmark`, `ThemeToggle`, and `AuthLayout` were added, and the login/signup forms were rebuilt around the same structure.
+
+The landing page currently uses a CSS mock of the future task workspace because the real task UI is not finished yet. Once `/app` is ready, that mock should be replaced with a real screenshot.
+
+## Oracle Database on OCI
+
+The production database direction is Oracle Database on OCI.
+
+SQLite is still used as a temporary local development fallback, but SQLite should not be used in production. The target is an Oracle Autonomous Database 26ai Always Free instance. Django settings are prepared to read connection values from environment variables such as `ORACLE_DB_USER`, `ORACLE_DB_PASSWORD`, and `ORACLE_DB_DSN`.
+
+The docs record that migrations were applied against Oracle as the `pickingup_app` user. Running the auth tests against Oracle Database is still a follow-up task.
+
+## Task Calendar Design
+
+The main product work is now the `/app` task workspace.
+
+The idea started as a normal to-do list, but the current design is a calendar-style multi-scale task workspace. It has four views: Daily, Weekly, Monthly, and Yearly. The default view is Weekly.
+
+The core concept is `zoomed-out context, focused present`.
+
+For example, the Weekly view shows the entire month but visually emphasizes the focused week. The Daily view shows one week while focusing on one day. The Monthly view shows all 12 months of a year, and the Yearly view handles year-level goals.
+
+Task scope is divided like this:
+
+```text
+day   -> tasks for a specific date
+week  -> tasks for a specific week
+month -> tasks for a specific month
+year  -> goals or notes for a specific year
+```
+
+Another important feature is rollover. If an unfinished task is left in the past, it follows the user forward. An unfinished day task rolls into a weekly cell. An unfinished week task moves into the current week. An unfinished month task moves into the current month. Completed tasks are never changed.
+
+## Current Implementation Status
+
+On the current `feat/task-calendar` branch, these parts are complete:
+
+```text
+1. Vitest test setup
+2. date utility functions
+3. task type / scope model
+4. rollover logic
+5. localStorage repository
+6. repository payload validation
+7. React context + reducer store
+8. quick-add, task-item, period-cell, scope-tasks primitives
+9. Weekly view
+10. Daily view
+```
+
+The task calendar now has its core logic and the Daily/Weekly UI foundation.
+
+The current in-progress work is Monthly and Yearly views. The files exist, but they are not committed yet. After that, the next step is to add the view switcher, the TaskCalendar shell, and the `/app` page integration.
+
+## Takeaway From Log 1
+
+Phase 1 started as a web UI prototype, but it became a broader foundation phase.
+
+So far, the project has covered:
+
+```text
+- project structure
+- Django backend direction
+- Oracle Database on OCI direction
+- authentication foundation
+- protected app route
+- landing/login/signup redesign
+- dark-default theme system
+- task calendar design
+- task calendar core logic and Daily/Weekly views
+```
+
+The remaining work is the task API and production quality. After the task calendar UI is finished, the next major step is to build the Django `tasks` app and API, then replace the localStorage repository with a Django API-backed repository.
+
+The goal for Phase 1 is now clear: not just to build visible screens, but to complete the first usable version where I can sign in, add tasks, and manage them across day, week, and month views.

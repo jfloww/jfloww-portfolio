@@ -1,5 +1,5 @@
 import PostsPage from '../components/pages/PostPage';
 
 export default async function Posts() {
-  return <PostsPage />;
+  return <PostsPage locale="en" />;
 }

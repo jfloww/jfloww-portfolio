@@ -1,4 +1,4 @@
-import { serialize } from 'next-mdx-remote/serialize';
+import { MDXRemote } from 'next-mdx-remote/rsc';
 import { notFound } from 'next/navigation';
 import { imageType } from '@/app/components/templates/ImageSlider';
 import ProjectClient from '@/app/projects/[id]/ProjectClient';
@@ -7,17 +7,17 @@ import { isSupportedLocale } from '@/app/lib/i18n';
 
 interface ProjectPageProps {
   params: Promise<{ locale: string; id: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export async function generateStaticParams() {
   const params = await getContentStaticParams('projects');
-  return params.flatMap((entry) => [{ locale: 'en', id: entry.id }, { locale: 'ko', id: entry.id }]);
+  return params.map((entry) => ({ locale: 'ko', id: entry.id }));
 }
 
-export default async function LocalizedProjectPage({ params, searchParams }: ProjectPageProps) {
+export const dynamicParams = false;
+
+export default async function LocalizedProjectPage({ params }: ProjectPageProps) {
   const { locale, id } = await params;
-  await searchParams;
   if (!isSupportedLocale(locale)) notFound();
 
   const entry = await getContentById('projects', id);
@@ -35,15 +35,13 @@ export default async function LocalizedProjectPage({ params, searchParams }: Pro
             description: '',
           },
         ];
-  const mdxSource = await serialize(entry.content);
-
   return (
     <ProjectClient
       title={entry.meta.title}
       date={entry.meta.date}
       techStack={entry.meta.techStack ?? ''}
       images={imageList}
-      mdxSource={mdxSource}
+      mdxContent={<MDXRemote source={entry.content} />}
       showSlider={showSlider}
       locale={locale}
     />
