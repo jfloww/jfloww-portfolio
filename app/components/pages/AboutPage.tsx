@@ -2,11 +2,10 @@ import Image from 'next/image';
 
 export default function AboutPage() {
   return (
-    <div className="w-full px-3 py-3 md:py-3">
-      <section className="mx-auto w-full max-w-5xl">
+    <div className="w-full px-3 py-2 md:py-3">
+      <section className="mx-auto w-full max-w-4xl">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-center md:items-stretch gap-8 pb-10 border-b border-gray-200/80 dark:border-white/10">
-          {/* Photo (no container box; match header height on md) */}
           <div className="shrink-0 self-center md:self-stretch">
             <Image
               src="/photo/my-profile.png"
@@ -46,28 +45,28 @@ export default function AboutPage() {
         </div>
 
         {/* Content */}
-        <div className="mt-10 divide-y divide-gray-200/80 dark:divide-white/10">
-          <section className="py-10">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Tech Stack</h2>
-            <ul className="mt-4 space-y-2 text-gray-700 dark:text-white/75">
-              <li>
-                <span className="font-medium text-gray-900 dark:text-white">Language:</span> TypeScript, JavaScript, SQL, C#, Python
+        <div className="mt-2 divide-y divide-gray-200/80 dark:divide-white/10">
+          <section className="py-6">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white">Tech Stack</h2>
+            <ul className="mt-4 space-y-2 text-sm text-gray-700 dark:text-white/75">
+              <li className="grid grid-cols-[112px_1fr] gap-3">
+                <span className="font-medium text-gray-900 dark:text-white">Language</span><span>TypeScript/JavaScript, SQL, Python, C#</span>
               </li>
-              <li>
-                <span className="font-medium text-gray-900 dark:text-white">Framework:</span> Vue.js, React.js, Next.js, Node.js, Django
+              <li className="grid grid-cols-[112px_1fr] gap-3">
+                <span className="font-medium text-gray-900 dark:text-white">Framework</span><span>Vue.js, Django, React.js, Next.js, Node.js</span>
               </li>
-              <li>
-                <span className="font-medium text-gray-900 dark:text-white">Database:</span> OracleDB, MSSQL, SQLite
+              <li className="grid grid-cols-[112px_1fr] gap-3">
+                <span className="font-medium text-gray-900 dark:text-white">Database</span><span>OracleDB, PostgreSQL, MSSQL, SQLite</span>
               </li>
-              <li>
-                <span className="font-medium text-gray-900 dark:text-white">DevOps & Tools:</span> Git, Docker, AWS, Tomcat, Apache
+              <li className="grid grid-cols-[112px_1fr] gap-3">
+                <span className="font-medium text-gray-900 dark:text-white">Tools</span><span>Git, Docker, AWS, Tomcat, Apache</span>
               </li>
             </ul>
           </section>
 
-          <section className="py-10">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Experience</h2>
-            <div className="mt-6 space-y-10">
+          <section className="py-6">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white">Experience</h2>
+            <div className="mt-4 space-y-6">
               <div>
                 <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-2">
                   <h3 className="text-base font-semibold text-gray-900 dark:text-white">Software Engineer</h3>
@@ -81,7 +80,7 @@ export default function AboutPage() {
                 >
                   ComGen America • Full-time
                 </a>
-                <ul className="mt-4 list-disc ml-5 text-gray-700 dark:text-white/75 space-y-1">
+                <ul className="mt-3 list-disc ml-5 text-sm text-gray-700 dark:text-white/75 space-y-1">
                   <li>Developed and maintained full-stack web applications (Vue.js, Node.js, OracleDB, C#) for logistics automation.</li>
                   <li>Migrated legacy projects (Visual Basic, C#, .NET Core) to modern Vue + TypeScript, Node.js, and Python stack.</li>
                   <li>Performed Oracle DB version upgrades and data migrations.</li>
@@ -104,7 +103,7 @@ export default function AboutPage() {
                 >
                   Republic of Korea Army • Full-time
                 </a>
-                <ul className="mt-4 list-disc ml-5 text-gray-700 dark:text-white/75 space-y-1">
+                <ul className="mt-3 list-disc ml-5 text-sm text-gray-700 dark:text-white/75 space-y-1">
                   <li>Sergeant (Honorably Discharged)</li>
                   <li>Executed a mission to monitor and analyze the enemies.</li>
                   <li>Leadership experience managing 12 soldiers; onboarding/education and leadership development.</li>
@@ -114,9 +113,9 @@ export default function AboutPage() {
             </div>
           </section>
 
-          <section className="py-10">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Education</h2>
-            <div className="mt-4 space-y-2 text-gray-700 dark:text-white/75">
+          <section className="py-6">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white">Education</h2>
+            <div className="mt-3 space-y-2 text-sm text-gray-700 dark:text-white/75">
               <p>
                 <span className="font-medium text-gray-900 dark:text-white">M.S. Computer Science</span> —{' '}
                 <a
@@ -142,9 +141,9 @@ export default function AboutPage() {
             </div>
           </section>
 
-          <section className="py-10">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Languages</h2>
-            <ul className="mt-4 space-y-2 text-gray-700 dark:text-white/75">
+          <section className="py-6">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white">Languages</h2>
+            <ul className="mt-3 space-y-2 text-sm text-gray-700 dark:text-white/75">
               <li>
                 <span className="font-medium text-gray-900 dark:text-white">English:</span> Proficient
               </li>
@@ -154,9 +153,9 @@ export default function AboutPage() {
             </ul>
           </section>
 
-          <section className="py-10">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Location</h2>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-6 text-gray-700 dark:text-white/75">
+          <section className="py-6">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white">Location</h2>
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700 dark:text-white/75">
               <div>
                 <h3 className="text-sm font-medium text-gray-900 dark:text-white">South Korea</h3>
                 <p className="mt-1">Seoul</p>

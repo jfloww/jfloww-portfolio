@@ -51,7 +51,7 @@ export default function ClientHome({ projList, locale }: ClientHomeProps) {
       <section className="mx-auto w-full max-w-5xl">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-10">
           <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden border border-gray-200/70 dark:border-white/15 bg-gray-50 dark:bg-white/5 shrink-0">
-            <Image src="/photo/profile_img.png" alt="Profile" fill className="object-cover" priority />
+            <Image src="/photo/profile_img.png" alt="Profile" fill className="object-cover" sizes="(max-width: 768px) 112px, 128px" priority />
           </div>
 
           <div className="w-full text-center md:text-left">

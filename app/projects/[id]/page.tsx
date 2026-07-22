@@ -1,8 +1,8 @@
-import { MDXRemote } from 'next-mdx-remote/rsc';
 import { imageType } from '@/app/components/templates/ImageSlider';
 import ProjectClient from './ProjectClient';
 import { getContentById, getContentStaticParams } from '@/app/lib/content/loader';
 import { notFound } from 'next/navigation';
+import { renderMdx } from '@/app/lib/content/renderMdx';
 
 interface ProjectPageProps {
   params: Promise<{ id: string }>;
@@ -20,6 +20,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   if (!entry || entry.meta.hidden || entry.meta.draft) notFound();
 
   const showSlider = entry.meta.showSlider !== false;
+  const mdxContent = await renderMdx(entry.content);
   const rawImages = Array.isArray(entry.meta.images) ? entry.meta.images : [];
   const imageList: imageType[] =
     rawImages.length > 0
@@ -37,7 +38,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       date={entry.meta.date}
       techStack={entry.meta.techStack ?? ''}
       images={imageList}
-      mdxContent={<MDXRemote source={entry.content} />}
+      mdxContent={mdxContent}
       showSlider={showSlider}
     />
   );

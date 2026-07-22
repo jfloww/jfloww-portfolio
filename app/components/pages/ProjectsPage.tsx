@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { getPostList } from '../functions/importList';
 import { localePrefix } from '@/app/lib/i18n';
 import type { SupportedLocale } from '@/app/lib/i18n';
-import { dateFormat } from '../functions/dateFormat';
 
 interface ProjectsPageProps {
   locale?: SupportedLocale;
@@ -13,40 +12,34 @@ export default async function ProjectsPage({ locale }: ProjectsPageProps) {
   const postList = await getPostList('projects', undefined, locale);
   const prefix = localePrefix(locale);
   return (
-    <div className="w-full px-3 py-3 md:py-3">
-      <section className="mx-auto w-full max-w-5xl">
-        <div className="flex items-end justify-between gap-6">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 dark:text-white">Projects</h1>
-          </div>
+    <div className="w-full px-3 py-2 md:py-3">
+      <section className="mx-auto w-full max-w-4xl">
+        <div className="flex items-baseline justify-between gap-6 border-b border-gray-200/80 pb-4 dark:border-white/10">
+          <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 dark:text-white">Projects</h1>
+          <p className="text-xs text-gray-500 dark:text-white/60">{postList.length} selected work</p>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 md:gap-6">
+        <div className="mt-5 grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
           {postList.map((post) => {
             const cover = post.images?.[0]?.src ?? '/temp/test1.jpg';
             return (
               <Link
                 href={`${prefix}/projects/${post.id}`}
                 key={post.id}
-                className="group rounded-2xl overflow-hidden border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors"
+                aria-label={`View ${post.title} project`}
+                className="group relative aspect-square overflow-hidden bg-gray-100 dark:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:focus-visible:outline-white"
               >
-                <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 dark:bg-white/5">
-                  <Image
-                    src={cover}
-                    alt={post.title}
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-70" />
-                </div>
-
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <h2 className="text-base font-semibold text-gray-900 dark:text-white leading-snug">{post.title}</h2>
-                    <p className="text-xs text-gray-500 dark:text-white/60 tabular-nums shrink-0 pt-1">{dateFormat(post.date)}</p>
-                  </div>
-                  {post.techStack && <p className="mt-2 text-xs text-gray-600 dark:text-white/70 uppercase tracking-wide">{post.techStack}</p>}
+                <Image
+                  src={cover}
+                  alt=""
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                  sizes="(max-width: 767px) 50vw, (max-width: 1024px) 33vw, 320px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-75 transition-opacity md:opacity-0 md:group-hover:opacity-100" />
+                <div className="absolute inset-x-0 bottom-0 p-3 text-white transition-opacity md:opacity-0 md:group-hover:opacity-100">
+                  <h2 className="truncate text-sm font-medium leading-snug">{post.title}</h2>
+                  <p className="mt-0.5 text-[11px] text-white/75">{post.date.slice(0, 4)}</p>
                 </div>
               </Link>
             );

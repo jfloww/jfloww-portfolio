@@ -11,38 +11,44 @@ images:
     description: 'Notebook project'
 ---
 
-# Overview
+# Project Summary
 
-This project simulates the 2022 Qatar World Cup by modeling match outcomes from historical results and FIFA ranking features, then running a bracket-style simulation to estimate the most likely winner. The goal was to explore a clear, explainable pipeline using a small, focused feature set.
+**Purpose:** Estimate match outcomes for the 2022 Qatar World Cup and simulate the tournament bracket using historical results and FIFA ranking data.
 
-## Tech Stack
+**My role:** Built the data preparation, feature engineering, model comparison, tournament simulation, and result visualization in a Jupyter Notebook.
 
-- Python
-- Pandas
-- Scikit-learn
-- XGBoost
+## Core Functionality
 
-## Process
+- Normalize historical match, team, and FIFA ranking datasets
+- Create ranking, goal-difference, and win-rate features
+- Compare classifiers for match-outcome prediction
+- Simulate group and knockout stages from predicted probabilities
 
-### 1. Goal and Scope
+## Tech Stack & Why
 
-Predict match outcomes for the 2022 Qatar World Cup using historical results and ranking-based features, then run a full tournament simulation.
+- **Python + Pandas** — Data cleaning, joins, aggregation, and feature preparation.
+- **Scikit-learn** — Reproducible train/test split, model evaluation, and pipeline composition.
+- **XGBoost** — A gradient-boosting baseline for comparison with the linear model.
+- **Matplotlib + NetworkX** — Performance charts and tournament-bracket visualization.
 
-### 2. Approach
+## Modeling Flow
 
-Engineer team-level features (goal difference, ranks, win rate), compare multiple classifiers, then simulate the group and knockout stages using the selected model.
+`Historical matches + FIFA rankings → feature engineering → model evaluation → match probabilities → group/knockout simulation → bracket visualization`
 
-### 3. Implementation
+1. Align rankings with match dates and normalize country names across datasets.
+2. Build team and match features, including rank difference, average rank, goal difference, and non-friendly status.
+3. Compare Logistic Regression, XGBoost, Gradient Boosting, AdaBoost, and SVC models.
+4. Use the selected model's probabilities to advance teams through group and knockout rounds.
 
-- Load and normalize match and ranking datasets
-- Build features and compute team metrics
-- Train and evaluate multiple models
-- Simulate group stage and knockout bracket
-- Visualize bracket outcomes
+## Design Decisions
 
-## Results
+- **Pipeline pattern** — Data preparation, feature generation, modeling, and simulation are separated into sequential stages, making each stage inspectable and replaceable.
+- **Baseline-first model selection** — A simple Logistic Regression baseline was evaluated alongside more complex models instead of assuming a complex model would perform best.
+- **Probabilistic simulation** — The output is treated as an exploration of likely outcomes, not a deterministic prediction.
 
-Logistic regression performed best on this dataset, and the final bracket simulation predicted Brazil as the most likely winner.
+## Result
+
+Logistic Regression performed best on this dataset, and the final bracket simulation selected Brazil as the most likely winner. The notebook also highlights that ranking-based features and historical samples limit the certainty of the result.
 
 ## Data Sources
 

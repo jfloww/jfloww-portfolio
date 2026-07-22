@@ -1,4 +1,4 @@
-import { MDXRemote } from 'next-mdx-remote/rsc';
+import { renderMdx } from '@/app/lib/content/renderMdx';
 import { notFound } from 'next/navigation';
 import { getLocalizedContentById, getLocalizedContentStaticParams } from '@/app/lib/content/loader';
 import { dateFormat } from '@/app/components/functions/dateFormat';
@@ -37,7 +37,7 @@ export default async function LocalizedPostDetailPage({ params }: PostPageProps)
           prose-p:my-2 prose-p:text-gray-700 dark:prose-p:text-white/75 prose-p:leading-relaxed
           prose-ul:my-2 prose-ol:my-2 prose-li:my-1"
         >
-          <MDXRemote source={entry.content} />
+          {await renderMdx(entry.content)}
         </article>
       </section>
     </div>
