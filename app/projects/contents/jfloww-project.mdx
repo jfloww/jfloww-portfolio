@@ -26,41 +26,44 @@ images:
     description: 'Test Imag 5'
 ---
 
-# Overview
+# Project Summary
 
-A personal portfolio website to showcase development projects, skills, and visual work with a clean, responsive layout. The goal was to make updates easy while keeping the design consistent.
+**Purpose:** Build a responsive portfolio that presents projects clearly and lets content be updated without changing page layouts.
 
-## Tech Stack
+**My role:** Designed and implemented the content model, project pages, responsive UI, and localization flow.
 
-- Next.js
-- TypeScript
-- TailwindCSS
+## Core Functionality
 
-## Process
+- MDX-based project and post content with frontmatter metadata
+- Project list/detail pages with image galleries
+- Korean and English routes with shared UI components
+- Dark mode and responsive navigation
 
-### 1. Goal and Scope
+## Tech Stack & Why
 
-Create a lightweight portfolio site that can scale as new projects are added without layout rework.
+- **Next.js App Router** — Static generation for content pages and file-based routing for the portfolio structure.
+- **TypeScript** — Typed content metadata and component contracts.
+- **Tailwind CSS** — Consistent responsive styling through reusable utility patterns.
+- **MDX + gray-matter** — Separates page content from UI code while retaining structured metadata.
 
-### 2. Approach
+## Architecture & Flow
 
-Use MDX for content, a simple list/detail structure, and reusable layout components to keep updates easy.
+`MDX file → content loader → typed metadata/content → static project page → optional client image slider`
 
-### 3. Implementation
+1. Each project is stored as an MDX file with frontmatter.
+2. The loader validates and normalizes metadata before list and detail pages consume it.
+3. Next.js statically generates the detail page; only interactive UI, such as the slider and navigation menu, runs on the client.
 
-- Project list with cover images and metadata
-- Detail pages with optional image slider
-- Shared layout components for consistency
+## Design Decisions
 
-## Results
+- **Content Repository pattern** — A single content loader abstracts file access, parsing, visibility, and localized selection so pages do not depend on filesystem details.
+- **Server/Client component split** — Content pages render on the server for fast delivery; isolated client components handle interaction only where needed.
+- **Reusable template components** — Shared header, footer, cards, and detail layouts keep visual behavior consistent as content grows.
 
-Fast-loading, consistent pages with a clean visual hierarchy and simple content maintenance.
+## Result
 
-## Visuals / Gallery
+The portfolio supports adding a project by creating one MDX file and its assets, without creating a new page component. The structure keeps content maintenance separate from layout and interaction code.
 
-This project uses the top image slider to present the gallery.
+## Gallery
 
-## Notes
-
-- A flexible content pipeline makes updates quick and consistent
-- Reusable templates reduce design drift between projects
+The slider above shows the main project screens and responsive UI states.

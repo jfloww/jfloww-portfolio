@@ -8,15 +8,18 @@ export interface imageType {
   description: string;
 }
 
-export default function ImageSlider(params: imageType[]) {
-  const images = Object.values(params);
+interface ImageSliderProps {
+  images: imageType[];
+}
+
+export default function ImageSlider({ images }: ImageSliderProps) {
   const [current, setCurrent] = useState(0);
   const [animating, setAnimating] = useState(false);
 
   if (images.length === 0) {
     return (
       <div className="relative w-full bg-gray-900 rounded-lg">
-        <div className="relative w-full h-[500px] overflow-hidden rounded-lg flex items-center justify-center text-white/70">
+      <div className="relative w-full h-64 sm:h-80 md:h-[380px] overflow-hidden rounded-lg flex items-center justify-center text-white/70">
           No images
         </div>
       </div>
@@ -39,10 +42,12 @@ export default function ImageSlider(params: imageType[]) {
 
   return (
     <div className="relative w-full bg-gray-900 rounded-lg">
-      <div className="relative w-full h-[500px] overflow-hidden rounded-lg">
+      <div className="relative w-full h-64 sm:h-80 md:h-[380px] overflow-hidden rounded-lg">
         <button
+          type="button"
           onClick={prevImage}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-4xl font-bold text-white bg-black bg-opacity-50 rounded-full p-2 z-10 hover:bg-opacity-70 transition-all"
+          aria-label="Previous image"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-2xl font-bold text-white bg-black bg-opacity-50 rounded-full px-2.5 py-1.5 z-10 hover:bg-opacity-70 transition-all"
         >
           &lt;
         </button>
@@ -67,17 +72,22 @@ export default function ImageSlider(params: imageType[]) {
         </div>
 
         <button
+          type="button"
           onClick={nextImage}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-4xl font-bold text-white bg-black bg-opacity-50 rounded-full p-2 z-10 hover:bg-opacity-70 transition-all"
+          aria-label="Next image"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-2xl font-bold text-white bg-black bg-opacity-50 rounded-full px-2.5 py-1.5 z-10 hover:bg-opacity-70 transition-all"
         >
           &gt;
         </button>
       </div>
 
-      <div className="flex space-x-2 justify-center py-4 bg-[#1A1A1F]">
+      <div className="flex space-x-2 justify-center py-3 bg-[#1A1A1F]">
         {images.map((_, index) => (
           <button
             key={index}
+            type="button"
+            aria-label={`Show image ${index + 1}`}
+            aria-current={index === current ? 'true' : undefined}
             className={`w-3 h-3 rounded-full transition-colors ${index === current ? 'bg-white' : 'bg-gray-500 hover:bg-gray-400'}`}
             onClick={() => {
               if (!animating) {

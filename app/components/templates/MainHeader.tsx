@@ -63,7 +63,7 @@ export default function Header() {
       <div className="mx-auto w-full max-w-5xl px-6 h-16 flex items-center justify-between gap-6">
         <div className="flex items-center">
           <Link href={getLocalizedPath('/')} className="header-button text-xl font-semibold tracking-tight flex items-center gap-1">
-            <Image src="/icons/jfloww.png" width={25} height={20} alt="J" />
+            <Image src="/icons/jfloww.png" width={25} height={20} alt="J" style={{ width: 'auto', height: 'auto' }} />
             <p className="pt-1 italic">FLOWW</p>
           </Link>
         </div>
