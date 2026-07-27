@@ -1,0 +1,149 @@
+---
+title: 'Picking Up Log 2'
+date: '20260723'
+id: picking-up-log2-en
+category: 'Picking Up'
+tags: ['devlog', 'phase-1', 'daily-planner', 'weekly-planner', 'routine', 'en']
+techStack: 'Next.js, React, TypeScript'
+locale: 'en'
+translationKey: picking-up-log2
+hidden: false
+---
+
+## From a Calendar Skeleton to a Real Planner
+
+The first development log ended with Daily, Weekly, Monthly, and Yearly views plus rollover logic. The structure was there, but the product still felt more like a calendar that stored tasks in period-based cells. It did not yet feel like a planner for scheduling time, managing recurring work, and reading the state of a week.
+
+The work from July 17 through July 23 was about closing that gap. Daily and Weekly went through several redesigns as the focus shifted from simply storing tasks to planning and adjusting the work for today.
+
+## Turning Daily Into a Timeline
+
+The first step was adding start times and subtasks to the task model.
+
+```text
+Task
+  ├─ time: "09:30"
+  └─ subtasks
+       ├─ Research
+       ├─ Write draft
+       └─ Review
+```
+
+Timed tasks render as chips on a 24-hour rail, while untimed tasks stay in an All-day area. This work also added a current-time line, time-based sorting, and subtask progress. The repository read path normalizes the new optional fields so existing localStorage data remains valid without a migration.
+
+Typing a time was still too much friction for frequent schedule changes. Drag-to-schedule was added so an All-day task can be placed on the rail, an existing chip can be moved to a new time, and a chip can be returned to All-day to clear its time.
+
+```text
+All-day task ──drag──> hour rail      = set a time
+Timeline chip ──drag──> new position  = reschedule
+Timeline chip ──drag──> All-day       = clear the time
+```
+
+The rail snaps to 15-minute increments and auto-scrolls near its edges. A column layout keeps tasks at the same time from covering each other. The existing time input remains available as an equivalent keyboard-accessible path.
+
+## Keeping One Day on the Screen
+
+The first Daily timeline placed the selected date in the middle of a seven-day window. The surrounding context was useful, but a drag ending near a neighboring date could accidentally change focus.
+
+Instead of layering more drag exceptions onto the interaction, the layout was changed. Daily became a two-column view focused on one date, and Previous/Next began moving one day at a time instead of seven.
+
+```text
+Daily
+  ├─ Day timeline
+  │    ├─ All-day tasks
+  │    └─ 12-hour visible time rail
+  └─ Weekly task rollup
+```
+
+The Weekly task column now combines week-scoped tasks with unfinished day tasks from the same week, sorted by date and time. Today, upcoming work, and rolled-over work can all be read from one place.
+
+A `ShrinkStack` layout primitive keeps the task area and timeline usable when vertical space gets tight. As All-day content grows, the rail can shrink to a six-hour floor, and the calendar stays pinned to the viewport with scrolling contained inside its panels. A task detail panel was also introduced during this iteration.
+
+## Adding Recurrence Without a Separate Routine System
+
+Recurring work was designed as a weekday rule attached to an existing day task rather than as a separate Routine screen.
+
+```ts
+repeatWeekdays?: number[]  // the recurrence anchor
+repeatSourceId?: string    // a generated occurrence
+```
+
+After weekdays such as Monday, Wednesday, and Friday are selected, one occurrence is generated when each matching day actually arrives. The occurrence copies the anchor's title, time, and memo at that moment, then becomes an independent task. Editing or stopping the anchor later does not rewrite tasks that already exist.
+
+Generated occurrences are exempt from normal rollover so missed routine work does not keep filling the current backlog. Future occurrences are not persisted in advance, but Weekly renders dimmed previews so the upcoming routine is still visible.
+
+## Rebuilding Weekly as a Dashboard
+
+The original Weekly view rendered every week in a month as a stack of expanded and collapsed rows. It preserved monthly context, but every date cell was too small to be useful for planning one week.
+
+Weekly was rebuilt to show one week at a time.
+
+```text
+This week: completed / total + progress
+
+Sun | Mon | Tue | Wed | Thu | Fri | Sat
+```
+
+A full-width hero shows completion progress, followed by seven larger day boxes with task rows and per-day counts. Overdue work, unfinished work for today, and repeating tasks use separate visual signals. Previous/Next now steps by one week. Double-clicking a month in Monthly drills into Weekly, and double-clicking a date in Weekly drills into Daily.
+
+The roles became clearer: Daily is the execution surface for today, while Weekly is the dashboard for reading and navigating the week.
+
+## Moving Toward the Focus Planner UI
+
+As features accumulated, the Daily task list and detail panel became visually dense again. On July 22, Daily was reorganized around an agenda and timeline, while the dark theme moved toward a Neural Noir palette.
+
+The agenda was split into All Day To-Do, Next Up, and Done Today. It gained priority and same-day overdue states. Task details moved into a slide-in drawer so the main timeline/agenda workspace could keep a 60/40 split.
+
+A separate Focus Planner reference was then used for a visual-density pass.
+
+- Daily became the default view.
+- The timeline adopted a 64px hour rhythm and wider time gutter.
+- Agenda tasks became compact two-line cards.
+- The `New task` action was pinned to the bottom of the agenda.
+- The task detail drawer settled at roughly 400px wide.
+- The existing header, footer, and authentication flow stayed intact.
+
+This was not a replacement of working components with a static mock. Dragging, completion, recurrence, subtasks, priority, and rollover all had to remain functional inside the new layout, which required redistributing component responsibilities.
+
+## July 23 Refinements
+
+The final day closed several gaps between the visible interface and the actual scheduling data.
+
+Tasks gained duration. The agenda can show a range such as `9:00 – 9:45 AM`, and timeline chip height now reflects the duration. Presets remain available, but durations longer than two hours can also be entered directly.
+
+Recurring task details show the next three expected dates. Edits in the Daily drawer are buffered in a draft and applied only with `Done`; `Cancel`, close, and Escape discard them. Weekly now reuses the same slide-in drawer, aligning the editing experience across both views.
+
+A `background` flag was added for long spans such as an 8-to-5 work block that should not compete with normal scheduled tasks. Background tasks render in their own dimmed lane. Regular tasks are laid out by actual interval overlap instead of only grouping identical start times.
+
+```text
+08:00 ┌ background: Work ┐  ┌ Task A ┐
+09:00 │                  │  ├ Task B ┤  <- interval overlap
+10:00 │                  │  └────────┘
+```
+
+Tasks without an explicit duration use a nominal 30-minute interval for collision detection. The entire height of a long chip became clickable, and timeline tasks gained a direct completion checkbox to remove dead interaction areas.
+
+## What This Iteration Changed
+
+The largest change was not the data model. It was the role of Daily and Weekly.
+
+At first, showing more neighboring dates seemed like the right calendar design. Once tasks were being dragged, opened, and edited, stable focus on one date mattered more in Daily. Weekly needed the opposite: less detail editing and a faster way to understand distribution and progress across seven days.
+
+The UI redesign was not a final color-and-spacing pass. Layout changed to eliminate a drag failure mode, recurrence was integrated into the existing task model, and a shared drawer reshaped both interaction and component boundaries. The visual work and product architecture evolved together.
+
+## State as of July 23
+
+At this point, Picking Up supports the following workflow:
+
+```text
+- enter the Daily planner after signing in
+- add tasks and subtasks
+- schedule and reschedule by dragging
+- set duration and a background lane
+- create weekday-based routines
+- read status across the agenda, timeline, and weekly dashboard
+- edit task details in a drawer
+- drill down from Monthly to Weekly to Daily
+```
+
+Task persistence still uses the localStorage repository. The next major step is connecting the Django task API and repository so data survives beyond one browser. Recurrence is currently weekday-based, leaving monthly recurrence, due dates, and notifications for later work after backend sync.
