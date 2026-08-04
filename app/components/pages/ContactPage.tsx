@@ -1,22 +1,23 @@
 'use client';
 
 import { useState } from 'react';
+import PageHeader from '../layout/PageHeader';
+import PageShell from '../layout/PageShell';
+
+const inputClass =
+  'w-full rounded-[4px] border border-[var(--divider)] bg-transparent px-4 py-3 text-[15px] text-[var(--foreground)] placeholder:text-[var(--muted)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]';
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: '',
-  });
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (status !== 'idle') setStatus('idle');
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData((current) => ({ ...current, [event.target.name]: event.target.value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setStatus('sending');
 
     try {
@@ -25,8 +26,8 @@ export default function ContactPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-
       const data = await response.json();
+
       if (data.success) {
         setFormData({ name: '', email: '', message: '' });
         setStatus('success');
@@ -40,115 +41,127 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="w-full px-3 py-3 md:py-3">
-      <section className="mx-auto w-full max-w-5xl">
-        <div className="pb-8 border-b border-gray-200/80 dark:border-white/10">
-          <p className="text-sm tracking-wide text-gray-500 dark:text-white/60 mb-3">Contact</p>
-          <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 dark:text-white leading-tight">Get in touch</h1>
-          <p className="mt-3 text-base text-gray-600 dark:text-white/70 max-w-2xl">Send me a message and I’ll get back to you as soon as possible.</p>
-        </div>
+    <div className="w-full bg-[var(--background)]">
+      <PageShell>
+        <PageHeader eyebrow="Contact" title="Let's keep in touch!" description="Send me a message and I’ll get back to you as soon as possible." />
 
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-5 gap-8">
-          {/* Left: info */}
-          <div className="md:col-span-2">
-            <div className="space-y-4 text-sm text-gray-700 dark:text-white/75">
-              <div></div>
-              <div>
-                <p className="text-gray-500 dark:text-white/60">Links</p>
-                <div className="mt-2 flex flex-wrap gap-3">
-                  <a
-                    className="font-medium text-gray-900 dark:text-white hover:underline underline-offset-4"
-                    href="https://github.com/jfloww"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    GitHub
-                  </a>
-                  <a
-                    className="font-medium text-gray-900 dark:text-white hover:underline underline-offset-4"
-                    href="https://www.linkedin.com/in/jfloww/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    LinkedIn
-                  </a>
-                  <a
-                    className="font-medium text-gray-900 dark:text-white hover:underline underline-offset-4"
-                    href="https://www.instagram.com/jaehoon_jung98/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Instagram
-                  </a>
+        <section className="grid gap-14 py-12 lg:grid-cols-[1fr_2fr] lg:gap-28 lg:py-16">
+          <aside className="space-y-12">
+            <div>
+              <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">Information</h2>
+              <dl className="mt-6 space-y-5">
+                <div>
+                  <dt className="text-xs text-[var(--muted)]">Email</dt>
+                  <dd className="mt-1">
+                    <a href="mailto:hoon7589@gmail.com" className="text-lg font-medium hover:text-[var(--accent)]">
+                      hoon7589@gmail.com
+                    </a>
+                  </dd>
                 </div>
-              </div>
+                <div>
+                  <dt className="text-xs text-[var(--muted)]">Location</dt>
+                  <dd className="mt-1 text-lg font-medium">GA · NJ · NY</dd>
+                </div>
+              </dl>
             </div>
-          </div>
 
-          {/* Right: form */}
-          <div className="md:col-span-3">
-            <form
-              onSubmit={handleSubmit}
-              className="rounded-2xl border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-white/5 p-6 md:p-8"
-            >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="sm:col-span-1">
-                  <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full rounded-xl border border-gray-300/80 dark:border-white/15 bg-white/80 dark:bg-black/20 px-4 py-3 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-                    required
-                  />
-                </div>
-                <div className="sm:col-span-1">
-                  <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full rounded-xl border border-gray-300/80 dark:border-white/15 bg-white/80 dark:bg-black/20 px-4 py-3 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-                    required
-                  />
-                </div>
-              </div>
+            <div>
+              <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">Social</h2>
+              <nav className="mt-6 flex flex-col items-start gap-4" aria-label="Social links">
+                <a
+                  href="https://github.com/jfloww"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[15px] font-medium text-[var(--muted)] hover:text-[var(--accent)]"
+                >
+                  GitHub ↗
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/jfloww/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[15px] font-medium text-[var(--muted)] hover:text-[var(--accent)]"
+                >
+                  LinkedIn ↗
+                </a>
+                <a
+                  href="https://www.instagram.com/jaehoon_jung98/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[15px] font-medium text-[var(--muted)] hover:text-[var(--accent)]"
+                >
+                  Instagram ↗
+                </a>
+              </nav>
+            </div>
+          </aside>
 
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">Message</label>
-                <textarea
-                  name="message"
-                  value={formData.message}
+          <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
+            <div className="grid gap-6 sm:grid-cols-2 sm:gap-8">
+              <div>
+                <label htmlFor="contact-name" className="mb-2 block text-sm font-medium">
+                  Name
+                </label>
+                <input
+                  id="contact-name"
+                  type="text"
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
-                  className="w-full min-h-[160px] rounded-xl border border-gray-300/80 dark:border-white/15 bg-white/80 dark:bg-black/20 px-4 py-3 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                  placeholder="Enter your name"
+                  className={inputClass}
                   required
                 />
               </div>
-
-              <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <p className="text-sm text-gray-500 dark:text-white/60">
-                  {status === 'success' && <span className="text-green-600 dark:text-green-400">Message sent. Thank you!</span>}
-                  {status === 'error' && <span className="text-red-600 dark:text-red-400">Failed to send. Please try again.</span>}
-                  {status === 'sending' && <span>Sending…</span>}
-                  {status === 'idle' && <span>&nbsp;</span>}
-                </p>
-
-                <button
-                  type="submit"
-                  disabled={status === 'sending'}
-                  className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium
-                  bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed
-                  dark:bg-white dark:text-black dark:hover:bg-gray-100 transition-colors"
-                >
-                  Send Message
-                </button>
+              <div>
+                <label htmlFor="contact-email" className="mb-2 block text-sm font-medium">
+                  Email
+                </label>
+                <input
+                  id="contact-email"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="your@email.com"
+                  className={inputClass}
+                  required
+                />
               </div>
-            </form>
-          </div>
-        </div>
-      </section>
+            </div>
+
+            <div>
+              <label htmlFor="contact-message" className="mb-2 block text-sm font-medium">
+                Message
+              </label>
+              <textarea
+                id="contact-message"
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                placeholder="Write your message..."
+                className={`${inputClass} min-h-[180px] resize-y`}
+                required
+              />
+            </div>
+
+            <div className="flex flex-col gap-5 border-t border-[var(--divider)] pt-6 sm:flex-row sm:items-center sm:justify-between">
+              <p className="min-h-5 text-sm text-[var(--muted)]" role="status" aria-live="polite">
+                {status === 'success' && <span className="text-green-600 dark:text-green-400">Message sent. Thank you!</span>}
+                {status === 'error' && <span className="text-red-600 dark:text-red-400">Failed to send. Please try again.</span>}
+                {status === 'sending' && <span>Sending…</span>}
+              </p>
+              <button
+                type="submit"
+                disabled={status === 'sending'}
+                className="inline-flex items-center justify-center gap-3 rounded-[4px] bg-[var(--accent)] px-7 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Send Message <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </form>
+        </section>
+      </PageShell>
     </div>
   );
 }

@@ -2,56 +2,62 @@
 title: '<ProjectName>-logN'
 date: 'YYYYMMDD'
 id: '<projectname>-logN'
-status: 'draft'
-tags: ['log', '<projectname>']
-summary: 'One-sentence summary of this log.'
-related_issue: ''
-related_adr: []
+category: '<ProjectName>'
+tags: ['devlog', '<projectname>']
+techStack: '<Main technologies>'
+hidden: true
 ---
 
-## Context
-- What problem are we solving now?
-- Why is this work needed now?
+## 목적
 
-## Scope
-- In scope:
-- Out of scope:
+<!-- 무엇을 만들려 했는지, 왜 지금 필요했는지 2~4문장으로 적는다. 큰 의미를 붙이기보다 실제 불편이나 목표에서 시작한다. -->
 
-## Decision
-- Final decision:
-- Decision owner:
-- Decision date:
+## 스케치
 
-## Alternatives Considered
-1. Option A:
-   - Pros:
-   - Cons:
-2. Option B:
-   - Pros:
-   - Cons:
+<!-- 처음 생각한 화면, 데이터 흐름, component 관계 중 필요한 것 하나만 간단히 보여준다. -->
 
-## Implementation Plan
-1. Step 1:
-2. Step 2:
-3. Step 3:
+```text
+Input
+  -> Process
+  -> Result
+```
 
-## Validation Plan
-- Functional checks:
-- Edge cases:
-- Performance/SLO checks:
-- Security/privacy checks:
+## 계획
 
-## Result
-- What changed:
-- What worked:
-- What failed:
+<!-- 각 단계 뒤에 그 순서로 진행한 이유를 한 문장으로 붙인다. -->
 
-## Risks and Mitigations
-- Risk:
-  - Mitigation:
+1. 첫 번째 작업 — 이유.
+2. 두 번째 작업 — 이유.
+3. 세 번째 작업 — 이유.
 
-## Next Actions
-1. Action:
-2. Action:
-3. Action:
+## 만들면서 생긴 이슈
 
+<!-- 실제 이슈가 없으면 이 section은 삭제한다. -->
+
+### 구체적인 문제를 제목으로 적기
+
+처음 예상한 동작을 적는다.
+
+실제로 생긴 문제와 확인한 원인을 적는다.
+
+어떻게 바꿨는지 적는다.
+
+## 완성된 흐름
+
+<!-- commit 목록보다 사용자가 지금 할 수 있는 흐름을 먼저 보여준다. -->
+
+```text
+시작
+  -> 주요 동작
+  -> 결과
+```
+
+- 완료한 내용
+- 확인한 동작
+
+## 개선점과 노트
+
+<!-- 남은 제한, 보류한 결정, 다음 작업을 적는다. 내용이 없으면 삭제한다. -->
+
+- 현재 제한
+- 다음에 확인할 내용

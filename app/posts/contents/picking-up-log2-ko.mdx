@@ -10,140 +10,126 @@ translationKey: picking-up-log2
 hidden: false
 ---
 
-## 달력의 뼈대에서 실제 플래너로
+## 목적
 
-첫 번째 개발노트에서는 Daily, Weekly, Monthly, Yearly view와 rollover 로직까지 만든 상태를 정리했다. 구조는 갖춰졌지만, 아직은 할 일을 기간별 칸에 담아보는 달력에 가까웠다. 시간을 정하고, 반복되는 일을 관리하고, 한 주의 진행 상황을 읽는 실제 플래너의 사용감은 부족했다.
+첫 번째 로그까지는 task를 날짜와 주 단위로 저장하고 보여줄 수 있었다. 이번 작업의 목적은 그 달력을 실제로 하루를 계획할 수 있는 화면으로 바꾸는 것이었다.
 
-7월 17일부터 23일까지의 작업은 이 간격을 줄이는 과정이었다. 특히 Daily와 Weekly를 여러 번 다시 설계하면서, task를 저장하는 기능보다 오늘 할 일을 계획하고 다시 조정하는 흐름에 집중했다.
+시간을 정하고 다시 옮기는 과정, 반복되는 일을 관리하는 방식, 한 주의 진행 상황을 읽는 화면이 필요했다. 7월 17일부터 23일까지 Daily와 Weekly를 여러 번 사용해보며 구조를 조정했다.
 
-## Daily를 시간표로 바꾸기
+## 스케치
 
-Daily view에 먼저 시작 시간과 subtask를 추가했다.
-
-```text
-Task
-  ├─ time: "09:30"
-  └─ subtasks
-       ├─ 자료 조사
-       ├─ 초안 작성
-       └─ 검토
-```
-
-시간이 있는 task는 24시간 rail 위의 chip으로 표시하고, 시간이 없는 task는 All-day 영역에 남도록 했다. 현재 시각을 보여주는 now line, 시간순 정렬, subtask 진행률도 함께 붙였다. 기존 localStorage 데이터는 새 필드가 없어도 그대로 읽을 수 있도록 저장소의 read path에서 선택 필드를 정규화했다.
-
-직접 시간을 입력하는 것만으로는 일정 조정이 번거로웠다. 그래서 All-day task를 rail로 끌어 시간을 정하고, 이미 배치된 chip을 다시 끌어 시간을 바꾸며, All-day 영역으로 돌려놓으면 시간을 지우는 drag-to-schedule을 만들었다.
-
-```text
-All-day task ──drag──> hour rail      = 시간 지정
-Timeline chip ──drag──> new position  = 일정 변경
-Timeline chip ──drag──> All-day       = 시간 해제
-```
-
-rail에서는 15분 단위로 시간이 snap되고, 화면 위아래에서는 자동으로 scroll된다. 같은 시각에 놓인 task가 서로 가리지 않도록 column layout도 계산했다. 키보드 사용자는 기존 time input으로 같은 작업을 할 수 있게 유지했다.
-
-## 한 화면에 한 날짜만 남기기
-
-초기 Daily는 선택한 날짜를 가운데 두고 앞뒤 날짜를 함께 보여주는 7일 window였다. 맥락은 잘 보였지만, task를 드래그하다가 옆 날짜를 건드리면 focus가 바뀌는 문제가 있었다.
-
-이 문제는 drag 예외 처리를 더하는 대신 화면 구조를 바꾸는 쪽으로 해결했다. Daily를 한 날짜에만 집중하는 2-column layout으로 다시 만들고, 이전/다음 이동도 7일이 아니라 하루씩 움직이게 했다.
+Daily는 한 날짜의 timeline과 agenda에 집중하고, Weekly는 일주일의 분포를 확인하는 화면으로 역할을 나눴다.
 
 ```text
 Daily
-  ├─ Day timeline
+  ├─ Timeline
   │    ├─ All-day tasks
-  │    └─ 12-hour visible time rail
-  └─ Weekly task rollup
+  │    └─ Timed tasks
+  └─ Agenda
+       ├─ All Day To-Do
+       ├─ Next Up
+       └─ Done Today
+
+Weekly
+  ├─ completed / total + progress
+  └─ Sun | Mon | Tue | Wed | Thu | Fri | Sat
 ```
 
-Weekly task 영역에는 week scope task뿐 아니라 그 주에 속한 미완료 day task도 날짜와 시간순으로 모았다. 오늘, 앞으로 할 일, rollover된 지난 할 일을 한곳에서 볼 수 있게 된 것이다.
-
-화면 높이가 부족할 때는 task 영역과 timeline이 함께 무너지지 않도록 `ShrinkStack` layout primitive를 만들었다. All-day 영역의 높이가 늘어나면 time rail이 최소 6시간 높이까지 줄어들고, 각 panel 내부에서만 scroll되도록 calendar를 viewport에 고정했다. task를 선택하면 상세 정보를 편집할 수 있는 panel도 이 시기에 추가했다.
-
-## 반복 작업을 별도 시스템으로 만들지 않기
-
-반복 기능은 새로운 “Routine” 화면을 만드는 대신 기존 day task에 요일 규칙을 붙이는 방식으로 설계했다.
+task에는 일정 표현에 필요한 필드를 추가했다.
 
 ```ts
-repeatWeekdays?: number[]  // 반복의 기준이 되는 anchor
-repeatSourceId?: string    // 생성된 occurrence
+time?: string;
+durationMinutes?: number;
+background?: boolean;
+repeatWeekdays?: number[];
+repeatSourceId?: string;
 ```
 
-월·수·금처럼 요일을 선택하면 해당 날짜가 실제로 도착했을 때 occurrence를 한 번만 생성한다. 생성된 task는 그 시점의 제목, 시간, 메모를 복사한 독립 task다. 이후 anchor를 수정하거나 반복을 중단해도 이미 생성된 과거 task는 바뀌지 않는다.
+## 계획
 
-반복 task가 밀린 일 목록을 계속 채우지 않도록 occurrence는 일반 rollover 대상에서 제외했다. 아직 도착하지 않은 날짜에는 데이터를 미리 저장하지 않지만, Weekly에서는 예정된 반복 task를 흐리게 표시해 앞으로의 일정을 미리 볼 수 있도록 보완했다.
+1. task에 시간과 duration을 추가한다 — 목록과 실제 일정의 차이를 줄이기 위해서였다.
+2. Daily에 drag-to-schedule을 붙인다 — 시간을 계속 입력하는 방식은 일정 변경에 불편했다.
+3. 반복 일정을 기존 task model에 넣는다 — 별도 Routine 화면을 만들 필요가 없었다.
+4. Weekly를 한 주 dashboard로 바꾼다 — 한 달 전체보다 현재 주의 상태를 먼저 보고 싶었다.
+5. task detail을 drawer로 통일한다 — Daily와 Weekly에서 같은 편집 흐름을 사용하기 위해서였다.
+6. 마지막에 시각 밀도를 조정한다 — 기능이 동작한 뒤 실제 화면에서 답답한 부분을 확인하려 했다.
 
-## Weekly를 한 주의 dashboard로
+## 만들면서 생긴 이슈
 
-기존 Weekly는 한 달의 모든 주를 크고 작은 row로 보여줬다. 월간 맥락은 있었지만 각 날짜가 너무 작아, 정작 한 주를 계획하기에는 정보 밀도가 낮았다.
+### Daily의 7일 화면에서 drag가 자주 빗나갔다
 
-Weekly를 한 번에 한 주만 보여주는 화면으로 다시 만들었다.
+초기 Daily는 선택한 날짜 앞뒤까지 포함한 7일 window였다. 주변 일정은 잘 보였지만 task를 rail에 놓다가 옆 날짜를 건드리면 focus가 바뀌었다.
+
+drag 예외를 계속 추가하는 대신 Daily를 한 날짜만 보여주는 2-column layout으로 바꿨다. 이전과 다음 버튼도 하루씩 이동하도록 맞췄다.
 
 ```text
-This week: 완료 수 / 전체 수 + progress
-
-Sun | Mon | Tue | Wed | Thu | Fri | Sat
+All-day task ──drag──> hour rail      = 시간 지정
+Timeline chip ──drag──> new position  = 시간 변경
+Timeline chip ──drag──> All-day       = 시간 해제
 ```
 
-상단 hero에서는 그 주의 완료율을 보여주고, 아래의 일곱 day box에는 날짜별 task와 완료 수를 표시한다. 지난 미완료 task, 오늘 남은 task, 반복 task는 서로 다른 시각 신호를 사용한다. 이전/다음은 이제 한 주씩 이동하며, Monthly의 달을 double-click하면 Weekly로, Weekly의 날짜를 double-click하면 Daily로 내려갈 수 있다.
+rail은 15분 단위로 snap하고, 위아래 끝에서는 자동으로 scroll한다. time input도 남겨 키보드로 같은 작업을 할 수 있게 했다.
 
-이 변경으로 Daily는 오늘의 실행 화면, Weekly는 한 주의 상태를 읽고 이동하는 화면으로 역할이 더 분명해졌다.
+### All-day task가 늘면 timeline이 화면 밖으로 밀렸다
 
-## Focus Planner 방향으로 UI 정리
+화면 높이가 짧은 환경에서는 All-day 영역과 timeline이 함께 커지면서 planner 전체가 길어졌다. `ShrinkStack`을 만들어 All-day가 커질 때 timeline이 최소 높이까지 줄어들고, 각 panel 안에서만 scroll하도록 바꿨다.
 
-기능이 늘어나자 Daily의 task list와 상세 panel이 다시 복잡해졌다. 7월 22일에는 Daily를 agenda와 timeline 중심으로 재구성하고, dark theme을 Neural Noir 계열로 다듬었다.
+이후 Daily를 Focus Planner 형태로 정리하면서 timeline과 agenda를 60/40 비율로 배치하고, task detail은 오른쪽 drawer로 옮겼다.
 
-Agenda는 All Day To-Do, Next Up, Done Today로 나눴고, 우선순위와 같은 날의 시간 초과 상태를 표시했다. 상세 정보는 오른쪽에서 들어오는 drawer로 옮겨 60/40 비율의 timeline/agenda layout을 유지했다.
+### 반복 task가 일반 미완료 task처럼 쌓일 수 있었다
 
-이후 별도로 만든 Focus Planner reference를 기준으로 시각 밀도를 다시 조정했다.
+요일 반복은 anchor task가 해당 날짜에 도착했을 때 occurrence를 하나 만드는 방식으로 구현했다. 생성된 occurrence는 그 시점의 제목, 시간, 메모를 복사한 독립 task다.
 
-- Daily를 앱의 기본 view로 변경
-- 64px hour rhythm과 더 넓은 time gutter 적용
-- agenda card를 두 줄 구조로 정리
-- `New task` action을 agenda 하단에 고정
-- 약 400px 너비의 detail drawer 구성
-- 기존 header, footer, auth 흐름은 그대로 유지
+```text
+Routine anchor
+  -> 오늘이 선택된 요일인지 확인
+  -> occurrence가 없을 때만 생성
+  -> repeatSourceId로 anchor 기록
+```
 
-reference의 모양만 복사한 것은 아니다. 기존 drag, 완료 처리, 반복, subtask, 우선순위, rollover가 새 layout에서도 그대로 동작하도록 컴포넌트의 책임을 다시 나눴다.
+이 occurrence까지 일반 rollover 대상에 넣으면 놓친 routine이 계속 현재 목록으로 따라왔다. routine occurrence는 rollover에서 제외하고, 아직 도착하지 않은 날짜에는 저장하지 않기로 했다. Weekly에서는 예정된 occurrence만 흐리게 미리 보여준다.
 
-## 7월 23일의 기능 보완
+### 시간이 겹치는 task가 서로 가렸다
 
-마지막 날에는 보이는 UI와 실제 scheduling data의 차이를 줄였다.
-
-task에 duration을 추가해 agenda에는 `9:00 – 9:45 AM` 같은 범위를 표시하고, timeline chip의 높이도 실제 길이에 맞췄다. preset뿐 아니라 2시간을 넘는 값도 직접 입력할 수 있게 했다.
-
-반복 task 상세 화면에는 다음 세 번의 예정 날짜를 보여준다. Daily drawer의 수정 사항은 즉시 저장하지 않고 draft로 모아 `Done`에서 적용하며, `Cancel`, 닫기, Escape에서는 버리도록 바꿨다. Weekly도 같은 slide-in drawer를 재사용해 두 화면의 편집 경험을 맞췄다.
-
-긴 업무 시간처럼 다른 일정의 배치를 방해하지 않아야 하는 task에는 `background` flag를 추가했다. background task는 timeline 왼쪽의 별도 lane에 흐리게 표시한다. 일반 task끼리는 시작 시간이 같은지뿐 아니라 실제 시간 구간이 겹치는지를 계산해 column을 배정한다.
+처음에는 시작 시간이 같은 task만 나란히 배치했다. duration이 추가되면서 시작 시간이 달라도 실제 구간이 겹칠 수 있었다.
 
 ```text
 08:00 ┌ background: Work ┐  ┌ Task A ┐
-09:00 │                  │  ├ Task B ┤  <- interval overlap
+09:00 │                  │  ├ Task B ┤
 10:00 │                  │  └────────┘
 ```
 
-duration이 없는 task도 30분의 nominal interval로 계산해 충돌을 피한다. 길어진 chip 전체를 클릭할 수 있게 하고, timeline에서도 checkbox로 바로 완료할 수 있도록 interaction의 빈틈도 정리했다.
+배치 계산을 시작 시각 비교에서 interval overlap 계산으로 바꿨다. duration이 없는 task는 30분으로 계산했다. 긴 업무 시간처럼 다른 일정과 경쟁하지 않아야 하는 task는 `background` lane에 따로 표시했다.
 
-## 이번 구간에서 배운 점
+## 완성된 흐름
 
-이번 작업에서 가장 많이 바뀐 것은 데이터 모델보다 Daily와 Weekly의 역할이었다.
-
-처음에는 주변 날짜를 많이 보여주는 것이 좋은 calendar라고 생각했다. 실제로 task를 끌고, 열고, 수정해보니 Daily에는 넓은 맥락보다 한 날짜에 대한 안정적인 focus가 더 중요했다. 반대로 Weekly에는 세부 편집보다 진행률과 일주일의 분포를 빠르게 읽는 구조가 필요했다.
-
-UI redesign도 마지막에 색과 간격을 다듬는 단계가 아니었다. drag 오류를 없애기 위해 layout을 바꾸고, 반복 규칙을 기존 task model에 넣고, drawer를 공유하면서 interaction과 component boundary를 함께 다시 설계하는 제품 개발 과정이었다.
-
-## 7월 23일 기준 상태
-
-이 시점의 Picking Up은 다음 흐름을 사용할 수 있다.
+7월 23일 기준으로 다음 작업을 할 수 있었다.
 
 ```text
-- 로그인 후 Daily planner 진입
-- task와 subtask 추가
-- drag로 시간 지정 및 변경
-- duration과 background lane 설정
-- 요일 기반 routine 생성
-- agenda / timeline / weekly dashboard에서 상태 확인
-- drawer에서 task 상세 수정
-- Monthly → Weekly → Daily drill-down
+Daily 진입
+  -> All-day task 추가
+  -> timeline으로 끌어 시간 지정
+  -> duration과 priority 설정
+  -> subtask 확인
+  -> drawer에서 수정 후 Done
+  -> Weekly에서 일주일 진행률 확인
 ```
 
-task 저장은 아직 localStorage repository를 사용한다. 다음 큰 단계는 Django task API와 repository를 연결해 브라우저를 넘어 데이터를 유지하는 것이다. 반복 규칙도 현재는 요일 기반이므로, backend sync 이후에 월간 반복, 마감일, 알림 같은 기능을 확장할 계획이다.
+추가된 기능은 다음과 같다.
+
+- 15분 단위 drag-to-schedule과 auto-scroll
+- task duration과 실제 높이의 timeline chip
+- All-day, Next Up, Done Today agenda
+- 요일 기반 routine과 다음 세 번의 예정 날짜
+- Weekly 진행률과 일곱 개 day column
+- Monthly → Weekly → Daily drill-down
+- Daily와 Weekly가 공유하는 task detail drawer
+- background lane과 interval overlap layout
+- timeline checkbox와 전체 chip click 영역
+
+## 개선점과 노트
+
+- task 저장은 여전히 localStorage repository를 사용한다.
+- 반복 규칙은 요일 단위만 지원한다.
+- drawer에서 여러 필드를 한 번에 저장하는 방식은 더 단순하게 만들 여지가 있다.
+- 다음 작업은 task API를 만들고 browser 밖에서도 같은 데이터를 사용하는 것이다.

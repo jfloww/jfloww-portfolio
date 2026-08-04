@@ -10,42 +10,57 @@ translationKey: picking-up-log1
 hidden: false
 ---
 
-## Starting Point: A Workspace I Can Use Every Day
+## Goal
 
-The original Phase 1 plan was a web prototype. I expected to build the UI with mock data, create screens such as Today, Inbox, Done, Archived, and Settings, and add a task detail panel.
+The first goal for Picking Up was a web version where I could sign in and manage real tasks.
 
-Once development started, a pure mock UI did not feel enough to evaluate the app properly. I needed the real flow: sign in, preserve user data, and access a protected `/app` workspace. Because of that, part of the authentication and backend foundation moved into Phase 1 earlier than planned.
+The original plan was a UI prototype backed by mock data, with pages such as Today, Inbox, and Done. Once work started, it became clear that the flow was hard to judge without login and persistence. I decided to establish the basic authentication, backend, and database structure alongside the interface.
 
-## Project Structure and Stack Decisions
+## Sketch
 
-The initial workspace structure was:
+The frontend and backend were separated so a future iPhone app could use the same API.
 
 ```text
 frontend/         -> Next.js web app
 backend/          -> Django REST API
 mobile-frontend/  -> future iPhone app
-docs/             -> planning and development history
+docs/             -> planning and development notes
 ```
 
-Supabase and other backend options were considered early, but the final direction became Django + Oracle Database on OCI. The goal was not only to ship features, but also to work through backend ownership, API contracts, authentication, permissions, database migrations, and cloud deployment.
-
-The Django backend owns authentication, authorization, API contracts, task data, and migrations. The frontend and any future iPhone app should use the same API.
-
-## Authentication Foundation
-
-The first implementation work added login and signup pages to the Next.js frontend, along with a protected `/app` route. JWTs are not stored directly in browser localStorage. Instead, Next.js route handlers store them in HTTP-only cookies.
-
-The current authentication flow is:
+The browser would not handle JWTs directly.
 
 ```text
-Browser login form
+Login form
   -> Next.js /api/auth/login
   -> Django /api/auth/token/
-  -> Next.js stores JWT in HTTP-only cookies
-  -> /app is protected by middleware
+  -> store JWT in HTTP-only cookies
+  -> enter a protected route
 ```
 
-The Django backend currently exposes these auth endpoints:
+Tasks started with four scopes instead of being attached only to a date.
+
+```text
+day   -> work for a date
+week  -> work for a week
+month -> work for a month
+year  -> goals or notes for a year
+```
+
+## Plan
+
+1. Build login and registration first — the screens needed to be tested through a real user flow.
+2. Set shared styles for landing and auth — basic UI rules should be stable before more pages were added.
+3. Decide how Django connects to Oracle — the production database direction needed to be clear early.
+4. Build the task repository and scope model — storage and movement rules came before detailed views.
+5. Implement Daily and Weekly first — they were the most useful scales for checking the planner structure.
+
+## Issues During Development
+
+### A mock interface did not show the complete flow
+
+The first plan was close to a frontend-only prototype. A screen that opened directly at `/app` did not answer what happened after login or how user data would be kept separate.
+
+The Phase 1 boundary was expanded slightly to include Django authentication endpoints and a protected route.
 
 ```text
 POST /api/auth/register/
@@ -54,86 +69,59 @@ POST /api/auth/token/refresh/
 GET  /api/auth/me/
 ```
 
-Features like forgot password, email verification, OAuth, MFA, and account deletion were intentionally deferred. The core task workflow is not proven yet, so authentication is kept at the minimum level needed to use the app.
+Password reset, email verification, OAuth, and MFA remained out of scope. There was no reason to keep expanding authentication before the core task workflow existed.
 
-## Landing and Auth Redesign
+### Local and production databases were different
 
-The next step was rebuilding the landing, login, and signup pages on a cleaner design system.
-
-The design direction is close to Tesla-minimal: mostly black and white, with a small steel blue accent. Dark mode is included, and the default theme is dark.
-
-This work introduced Tailwind v4, shadcn/ui, and next-themes. Shared components such as `Wordmark`, `ThemeToggle`, and `AuthLayout` were added, and the login/signup forms were rebuilt around the same structure.
-
-The landing page currently uses a CSS mock of the future task workspace because the real task UI is not finished yet. Once `/app` is ready, that mock should be replaced with a real screenshot.
-
-## Oracle Database on OCI
-
-The production database direction is Oracle Database on OCI.
-
-SQLite is still used as a temporary local development fallback, but SQLite should not be used in production. The target is an Oracle Autonomous Database 26ai Always Free instance. Django settings are prepared to read connection values from environment variables such as `ORACLE_DB_USER`, `ORACLE_DB_PASSWORD`, and `ORACLE_DB_DSN`.
-
-The docs record that migrations were applied against Oracle as the `pickingup_app` user. Running the auth tests against Oracle Database is still a follow-up task.
-
-## Task Calendar Design
-
-The main product work is now the `/app` task workspace.
-
-The idea started as a normal to-do list, but the current design is a calendar-style multi-scale task workspace. It has four views: Daily, Weekly, Monthly, and Yearly. The default view is Weekly.
-
-The core concept is `zoomed-out context, focused present`.
-
-For example, the Weekly view shows the entire month but visually emphasizes the focused week. The Daily view shows one week while focusing on one day. The Monthly view shows all 12 months of a year, and the Yearly view handles year-level goals.
-
-Task scope is divided like this:
+SQLite was convenient for local development, but it was not the production target. Production was set around Oracle Autonomous Database 26ai Always Free, with Django reading the connection from environment variables.
 
 ```text
-day   -> tasks for a specific date
-week  -> tasks for a specific week
-month -> tasks for a specific month
-year  -> goals or notes for a specific year
+ORACLE_DB_USER
+ORACLE_DB_PASSWORD
+ORACLE_DB_DSN
 ```
 
-Another important feature is rollover. If an unfinished task is left in the past, it follows the user forward. An unfinished day task rolls into a weekly cell. An unfinished week task moves into the current week. An unfinished month task moves into the current month. Completed tasks are never changed.
+Oracle migrations and tests still needed their own checks. A feature working on local SQLite would not automatically mean that the database work was complete.
 
-## Current Implementation Status
+### Unfinished tasks needed somewhere to go
 
-On the current `feat/task-calendar` branch, these parts are complete:
+Leaving incomplete tasks on old dates would make users search through past views. A rollover rule moved them into the current planning period.
 
 ```text
-1. Vitest test setup
-2. date utility functions
-3. task type / scope model
-4. rollover logic
-5. localStorage repository
-6. repository payload validation
-7. React context + reducer store
-8. quick-add, task-item, period-cell, scope-tasks primitives
-9. Weekly view
-10. Daily view
+past day task   -> current weekly scope
+past week task  -> current week
+past month task -> current month
+completed task  -> does not move
 ```
 
-The task calendar now has its core logic and the Daily/Weekly UI foundation.
+## Completed Flow
 
-The current in-progress work is Monthly and Yearly views. The files exist, but they are not committed yet. After that, the next step is to add the view switcher, the TaskCalendar shell, and the `/app` page integration.
-
-## Takeaway From Log 1
-
-Phase 1 started as a web UI prototype, but it became a broader foundation phase.
-
-So far, the project has covered:
+As of July 16, the following path worked:
 
 ```text
-- project structure
-- Django backend direction
-- Oracle Database on OCI direction
-- authentication foundation
-- protected app route
-- landing/login/signup redesign
-- dark-default theme system
-- task calendar design
-- task calendar core logic and Daily/Weekly views
+register or sign in
+  -> store authentication in HTTP-only cookies
+  -> enter the protected planner
+  -> view Daily and Weekly tasks
+  -> add and complete tasks
+  -> roll unfinished past work forward
 ```
 
-The remaining work is the task API and production quality. After the task calendar UI is finished, the next major step is to build the Django `tasks` app and API, then replace the localStorage repository with a Django API-backed repository.
+The implemented scope included:
 
-The goal for Phase 1 is now clear: not just to build visible screens, but to complete the first usable version where I can sign in, add tasks, and manage them across day, week, and month views.
+- Next.js login, signup, and protected routing;
+- Django JWT authentication endpoints;
+- shared landing and auth layouts;
+- light and dark theme tokens;
+- the task type and scope model;
+- a localStorage repository with payload validation;
+- rollover logic;
+- a React context and reducer store;
+- initial Daily and Weekly views.
+
+## Improvements and Notes
+
+- Tasks still live only in localStorage.
+- Monthly and Yearly need to be completed.
+- Authentication and migrations need another pass against Oracle.
+- The next step is turning Daily and Weekly into views that can schedule actual time.

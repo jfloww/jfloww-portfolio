@@ -28,18 +28,16 @@ export default function DarkModeToggle() {
   };
 
   return (
-    <div className="pt-1">
-      <button
-        type="button"
-        onClick={toggleDarkMode}
-        aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-        aria-pressed={darkMode === true}
-        className="w-12 h-6 flex items-center bg-gray-300 dark:bg-gray-600 rounded-full p-1 transition duration-300"
-      >
-        <div
-          className={`w-5 h-5 bg-white dark:bg-black rounded-full shadow-md transform transition ${darkMode ? 'translate-x-6' : 'translate-x-0'}`}
-        ></div>
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={toggleDarkMode}
+      aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+      aria-pressed={darkMode}
+      className="flex h-6 w-11 items-center rounded-full border border-[var(--divider)] bg-[var(--surface-subtle)] p-[3px] transition-colors"
+    >
+      <span
+        className={`h-4 w-4 rounded-full bg-[var(--foreground)] transition-transform duration-200 ${darkMode ? 'translate-x-5' : 'translate-x-0'}`}
+      />
+    </button>
   );
 }

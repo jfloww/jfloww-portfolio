@@ -8,89 +8,66 @@ techStack: 'Planning'
 hidden: true
 ---
 
-## Context
+## Goal
 
-- Build a travel app where users can track visited places, planned trips, and wishlist locations on a world map.
-- This log defines product scope and records the first planning decisions before implementation.
+TripPinMap started as a way to keep visited places, planned trips, and wishlist destinations on one map.
 
-## Scope
+Travel notes were spread across map bookmarks, photos, and note apps. The first task was not implementation. It was deciding what one saved place should contain and keeping the first version small enough to build.
 
-- In scope:
-  - Core product idea and user flow
-  - Feature definition for `visited`, `planned`, `wishlist`
-  - MVP boundary and non-goals
-- Out of scope:
-  - Final stack selection
-  - Detailed DB schema
-  - UI design system
+## Sketch
 
-## Product Goal
+The map is the main entry point. Each pin has one of three statuses, and its detail fields change with that status.
 
-TripPinMap helps users visualize where they have been, where they plan to go, and where they want to go next, with map-first interaction and lightweight trip records.
+```text
+World map
+  └─ Location pin
+       ├─ visited  -> dates, timeline, photos, notes
+       ├─ planned  -> dates, planned activities
+       └─ wishlist -> things to do, notes
+```
 
-## Core User Flow
+The basic user flow is:
 
-1. User signs in.
-2. User sees world map.
-3. User pins a location with one status:
-   - `visited` (green)
-   - `planned` (yellow)
-   - `wishlist` (blue)
-4. User adds details based on status.
-5. User returns to map and sees status reflected immediately.
+```text
+sign in
+  -> open the world map
+  -> add a location and status
+  -> fill in the matching details
+  -> return to the updated map
+```
 
-## Feature Definition by Status
+## Plan
 
-### 1) Visited (Green)
+1. Fix the three status meanings — their required fields will shape the data model.
+2. Keep the map as the first screen — the product is about seeing places together, not browsing a list first.
+3. Start with simple text records — a full media pipeline would make the first version much larger.
+4. Decide the stack and data ownership next — implementation should start after the product boundary is stable.
+5. Draft the database and API after the stack decision — this avoids designing the same contract twice.
 
-- Required:
-  - Visit date range
-  - Nights/days
-  - Timeline or activity history
-- Optional:
-  - Photos
-  - Notes and highlights
+## Completed Flow
 
-### 2) Planned (Yellow)
+This log completes the planning boundary, not an implemented application.
 
-- Required:
-  - Planned date range
-  - Expected nights/days
-- Optional:
-  - Planned timeline
-  - Activity checklist
+The first version includes:
 
-### 3) Wishlist (Blue)
+- Google login;
+- a world map with status-colored pins;
+- create, read, update, and delete for saved places;
+- detail fields that change by status;
+- basic activity or timeline text records.
 
-- Required:
-  - Destination
-- Optional:
-  - Things to do
-  - Notes/motivation
+The three statuses are defined as follows:
 
-## MVP Boundary (v1)
+```text
+visited  -> visit dates and history, with optional photos and notes
+planned  -> planned dates, with optional timeline and checklist
+wishlist -> destination, with optional ideas and notes
+```
 
-1. Social login (start with Google).
-2. Map with color-coded pins by status.
-3. CRUD for pinned locations.
-4. Status-specific detail forms.
-5. Basic activity/timeline text records.
+## Improvements and Notes
 
-## Non-Goals (v1)
-
-- Advanced social sharing
-- AI recommendations
-- Offline-first mode
-- Full photo pipeline optimization
-
-## Risks
-
-- Map interaction complexity on mobile UX.
-- Scope creep from timeline and media features.
-- Data model drift if status-specific rules are not fixed early.
-
-## Next Actions
-
-1. Write `TripPinMap-log2` for stack decision.
-2. Finalize backend approach and data ownership boundaries.
-3. Draft initial DB schema and API contract in `TripPinMap-log3`.
+- Advanced sharing is outside the first version.
+- AI recommendations are not part of the initial scope.
+- Offline-first support and photo optimization come later.
+- Mobile map interaction needs an early prototype before the rest of the UI is finalized.
+- The next log should choose the stack and define backend ownership.
