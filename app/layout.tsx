@@ -24,11 +24,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="icon" href="/icons/jfloww.png" sizes="any" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="bg-white dark:bg-[#1A1A1F] text-black dark:text-white flex flex-col min-h-screen min-w-screen">
+      <body className="flex min-h-screen min-w-0 flex-col overflow-x-hidden bg-[var(--background)] text-[var(--foreground)]">
         <SpeedInsights />
         <Analytics />
         <Header />
-        <main className="flex-grow m-auto w-full md:w-2/3 flex py-4">{children}</main>
+        <main className="flex w-full flex-grow">{children}</main>
         <Footer />
       </body>
     </html>

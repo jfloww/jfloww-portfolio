@@ -1,95 +1,104 @@
 'use client';
 
-import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useMemo, useState } from 'react';
 import { dateFormat } from '../functions/dateFormat';
-import { ListMeta } from '../functions/importList';
+import type { ListMeta } from '../functions/importList';
+import { getPostSummary } from '@/app/lib/content/presentation';
+import type { SupportedLocale } from '@/app/lib/i18n';
 
 interface PostListClientProps {
   posts: ListMeta[];
   prefix: string;
+  locale: SupportedLocale;
 }
 
-export default function PostListClient({ posts, prefix }: PostListClientProps) {
+const COPY = {
+  en: {
+    search: 'Search by title, category, or tag',
+    all: 'All',
+    empty: 'No posts match this search.',
+  },
+  ko: {
+    search: '제목, 카테고리, 태그 검색',
+    all: '전체',
+    empty: '검색 조건에 맞는 글이 없습니다.',
+  },
+};
+
+export default function PostListClient({ posts, prefix, locale }: PostListClientProps) {
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  const copy = COPY[locale];
 
   const categories = useMemo(() => {
-    const set = new Set<string>();
-    posts.forEach((post) => {
-      if (post.category) set.add(post.category);
-    });
-    return ['All', ...Array.from(set).sort((a, b) => a.localeCompare(b))];
+    const values = new Set(posts.map((post) => post.category).filter((category): category is string => Boolean(category)));
+    return ['All', ...Array.from(values).sort((a, b) => a.localeCompare(b))];
   }, [posts]);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const normalizedQuery = query.trim().toLowerCase();
     return posts.filter((post) => {
-      const matchCategory = activeCategory === 'All' || post.category === activeCategory;
-      const haystack = [post.title, post.techStack ?? '', post.category ?? '', ...(post.tags ?? [])].join(' ').toLowerCase();
-      const matchQuery = !q || haystack.includes(q);
-      return matchCategory && matchQuery;
+      const matchesCategory = activeCategory === 'All' || post.category === activeCategory;
+      const searchableText = [post.title, post.techStack ?? '', post.category ?? '', ...(post.tags ?? [])].join(' ').toLowerCase();
+      return matchesCategory && (!normalizedQuery || searchableText.includes(normalizedQuery));
     });
   }, [posts, query, activeCategory]);
 
   return (
-    <>
-      <div className="pb-8 border-b border-gray-200/80 dark:border-white/10">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 dark:text-white leading-tight">Posts</h1>
-            <p className="mt-2 text-sm text-gray-600 dark:text-white/70">Development logs, decisions, and implementation notes.</p>
-          </div>
-
-          <div className="w-full lg:w-auto lg:min-w-[420px]">
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by title, category, tag..."
-              className="w-full rounded-xl border border-gray-300/80 dark:border-white/15 bg-white/80 dark:bg-black/20 px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-            />
-            <div className="mt-3 flex flex-wrap justify-start lg:justify-end gap-2">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setActiveCategory(category)}
-                  className={`rounded-full px-3 py-1.5 text-xs border transition-colors ${
-                    activeCategory === category
-                      ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-black dark:border-white'
-                      : 'border-gray-300/80 text-gray-700 dark:border-white/20 dark:text-white/75'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
+    <section className="py-10 md:py-14">
+      <div className="flex flex-col gap-5 border-b border-[var(--divider)] pb-8 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-wrap gap-x-6 gap-y-2" aria-label="Filter posts by category">
+          {categories.map((category) => {
+            const active = activeCategory === category;
+            return (
+              <button
+                key={category}
+                type="button"
+                onClick={() => setActiveCategory(category)}
+                className={`border-b-2 pb-2 text-sm font-medium transition-colors ${
+                  active ? 'border-[var(--accent)] text-[var(--foreground)]' : 'border-transparent text-[var(--muted)] hover:text-[var(--foreground)]'
+                }`}
+              >
+                {category === 'All' ? copy.all : category}
+              </button>
+            );
+          })}
         </div>
+
+        <label className="w-full lg:w-[360px]">
+          <span className="sr-only">{copy.search}</span>
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={copy.search}
+            className="w-full rounded-[4px] border border-[var(--divider)] bg-transparent px-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)] focus:border-[var(--accent)] focus:outline-none"
+          />
+        </label>
       </div>
 
-      <div className="mt-6 divide-y divide-gray-200/80 dark:divide-white/10">
+      <div className="divide-y divide-[var(--divider)] border-b border-[var(--divider)]">
         {filtered.map((post) => (
-          <Link href={`${prefix}/posts/${post.id}`} key={post.id} className="block py-5 group">
-            <div className="flex items-start justify-between gap-4">
+          <article key={post.id}>
+            <Link href={`${prefix}/posts/${post.id}`} className="group grid gap-3 py-8 md:grid-cols-[140px_1fr_120px] md:gap-12">
+              <time className="pt-1 text-[13px] tabular-nums text-[var(--muted)]">{dateFormat(post.date)}</time>
               <div className="min-w-0">
-                <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                <h2 className="text-[17px] font-semibold text-[var(--foreground)] transition-colors group-hover:text-[var(--accent)] md:text-lg">
                   {post.title}
                 </h2>
-                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                  {post.category && <span className="uppercase tracking-wide">{post.category}</span>}
-                  {post.techStack && <span className="uppercase tracking-wide">{post.techStack}</span>}
-                  {(post.tags ?? []).slice(0, 3).map((tag) => (
-                    <span key={tag} className="rounded-full border border-gray-300/70 dark:border-white/20 px-2 py-0.5 lowercase">
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
+                <p className="mt-2 text-[15px] leading-relaxed text-[var(--muted)]">{getPostSummary(post, locale)}</p>
+                {post.techStack && <p className="mt-3 text-xs text-[var(--muted)] opacity-75">{post.techStack}</p>}
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 tabular-nums shrink-0 pt-1">{dateFormat(post.date)}</p>
-            </div>
-          </Link>
+              {post.category && (
+                <span className="pt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)] md:text-right">{post.category}</span>
+              )}
+            </Link>
+          </article>
         ))}
       </div>
-    </>
+
+      {filtered.length === 0 && <p className="py-12 text-sm text-[var(--muted)]">{copy.empty}</p>}
+    </section>
   );
 }

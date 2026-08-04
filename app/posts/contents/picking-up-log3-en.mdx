@@ -1,0 +1,152 @@
+---
+title: 'Picking Up Log 3'
+date: '20260730'
+id: picking-up-log3-en
+category: 'Picking Up'
+tags: ['devlog', 'phase-1', 'task-sync', 'monthly-planner', 'google-oauth', 'en']
+techStack: 'Next.js, Django REST Framework, Oracle Database'
+locale: 'en'
+translationKey: picking-up-log3
+hidden: false
+---
+
+## Goal
+
+By July 23, Picking Up could schedule work in Daily and Weekly, but every task still lived in one browser's localStorage. Signing in on another device did not show the same data.
+
+From July 24 through the morning of July 30, immediately before Bucket List work began, the main goal was to attach tasks to user accounts. This also required cleaning up one-off routine changes, due dates, Weekly rescheduling, Monthly, and Google login.
+
+## Sketch
+
+Task persistence would keep the existing HTTP-only cookie boundary.
+
+```text
+Planner UI
+  -> TaskRepository
+  -> Next.js /api/tasks
+  -> Django REST API
+  -> authenticated user's tasks
+  -> Oracle Database
+```
+
+Browser JavaScript does not read the JWT. Next.js Route Handlers use the cookie token when calling Django and return only the API result to the frontend.
+
+Each Django task belongs to a user, and a routine occurrence references an anchor owned by that same user.
+
+```text
+User
+  └─ Tasks
+       ├─ routine anchor
+       │    └─ occurrences
+       └─ regular task
+```
+
+## Plan
+
+1. Add a way to detach a routine occurrence — task editing rules needed to be clear before moving them to the API.
+2. Add a due date independent of scope — where work is planned and when it is due are different values.
+3. Build a Django task CRUD API — each account needed its own storage.
+4. Replace the frontend repository with an API version — the existing store and views should change as little as possible.
+5. Add localStorage migration and failure handling — existing tasks could not be discarded during the switch.
+6. Fill gaps in Weekly and Monthly interactions — synced data needed to work across the planner views.
+7. Finish the landing and Google login path — users needed a complete route into the planner.
+
+## Issues During Development
+
+### Clearing the routine link allowed the same task to return
+
+A `Detach` action was added to turn one routine occurrence into a standalone task. The first assumption was that clearing its `repeatSourceId` would be enough.
+
+The anchor could then see no occurrence for that date and create it again during the next materialization. Detach now also records the original date in the anchor's `excludedDates`.
+
+```text
+Routine occurrence
+  -> clear repeatSourceId
+  -> add original date to anchor.excludedDates
+  -> keep it as a regular task
+```
+
+The same rule is used when an occurrence is moved to another day in Weekly or deleted. The routine pattern remains unchanged, but that date is not generated again.
+
+### Scope and deadline were treated as the same date
+
+A task's `scope` determines where it is planned, but it cannot say that a week-scoped task must be finished by Friday.
+
+An optional `dueDate` is now editable from task details. Rows show labels such as `Due Today`, `Due Fri`, or `Due Aug 14`, turning red only when an incomplete task is past due.
+
+A fixed due date does not fit a repeating task, so routine tasks hide the editor. Converting a regular task into a routine clears its previous due date.
+
+### localStorage migration could stop after a partial upload
+
+The first API load uploads legacy localStorage tasks one at a time.
+
+```text
+check legacy key
+  -> POST each local task
+  -> confirm the full batch
+  -> clear the legacy key
+  -> fetch the server list again
+```
+
+If a network error happens after only some uploads, localStorage remains intact. The next load retries the whole list and accepts only an existing same-id task as a safe duplicate. Other validation errors stay visible instead of silently dropping a task.
+
+### A failed write left the UI ahead of the server
+
+The localStorage repository rarely needed meaningful failure handling. With an API, an optimistic UI change could remain visible even when its request failed.
+
+A failed write now shows an error banner and reloads the list from the server. A later update also refreshes an expired access token and retries a task request once, which helps tabs left open through a long session.
+
+### The Monthly grid was too narrow on mobile
+
+Monthly was rebuilt as a real seven-column calendar. That worked on desktop, but shrinking the same cells on mobile left too little room for task previews.
+
+Mobile switches to a week-grouped vertical agenda instead. Selecting a date opens a right-side `DayAgendaDrawer` on desktop and a full-screen sheet on mobile. Task details replace that agenda, and closing them returns to the selected date through one overlay stack.
+
+### Google login needed to fit the existing authentication path
+
+Instead of introducing a second auth system, Django verifies the ID token returned by Google Identity Services. Django issues the same Simple JWT pair as the password flow, and Next.js stores it in HTTP-only cookies.
+
+```text
+Google ID token
+  -> Next.js /api/auth/google
+  -> Django token verification
+  -> Simple JWT pair
+  -> HTTP-only cookies
+```
+
+Returning users are found by Google's stable `sub`. If a password account already has the same verified email, the Google identity is linked to that user rather than creating another one. Google-only accounts receive an unusable password.
+
+## Completed Flow
+
+As of the morning of July 30, the following path worked:
+
+```text
+sign in with email/password or Google
+  -> open /planner
+  -> add and edit tasks
+  -> save per user through the Django API
+  -> see the same tasks in another browser
+  -> manage the schedule in Daily, Weekly, and Monthly
+```
+
+This period completed:
+
+- routine-occurrence detach with excluded dates;
+- due dates separate from scope;
+- a per-user Django task CRUD API;
+- Next.js task proxies and an API repository;
+- one-time localStorage migration;
+- a sync-error banner and server resync;
+- Weekly drag-to-reschedule;
+- a real month grid and day agenda;
+- the route rename from `/app` to `/planner`;
+- a landing preview based on the real Daily view;
+- Google Sign-In with existing-account linking;
+- access-token refresh and backend logging fixes.
+
+## Improvements and Notes
+
+- The server is the source of truth; there is no offline queue yet.
+- Concurrent edits across devices do not have merge or version handling.
+- Monthly does not support drag-to-reschedule.
+- The next work after this log begins the Bucket List for goals without a scheduled date.

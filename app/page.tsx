@@ -2,6 +2,6 @@ import ClientHome from './components/templates/ClientHome';
 import { getPostList } from './components/functions/importList';
 
 export default async function HomePage() {
-  const projList = await getPostList('projects', 5);
-  return <ClientHome projList={projList} locale="en" />;
+  const [projList, postList] = await Promise.all([getPostList('projects', 2, 'en'), getPostList('posts', 3, 'en')]);
+  return <ClientHome projList={projList} postList={postList} locale="en" />;
 }

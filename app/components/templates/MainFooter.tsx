@@ -1,22 +1,30 @@
-import Link from 'next/link';
-import Image from 'next/image';
+'use client';
 
-const APP_VERSION = 'v0.2.1';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { normalizeLocaleFromPath } from '@/app/lib/i18n';
+
+const APP_VERSION = 'v0.3.0';
 
 export default function Footer() {
+  const pathname = usePathname();
+  const locale = normalizeLocaleFromPath(pathname);
+  const contactHref = locale === 'ko' ? '/ko/contact' : '/contact';
+
   return (
-    <footer className="w-full border-t border-gray-200/70 dark:border-white/10 bg-white/70 dark:bg-[#1A1A1F]/80 backdrop-blur">
-      <div className="mx-auto w-full max-w-5xl px-6 py-4">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="text-sm text-gray-500 dark:text-white/60">
-            © {new Date().getFullYear()} jfloww <span className="ml-2 text-xs text-gray-400 dark:text-white/40">{APP_VERSION}</span>
+    <footer className="w-full border-t border-[var(--divider)] bg-[var(--background)]">
+      <div className="page-shell py-6">
+        <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
+          <div className="text-sm text-[var(--muted)]">
+            © {new Date().getFullYear()} jfloww <span className="ml-2 text-xs opacity-70">{APP_VERSION}</span>
           </div>
           <div className="flex items-center gap-5">
             <a aria-label="GitHub" target="_blank" href="https://github.com/jfloww" rel="noopener noreferrer" className="footer-icon">
-              <Image src="/icons/github.svg" width={20} height={20} alt="GitHub" />
+              <Image src="/icons/github.svg" width={19} height={19} alt="" className="dark:invert" />
             </a>
             <a aria-label="LinkedIn" target="_blank" href="https://www.linkedin.com/in/jfloww/" rel="noopener noreferrer" className="footer-icon">
-              <Image src="/icons/linkedin.svg" width={20} height={20} alt="LinkedIn" />
+              <Image src="/icons/linkedin.svg" width={19} height={19} alt="" className="dark:invert" />
             </a>
             <a
               aria-label="Instagram"
@@ -25,15 +33,10 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="footer-icon"
             >
-              <Image src="/icons/insta.svg" width={20} height={20} alt="Instagram" />
+              <Image src="/icons/insta.svg" width={19} height={19} alt="" className="dark:invert" />
             </a>
-
-            <span className="h-5 w-px bg-gray-200/80 dark:bg-white/10" />
-
-            <Link
-              href="/contact"
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-white/70 dark:hover:text-white transition-colors"
-            >
+            <span className="h-5 w-px bg-[var(--divider)]" />
+            <Link href={contactHref} className="text-sm font-medium text-[var(--muted)] transition-colors hover:text-[var(--foreground)]">
               Contact
             </Link>
           </div>
