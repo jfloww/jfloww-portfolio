@@ -9,7 +9,11 @@ export default function AboutPage() {
   return (
     <div className="w-full bg-[var(--background)]">
       <PageShell>
-        <PageHeader eyebrow="About" title="Jay (Jaehoon) Jung" description="Full Stack Software Engineer" />
+        <PageHeader
+          eyebrow="About"
+          title="Jay (Jaehoon) Jung"
+          description="Software Engineer focused on backend systems, data, and reliable web applications"
+        />
 
         <section className="grid gap-10 border-b border-[var(--divider)] py-12 md:grid-cols-[240px_1fr] md:gap-16 md:py-16">
           <Image
@@ -25,7 +29,7 @@ export default function AboutPage() {
             <dl className="divide-y divide-[var(--divider)] border-y border-[var(--divider)] text-[15px]">
               <div className="grid grid-cols-[100px_1fr] gap-5 py-4">
                 <dt className="text-[var(--muted)]">Role</dt>
-                <dd className="font-medium">Full Stack Software Engineer</dd>
+                <dd className="font-medium">Software Engineer</dd>
               </div>
               <div className="grid grid-cols-[100px_1fr] gap-5 py-4">
                 <dt className="text-[var(--muted)]">Current</dt>
@@ -33,7 +37,7 @@ export default function AboutPage() {
               </div>
               <div className="grid grid-cols-[100px_1fr] gap-5 py-4">
                 <dt className="text-[var(--muted)]">Focus</dt>
-                <dd className="font-medium">Web applications and planning tools</dd>
+                <dd className="font-medium">Backend systems, APIs, databases, and application reliability</dd>
               </div>
             </dl>
 
@@ -58,20 +62,20 @@ export default function AboutPage() {
             <h2 className={sectionTitleClass}>Tech Stack</h2>
             <dl className="space-y-4 text-[15px] leading-relaxed text-[var(--muted)]">
               <div className="grid gap-1 sm:grid-cols-[120px_1fr] sm:gap-4">
-                <dt className="font-medium text-[var(--foreground)]">Language</dt>
-                <dd>TypeScript/JavaScript, SQL, Python, C#</dd>
-              </div>
-              <div className="grid gap-1 sm:grid-cols-[120px_1fr] sm:gap-4">
-                <dt className="font-medium text-[var(--foreground)]">Framework</dt>
-                <dd>Vue.js, Django, React.js, Next.js, Node.js</dd>
+                <dt className="font-medium text-[var(--foreground)]">Backend</dt>
+                <dd>Python, Django, Node.js, C#, .NET Core</dd>
               </div>
               <div className="grid gap-1 sm:grid-cols-[120px_1fr] sm:gap-4">
                 <dt className="font-medium text-[var(--foreground)]">Database</dt>
-                <dd>OracleDB, PostgreSQL, MSSQL, SQLite</dd>
+                <dd>Oracle Database, PostgreSQL, SQL Server, SQLite</dd>
               </div>
               <div className="grid gap-1 sm:grid-cols-[120px_1fr] sm:gap-4">
-                <dt className="font-medium text-[var(--foreground)]">Tools</dt>
-                <dd>Git, Docker, AWS, Tomcat, Apache</dd>
+                <dt className="font-medium text-[var(--foreground)]">Frontend</dt>
+                <dd>TypeScript, JavaScript, Vue.js, React, Next.js</dd>
+              </div>
+              <div className="grid gap-1 sm:grid-cols-[120px_1fr] sm:gap-4">
+                <dt className="font-medium text-[var(--foreground)]">Infrastructure &amp; Tools</dt>
+                <dd>Docker, AWS, Tomcat, Apache, Git</dd>
               </div>
             </dl>
           </section>
@@ -93,13 +97,12 @@ export default function AboutPage() {
                   ComGen America · Full-time
                 </a>
                 <ul className="mt-5 list-disc space-y-2 pl-5 text-[15px] leading-relaxed text-[var(--muted)]">
-                  <li>Developed and maintained full-stack web applications for logistics automation.</li>
-                  <li>Migrated legacy Visual Basic, C#, and .NET Core projects to Vue, TypeScript, Node.js, and Python.</li>
+                  <li>Developed and maintained backend services and web applications for logistics automation.</li>
+                  <li>Modernized legacy Visual Basic, C#, and .NET Core systems with Node.js, Python, Vue, and TypeScript.</li>
                   <li>Performed Oracle DB version upgrades and data migrations.</li>
                   <li>Managed HTTPS migrations, certificate renewal, AS2 setup, and firewall configurations.</li>
                   <li>Troubleshot TCP resets, firewall timeouts, and routing issues.</li>
                 </ul>
-                <p className="mt-4 text-sm text-[var(--muted)]">Vue.js, TypeScript, Node.js, SQL, Docker</p>
               </article>
 
               <article>
@@ -120,7 +123,6 @@ export default function AboutPage() {
                   <li>Monitored and analyzed operational information.</li>
                   <li>Managed a team of 12 soldiers, including onboarding and education.</li>
                 </ul>
-                <p className="mt-4 text-sm text-[var(--muted)]">Leadership, Microsoft Office</p>
               </article>
             </div>
           </section>

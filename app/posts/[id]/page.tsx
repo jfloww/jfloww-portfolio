@@ -22,7 +22,7 @@ export default async function PostDetailPage({ params }: PostPageProps) {
   return (
     <div className="w-full px-3 py-3 md:py-3">
       <section className="mx-auto w-full max-w-5xl">
-        <div className="pb-8 border-b border-gray-200/80 dark:border-white/10">
+        <div className="border-b border-[var(--divider)] pb-8">
           <p className="text-sm tracking-wide text-gray-500 dark:text-white/60 mb-3">Post</p>
           <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 dark:text-white leading-tight">{entry.meta.title}</h1>
           <p className="mt-3 text-sm text-gray-600 dark:text-white/70">{dateFormat(entry.meta.date)}</p>

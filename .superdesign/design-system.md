@@ -25,6 +25,22 @@ This is a bilingual personal portfolio and technical blog for a software enginee
 - Avoid excessive pills for metadata.
 - No large marketing slogan. Copy must remain factual and short.
 
+## Monochrome variant
+
+- Keep this as a separate visual variant of the approved blue-white portfolio. Layout, typography, spacing, content, responsiveness, and media sizing remain unchanged.
+- Use `#FFFFFF` for the light background, `#171A1F` for light foreground and interaction accents, `#F5F5F5` for alternating light sections, `#6B6B6B` for light muted text, and `#D9D9D9` for light dividers.
+- Use `#0A0A0A` for the dark background, `#EDEDED` for dark foreground and interaction accents, `#111111` for alternating dark sections, `#A3A3A3` for dark muted text, and `#292929` for dark dividers.
+- Convert the JFLOWW brand mark to solid black in light mode and solid white in dark mode. Keep profile and project imagery in its original color so the portfolio work remains legible and recognizable.
+- Links, active navigation, keyboard focus, and small stack separators use the foreground color rather than blue. Do not add any replacement accent color.
+
+## Approved continuous canvas
+
+- Use the continuous canvas as the default page treatment across Home, Projects, Posts, About, Contact, and detail pages.
+- Use `#FFFFFF` for both the main and subtle light surfaces. Use `#0A0A0A` for both the main and subtle dark surfaces. Do not introduce a blue-gray or cool-black section band.
+- Keep the shared desktop header at 56px and use the same background as the content directly below it. Do not place a full-width divider between the header and the first section.
+- Separate major Home sections with low-contrast dividers constrained to the 1152px page shell. Use whitespace and typography as the primary section boundaries.
+- Footer dividers and page-header dividers must also align to the shared page shell rather than spanning the viewport.
+
 ## Apple editorial reference
 
 Use Apple.com as a single visual reference source, adapted for a portfolio rather than copied as a product-marketing page. The closest structural references are Apple Newsroom and Apple Developer News: strong hierarchy, one message per section, quiet metadata, generous isolation around media, and restrained interactions.

@@ -22,7 +22,7 @@ export default function ProjectClient({ title, date, techStack, images, mdxConte
     <div className="w-full px-3 py-2 md:py-3">
       <section className="mx-auto w-full max-w-4xl">
         {/* Header */}
-        <div className="flex flex-col gap-4 pb-5 border-b border-gray-200/80 dark:border-white/10">
+        <div className="flex flex-col gap-4 border-b border-[var(--divider)] pb-5">
           <div className="min-w-0">
             <p className="text-xs font-medium uppercase tracking-[0.16em] text-gray-500 dark:text-white/60 mb-2">Project</p>
             <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 dark:text-white leading-tight">{title}</h1>
@@ -36,8 +36,8 @@ export default function ProjectClient({ title, date, techStack, images, mdxConte
 
         {/* Slider */}
         {showSlider && images.length > 0 && (
-          <div className="mt-5 pb-6 border-b border-gray-200/80 dark:border-white/10">
-            <div className="rounded-xl overflow-hidden border border-gray-200/80 dark:border-white/10 bg-white/60 dark:bg-white/5">
+          <div className="mt-5 border-b border-[var(--divider)] pb-6">
+            <div className="overflow-hidden rounded-xl border border-[var(--divider)] bg-[var(--background)]">
               <ImageSlider images={images} />
             </div>
           </div>

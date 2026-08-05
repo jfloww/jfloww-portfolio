@@ -18,7 +18,7 @@ const HOME_COPY = {
     role: 'Full Stack Software Developer',
     headline: ['Hi, there', 'Welcome to my page.'],
     stackLabel: 'Main Stack',
-    stack: ['TypeScript', 'Python', 'SQL'],
+    stack: ['Python', 'SQL', 'TypeScript'],
     projectsCta: 'View Projects',
     aboutCta: 'About Me',
     projectsTitle: 'Projects',
@@ -33,7 +33,7 @@ const HOME_COPY = {
     role: 'Full Stack Software Developer',
     headline: ['안녕하세요,', '개발자 정재훈입니다.'],
     stackLabel: 'Main Stack',
-    stack: ['TypeScript', 'Python', 'SQL'],
+    stack: ['Python', 'SQL', 'TypeScript'],
     projectsCta: 'Projects',
     aboutCta: '소개 보기',
     projectsTitle: 'Projects',
@@ -53,7 +53,7 @@ export default function ClientHome({ projList, postList, locale }: ClientHomePro
 
   return (
     <div className="w-full bg-[var(--background)] text-[var(--foreground)]">
-      <section className="py-16 md:py-24">
+      <section className="py-12 md:py-20">
         <PageShell>
           <div className="flex flex-col-reverse gap-10 md:flex-row md:items-start md:justify-between md:gap-16">
             <div className="max-w-3xl">
@@ -91,7 +91,11 @@ export default function ClientHome({ projList, postList, locale }: ClientHomePro
         </PageShell>
       </section>
 
-      <section className="border-y border-[var(--divider)] bg-[var(--surface-subtle)] py-16 md:py-24">
+      <PageShell>
+        <div className="h-px bg-[var(--divider)]" aria-hidden="true" />
+      </PageShell>
+
+      <section className="py-12 md:py-20">
         <PageShell>
           <div className="mb-12 flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -117,7 +121,11 @@ export default function ClientHome({ projList, postList, locale }: ClientHomePro
         </PageShell>
       </section>
 
-      <section className="py-16 md:py-24">
+      <PageShell>
+        <div className="h-px bg-[var(--divider)]" aria-hidden="true" />
+      </PageShell>
+
+      <section className="py-12 md:py-20">
         <PageShell>
           <div className="mb-8 flex flex-col items-start gap-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
             <h2 className="text-[22px] font-semibold tracking-tight">{copy.notesTitle}</h2>
@@ -125,7 +133,7 @@ export default function ClientHome({ projList, postList, locale }: ClientHomePro
               {copy.seeAllPosts}
             </Link>
           </div>
-          <div className="divide-y divide-[var(--divider)] border-y border-[var(--divider)]">
+          <div className="divide-y divide-[var(--divider)]">
             {postList.map((post) => (
               <article key={post.id}>
                 <Link href={`${prefix}/posts/${post.id}`} className="group grid gap-3 py-7 md:grid-cols-[140px_1fr_120px] md:gap-12">
@@ -146,7 +154,11 @@ export default function ClientHome({ projList, postList, locale }: ClientHomePro
         </PageShell>
       </section>
 
-      <section className="border-t border-[var(--divider)] bg-[var(--surface-subtle)] py-12">
+      <PageShell>
+        <div className="h-px bg-[var(--divider)]" aria-hidden="true" />
+      </PageShell>
+
+      <section className="py-12">
         <PageShell className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <p className="text-[15px] leading-relaxed text-[var(--muted)]">{copy.contact}</p>
           <Link href={`${prefix}/contact`} className="shrink-0 text-sm font-medium text-[var(--accent)] hover:underline hover:underline-offset-4">

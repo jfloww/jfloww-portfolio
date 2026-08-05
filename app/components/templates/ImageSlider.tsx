@@ -19,7 +19,7 @@ export default function ImageSlider({ images }: ImageSliderProps) {
   if (images.length === 0) {
     return (
       <div className="relative w-full bg-gray-900 rounded-lg">
-      <div className="relative w-full h-64 sm:h-80 md:h-[380px] overflow-hidden rounded-lg flex items-center justify-center text-white/70">
+        <div className="relative w-full h-64 sm:h-80 md:h-[380px] overflow-hidden rounded-lg flex items-center justify-center text-white/70">
           No images
         </div>
       </div>
@@ -81,7 +81,7 @@ export default function ImageSlider({ images }: ImageSliderProps) {
         </button>
       </div>
 
-      <div className="flex space-x-2 justify-center py-3 bg-[#1A1A1F]">
+      <div className="flex justify-center space-x-2 bg-black py-3">
         {images.map((_, index) => (
           <button
             key={index}
