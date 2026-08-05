@@ -43,13 +43,18 @@ export default function ContactPage() {
   return (
     <div className="w-full bg-[var(--background)]">
       <PageShell>
-        <PageHeader eyebrow="Contact" title="Let's keep in touch!" description="Send me a message and I’ll get back to you as soon as possible." />
+        <PageHeader
+          compact
+          eyebrow="Contact"
+          title="Let's keep in touch!"
+          description="Send me a message and I’ll get back to you as soon as possible."
+        />
 
-        <section className="grid gap-14 py-12 lg:grid-cols-[1fr_2fr] lg:gap-28 lg:py-16">
-          <aside className="space-y-12">
+        <section className="grid gap-10 py-8 lg:grid-cols-[1fr_2fr] lg:gap-20 lg:py-10">
+          <aside className="space-y-8">
             <div>
               <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">Information</h2>
-              <dl className="mt-6 space-y-5">
+              <dl className="mt-4 space-y-4">
                 <div>
                   <dt className="text-xs text-[var(--muted)]">Email</dt>
                   <dd className="mt-1">
@@ -67,7 +72,7 @@ export default function ContactPage() {
 
             <div>
               <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">Social</h2>
-              <nav className="mt-6 flex flex-col items-start gap-4" aria-label="Social links">
+              <nav className="mt-4 flex flex-col items-start gap-3" aria-label="Social links">
                 <a
                   href="https://github.com/jfloww"
                   target="_blank"
@@ -96,8 +101,8 @@ export default function ContactPage() {
             </div>
           </aside>
 
-          <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
-            <div className="grid gap-6 sm:grid-cols-2 sm:gap-8">
+          <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
+            <div className="grid gap-5 sm:grid-cols-2 sm:gap-6">
               <div>
                 <label htmlFor="contact-name" className="mb-2 block text-sm font-medium">
                   Name
@@ -140,12 +145,12 @@ export default function ContactPage() {
                 value={formData.message}
                 onChange={handleChange}
                 placeholder="Write your message..."
-                className={`${inputClass} min-h-[180px] resize-y`}
+                className={`${inputClass} min-h-[140px] resize-y`}
                 required
               />
             </div>
 
-            <div className="flex flex-col gap-5 border-t border-[var(--divider)] pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-5 border-t border-[var(--divider)] pt-5 sm:flex-row sm:items-center sm:justify-between">
               <p className="min-h-5 text-sm text-[var(--muted)]" role="status" aria-live="polite">
                 {status === 'success' && <span className="text-green-600 dark:text-green-400">Message sent. Thank you!</span>}
                 {status === 'error' && <span className="text-red-600 dark:text-red-400">Failed to send. Please try again.</span>}

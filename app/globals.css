@@ -5,7 +5,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171a1f;
-  --surface-subtle: #f6f8fb;
+  --surface-subtle: #ffffff;
   --muted: #66707a;
   --divider: #dce2e8;
   --accent: #0066cc;
@@ -14,7 +14,7 @@
 .dark {
   --background: #0a0a0a;
   --foreground: #ededed;
-  --surface-subtle: #101318;
+  --surface-subtle: #0a0a0a;
   --muted: #a7adb5;
   --divider: #252b33;
   --accent: #60a5fa;

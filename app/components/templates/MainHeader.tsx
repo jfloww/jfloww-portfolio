@@ -40,8 +40,8 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[var(--divider)] bg-[var(--background)]">
-      <div className="page-shell flex h-[72px] items-center justify-between gap-8">
+    <header className="sticky top-0 z-50 w-full bg-[var(--background)]">
+      <div className="page-shell flex h-14 items-center justify-between gap-8">
         <Link href={getLocalizedPath('/')} className="header-button flex items-center gap-1.5 text-xl font-semibold tracking-tight">
           <Image src="/icons/jfloww.png" width={25} height={20} alt="JFLOWW" className="h-5 w-auto" priority />
           <span className="italic">FLOWW</span>
@@ -56,7 +56,7 @@ export default function Header() {
                   key={item.href}
                   href={href}
                   className={clsx(
-                    'header-button border-b py-2 text-sm font-medium transition-colors',
+                    'header-button border-b py-1.5 text-sm font-medium transition-colors',
                     isActive(href)
                       ? 'border-[var(--accent)] text-[var(--foreground)]'
                       : 'border-transparent text-[var(--muted)] hover:text-[var(--foreground)]'
@@ -75,7 +75,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setLangMenuOpen((open) => !open)}
-                className="inline-flex items-center gap-2 rounded-[4px] border border-[var(--divider)] px-3 py-2 text-xs font-medium text-[var(--foreground)] transition-colors hover:border-[var(--muted)]"
+                className="inline-flex items-center gap-2 rounded-[4px] border border-[var(--divider)] px-3 py-1.5 text-xs font-medium text-[var(--foreground)] transition-colors hover:border-[var(--muted)]"
                 aria-expanded={langMenuOpen}
               >
                 {currentLocale === 'en' ? 'EN' : 'KO'}
@@ -88,14 +88,14 @@ export default function Header() {
                   <button
                     type="button"
                     onClick={() => changeLanguage('en')}
-                    className="block w-full px-3 py-2 text-left text-sm hover:bg-[var(--surface-subtle)]"
+                    className="block w-full px-3 py-2 text-left text-sm hover:bg-black/[0.03] dark:hover:bg-white/[0.05]"
                   >
                     English
                   </button>
                   <button
                     type="button"
                     onClick={() => changeLanguage('ko')}
-                    className="block w-full px-3 py-2 text-left text-sm hover:bg-[var(--surface-subtle)]"
+                    className="block w-full px-3 py-2 text-left text-sm hover:bg-black/[0.03] dark:hover:bg-white/[0.05]"
                   >
                     한국어
                   </button>
