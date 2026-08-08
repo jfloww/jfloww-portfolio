@@ -84,8 +84,15 @@ export default function ClientHome({ projList, postList, locale }: ClientHomePro
               </div>
             </div>
 
-            <div className="relative h-[120px] w-[120px] shrink-0 overflow-hidden rounded-full ring-1 ring-black/5 dark:ring-white/10">
-              <Image src="/photo/profile_img.png" alt="Jaehoon Jung" fill priority className="scale-[1.08] object-cover" sizes="120px" />
+            <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-full ring-1 ring-black/5 md:h-40 md:w-40 lg:h-44 lg:w-44 dark:ring-white/10">
+              <Image
+                src="/photo/profile_img.png"
+                alt="Jaehoon Jung"
+                fill
+                priority
+                className="scale-[1.08] object-cover"
+                sizes="(min-width: 1024px) 176px, (min-width: 768px) 160px, 128px"
+              />
             </div>
           </div>
         </PageShell>
