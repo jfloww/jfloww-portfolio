@@ -18,7 +18,6 @@ export interface ContentMeta {
   draft?: boolean;
   locale?: 'en' | 'ko';
   translationKey?: string;
-  showSlider?: boolean;
   images?: ContentImage[];
 }
 
@@ -47,8 +46,6 @@ export function normalizeContentMeta(input: Record<string, unknown>, fallbackId:
   if (typeof input.draft === 'boolean') meta.draft = input.draft;
   if (input.locale === 'en' || input.locale === 'ko') meta.locale = input.locale;
   if (typeof input.translationKey === 'string' && input.translationKey.trim()) meta.translationKey = input.translationKey.trim();
-  if (typeof input.showSlider === 'boolean') meta.showSlider = input.showSlider;
-
   if (Array.isArray(input.images)) {
     meta.images = input.images
       .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)

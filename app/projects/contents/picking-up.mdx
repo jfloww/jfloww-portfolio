@@ -1,0 +1,54 @@
+---
+title: 'Picking Up'
+date: '20260713'
+techStack: 'Python, Django REST Framework, Next.js, TypeScript, Oracle Database'
+id: picking-up
+hidden: false
+images:
+  - src: '/photo/proj/picking-up/cover.svg'
+    title: 'Picking Up'
+    description: 'Picking Up task planner app mark'
+---
+
+# Project Summary
+
+**Purpose:** Build a task and routine planner around the way I organize a week: recurring work, unfinished tasks that roll forward, and subtasks that can become full tasks.
+
+**My role:** Solo developer responsible for the Python/Django backend, data model, Next.js frontend and BFF routes, authentication, tests, and deployment documentation.
+
+## Core Functionality
+
+- Daily, Weekly, and Monthly planning over one task model
+- Repeating routines with per-date exceptions and rollover
+- Drag-to-reschedule and drag-to-reorder
+- Subtask notes, task nesting, and promotion back to a standalone task
+- Email/password and Google authentication
+- Per-user persistence through the Django API
+
+## Architecture
+
+```text
+Browser -> Next.js BFF -> Django REST API -> Oracle Database
+```
+
+Next.js keeps JWTs in HTTP-only cookies. Django owns task validation and multi-record transitions through dedicated commands for Nest, Promote, Detach, Delete-occurrence, Reschedule, and Reorder.
+
+Each task has a version. Commands check the expected version, lock the affected rows, and complete inside `transaction.atomic()`. Stale edits return `409 Conflict` instead of overwriting newer state.
+
+## Backend Highlights
+
+- **Atomic task commands** — Replaced client-composed writes with transactional services so one failed request cannot leave half of a task transition committed.
+- **Optimistic reconciliation** — The UI updates immediately, while queued field and subtask deltas are rebased onto authoritative server state after a conflict or sync failure.
+- **Domain and auth boundaries** — Added cross-field task validation, selected database constraints, consistent Simple JWT failure handling, endpoint throttles, and concurrency-safe registration and Google identity linking.
+
+## Result
+
+Picking Up is an application I use to plan my own work rather than a static demo. The frontend stays responsive, while the backend owns version conflicts, transaction boundaries, ordering, and task validity.
+
+The main remaining work is server-owned routine materialization and direct Oracle concurrency verification.
+
+## Links
+
+- [GitHub repository](https://github.com/jfloww/picking-up)
+- [Backend refinement log](/posts/picking-up-log5)
+- [Task interaction and command design log](/posts/picking-up-log4)

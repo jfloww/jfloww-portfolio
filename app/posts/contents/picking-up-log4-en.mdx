@@ -1,0 +1,186 @@
+---
+title: 'Picking Up Log 4'
+date: '20260805'
+id: picking-up-log4-en
+category: 'Picking Up'
+tags: ['devlog', 'design-revision', 'bucket-list', 'task-commands', 'subtasks', 'en']
+techStack: 'Next.js, TypeScript, Django REST Framework, Oracle Database'
+locale: 'en'
+translationKey: picking-up-log4
+hidden: false
+---
+
+## Goal
+
+The previous log ended just before Bucket List work began. From July 30 through August 7, I wanted to add a place for goals that did not have a date yet, then improve how tasks could be reordered or moved between task and subtask states.
+
+The final result is quite different from the first plan. Features that looked like small frontend interactions exposed ambiguous identities, partial-write risks, stale optimistic state, and missing backend invariants. This log focuses on those revisions rather than presenting the initial plan as if it shipped unchanged.
+
+## Initial Plan
+
+The first version was intentionally small:
+
+1. Add `scope.kind = "bucket"` and store a free-text category on each bucket task.
+2. Group bucket tasks by that string; an empty category would simply disappear.
+3. Add an `order` field and let the browser calculate fractional order values for drag-to-reorder.
+4. Convert a task into a subtask by updating the target and deleting the source with two existing API calls.
+5. Promote a subtask in the opposite direction with a create followed by a parent update.
+6. Keep subtasks lightweight with only `id`, `title`, and `done`; notes would remain a task-only field.
+
+The interaction ideas were useful, but several persistence assumptions did not survive implementation and review.
+
+## Changes Made During Development
+
+### Free-text categories became real entities
+
+The first Bucket List design used the category name as both display text and identity.
+
+```text
+Task.scope = { kind: "bucket", category: "Learning" }
+```
+
+That meant an empty category could not exist. Renaming required updating every task that carried the same string, and two concurrent requests could still create categories that differed only by case or Unicode representation.
+
+The design changed the next day. `Category` became an owner-scoped model, and bucket tasks began referencing it by ID.
+
+```text
+Category { id, owner, name, normalizedName }
+Task.bucketCategory -> Category.id
+```
+
+`normalizedName` is derived with Unicode NFKC normalization, trimming, and `casefold()`. The database enforces uniqueness on `(user, normalized_name)`, so values such as `Straße` and `STRASSE` cannot become two logical categories for the same user.
+
+This also changed the migration plan. A single schema-and-backfill migration was unsafe on Oracle because DDL can auto-commit. The final migration was split into three boundaries: add the nullable key, merge/backfill duplicates, then finalize the non-null field and constraint. The implementation became larger, but the category identity became explicit and retry behavior became reviewable.
+
+### Nest and Promote moved from client-composed CRUD to server commands
+
+The original Nest spec explicitly planned no backend change. The frontend would update the target's `subtasks` array and then delete the source task. Promote would create a new task and then remove the subtask from its parent.
+
+```text
+initial Nest
+  PUT target with appended subtask
+  DELETE source task
+```
+
+The initial design treated a failure between those requests as an existing sync-error case. During backend review, that stopped looking acceptable: one successful request could duplicate an item or leave only half of the intended transition.
+
+The persistence design was replaced with explicit Django commands:
+
+```text
+POST /tasks/:id/commands/nest
+POST /tasks/:id/commands/promote-subtask
+
+  -> lock owner and affected tasks
+  -> validate expected versions
+  -> apply every write in transaction.atomic()
+  -> commit all or roll back all
+```
+
+Every task now carries a monotonically increasing `version`. Stale edits return `409 Conflict`, while generic writes require an `If-Match` version. The interaction stayed optimistic, but the server became responsible for whether the state transition was valid and complete.
+
+### Routine changes joined the same command model
+
+Detach, delete-occurrence, and reschedule had the same hidden two-write problem. Changing an occurrence may also require adding its original date to the routine anchor's `excludedDates`.
+
+If the occurrence write succeeded but the anchor write failed, the next materialization could recreate a task the user had detached, deleted, or moved.
+
+These actions were also converted to atomic, versioned commands. The anchor update uses a set union rather than replacing the entire exclusion array, preserving dates written by another operation. Reschedule also calculates the destination order while the server owns the relevant locks.
+
+### Reorder changed from a number to an intent
+
+The first drag-to-reorder implementation calculated a fractional `order` in the browser and sent that float through a generic task update. The browser was making the final ordering decision from a snapshot that might already be stale.
+
+The final request describes structural intent instead:
+
+```text
+{ taskVersion, insertBeforeId }
+```
+
+The server locks the current sibling list, confirms that the neighbor still belongs to the same reorderable list, and calculates the midpoint itself. New task creation also receives its initial order from the server. The frontend still predicts the result immediately, but it no longer has authority over the persisted order value.
+
+One follow-up fixed a separate optimistic race: an older reorder response could arrive after a newer drag and move the card backward. Mutation generations now prevent a stale response from overwriting a newer local order.
+
+### The optimistic queue needed more than a resync
+
+The first command integration assumed that a failed optimistic mutation could reload the task list and continue. An early queue fix then tried to protect the reload by dropping mutations already queued behind the failure. Tests showed that this silently discarded valid user actions.
+
+Removing that fence introduced a more serious issue. A queued edit could hold a full task snapshot from before the failure, receive a fresh version after resync, and then successfully write the old optimistic partial state back to the server. A failed Nest followed by a target edit could therefore persist the appended subtask even though the source task still existed.
+
+The queue was redesigned around intent instead of captured objects:
+
+```text
+optimistic UI state
+  + separate authoritative task snapshots
+  + field deltas / subtask ID operations
+  + mutation generation
+
+failure
+  -> await server resync
+  -> rebase queued intent onto authoritative state
+  -> skip an entity that disappeared
+  -> continue the queue
+```
+
+`excludedDates` required its own merge rule: record only added dates and union them onto the refreshed anchor. Browser task requests also gained a 15-second timeout so the global queue cannot wait forever behind a hung request.
+
+Review found smaller consequences of this redesign too. Undoing the promotion of an already-completed subtask needed to bypass the normal completion-history loss confirmation, and a tail `.catch()` was added so an exception inside failure recovery could not permanently stop every later mutation.
+
+### Subtasks stopped being title-only leaves
+
+The first Daily and Nest specs explicitly left subtask notes out of scope. That became awkward after Nest and Promote made tasks cross the boundary in both directions: a task memo was either lost or had to be listed in the confirmation dialog.
+
+`Subtask` gained an optional `memo`, and Nest and Promote now carry notes across the transition. Memo was removed from Nest's data-loss list, while task-only values such as schedule, priority, due date, repeat data, and completion history still require confirmation or block the action.
+
+The original inline title rename also changed into a `Subtask Detail` bottom sheet inside Task Details. It keeps the parent visible while exposing a wrapped title and auto-growing notes field. Because this created two overlay layers, Escape handling, focus trapping, and focus restoration had to be separated so the sheet and parent drawer did not close or take focus together.
+
+### UI assumptions became backend rules
+
+The early API validated field shapes but assumed the frontend would never submit an impossible combination. Review showed that old clients, imports, or direct API calls could bypass those assumptions.
+
+The serializer now checks cross-field domain rules: for example, a bucket task cannot also carry a scheduled scope value, a generated occurrence cannot define its own repeat pattern, and excluded dates require a repeat anchor. The invariants that can be expressed portably are also protected by database constraints.
+
+### The Bucket List tab was hidden after implementation
+
+Bucket tasks, Category APIs, migrations, store wiring, and the view remain in the codebase. However, the Bucket List navigation tab was temporarily removed before the end of this period. This was not part of the original launch plan, so the current product surface is Daily, Weekly, and Monthly while the underlying Bucket implementation stays available for a later product decision.
+
+## Final Architecture
+
+```text
+Planner interaction
+  -> optimistic intent
+  -> serialized mutation queue
+  -> Next.js command route
+  -> Django version check
+  -> owner/task row locks
+  -> atomic domain transition
+  -> authoritative response
+  -> generation-aware reconciliation
+```
+
+The frontend owns responsiveness. Django owns valid state transitions, ordering, and transaction boundaries. Oracle remains the production target, so migration boundaries and lock behavior are documented separately from what SQLite tests can prove.
+
+## Completed Flow
+
+By August 7, the implementation supported:
+
+- persistent Category entities for bucket-scoped tasks;
+- Daily and Weekly manual ordering with server-owned order calculation;
+- drag-to-nest with repeat/subtask blocking and explicit data-loss confirmation;
+- promote-to-task with Undo;
+- atomic Nest, Promote, Detach, Delete-occurrence, Reschedule, and Reorder commands;
+- version conflict detection and authoritative command responses;
+- failure resync with delta-based intent rebasing;
+- subtask notes and a layered detail panel;
+- cross-field API validation and selected database constraints;
+- focus and layout fixes discovered after the feature reviews.
+
+## Improvements and Notes
+
+- The Bucket List tab is still disabled even though its implementation remains.
+- Drag-to-nest currently originates only from Daily; Promote is available from the shared Task Details drawer.
+- Commands do not yet have idempotency keys for a committed request whose response is lost.
+- Routine occurrence materialization still begins in the browser. Two sessions can create different occurrences for the same anchor and date, so server-owned materialization remains separate work.
+- SQLite tests verify validation and rollback behavior, but not real `select_for_update()` contention. Oracle concurrency verification is still required.
+- Generic update still accepts an `order` value even though the current frontend no longer uses that path for reorder.
+
+The main lesson from this phase was that a smooth drag interaction and reliable persistence are separate design problems. The UI could stay immediate, but once one user action touched more than one record, the backend needed to represent that action as a single domain command rather than hope several generic writes would complete in order.

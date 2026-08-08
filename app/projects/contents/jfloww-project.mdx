@@ -1,69 +1,45 @@
 ---
-title: 'JFLOWW Portfolio '
+title: 'JFLOWW Portfolio'
 date: '20250605'
-techStack: 'Next.js, TypeScript, TailwindCSS'
+techStack: 'Next.js, TypeScript, Tailwind CSS, MDX'
 id: jfloww-project
-showSlider: true
 hidden: false
 images:
   - src: '/photo/proj/jfloww/jfloww.png'
-    title: 'Main Image'
-    description: 'JFLOWW Image'
-  - src: '/photo/proj/jfloww/test1.jpg'
-    title: 'Projects Window'
-    description: 'Test Image 1'
-  - src: '/photo/proj/jfloww/test2.jpg'
-    title: 'Posts Window'
-    description: 'Test Image 2'
-  - src: '/photo/proj/jfloww/test3.jpg'
-    title: 'Contact Window'
-    description: 'Test Image 3'
-  - src: '/photo/proj/jfloww/test4.jpg'
-    title: 'Light Mode'
-    description: 'Test Image 4'
-  - src: '/photo/proj/jfloww/test5.jpg'
-    title: 'Language Option'
-    description: 'Test Imag 5'
+    title: 'JFLOWW Portfolio'
+    description: 'JFLOWW portfolio home page'
 ---
 
 # Project Summary
 
-**Purpose:** Build a responsive portfolio that presents projects clearly and lets content be updated without changing page layouts.
+**Purpose:** Build a portfolio where Projects and development Posts can grow without adding a new page component for every entry.
 
-**My role:** Designed and implemented the content model, project pages, responsive UI, and localization flow.
+**My role:** Designed and implemented the content model, Next.js routes, responsive UI, localization flow, theme behavior, and Contact endpoint.
 
 ## Core Functionality
 
-- MDX-based project and post content with frontmatter metadata
-- Project list/detail pages with image galleries
-- Korean and English routes with shared UI components
-- Dark mode and responsive navigation
+- MDX-based Project and Post content with typed frontmatter
+- Static list and detail routes
+- English and Korean content selection with fallback
+- Responsive continuous-surface layout with light and dark themes
+- Post filtering and locale-specific summaries
+- Validated Contact form with email delivery
 
-## Tech Stack & Why
+## Architecture
 
-- **Next.js App Router** — Static generation for content pages and file-based routing for the portfolio structure.
-- **TypeScript** — Typed content metadata and component contracts.
-- **Tailwind CSS** — Consistent responsive styling through reusable utility patterns.
-- **MDX + gray-matter** — Separates page content from UI code while retaining structured metadata.
+```text
+MDX -> content loader -> normalized metadata -> locale selection -> static page
+```
 
-## Architecture & Flow
+Projects and Posts share one loader for file discovery, visibility, sorting, localization, and static route generation. Content pages render on the server; client code is limited to navigation, theme, filtering, and form interactions.
 
-`MDX file → content loader → typed metadata/content → static project page → optional client image slider`
-
-1. Each project is stored as an MDX file with frontmatter.
-2. The loader validates and normalizes metadata before list and detail pages consume it.
-3. Next.js statically generates the detail page; only interactive UI, such as the slider and navigation menu, runs on the client.
-
-## Design Decisions
-
-- **Content Repository pattern** — A single content loader abstracts file access, parsing, visibility, and localized selection so pages do not depend on filesystem details.
-- **Server/Client component split** — Content pages render on the server for fast delivery; isolated client components handle interaction only where needed.
-- **Reusable template components** — Shared header, footer, cards, and detail layouts keep visual behavior consistent as content grows.
+Project images are used as list covers. Detail pages start directly with the written explanation instead of repeating screenshots in a slider.
 
 ## Result
 
-The portfolio supports adding a project by creating one MDX file and its assets, without creating a new page component. The structure keeps content maintenance separate from layout and interaction code.
+New content can be published by adding an MDX file and assets while the list and detail layouts remain unchanged. The same content feeds the Home page, archive pages, and localized static routes.
 
-## Gallery
+## Links
 
-The slider above shows the main project screens and responsive UI states.
+- [GitHub repository](https://github.com/jfloww/jfloww-portfolio)
+- [Content architecture and UI refactor post](/posts/jfloww-portfolio)

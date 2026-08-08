@@ -65,7 +65,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <dt className="text-xs text-[var(--muted)]">Location</dt>
-                  <dd className="mt-1 text-lg font-medium">GA · NJ · NY</dd>
+                  <dd className="mt-1 text-lg font-medium">AL · NY</dd>
                 </div>
               </dl>
             </div>
