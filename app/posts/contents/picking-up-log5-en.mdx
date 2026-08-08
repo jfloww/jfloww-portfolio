@@ -1,0 +1,171 @@
+---
+title: 'Picking Up Log 5'
+date: '20260807'
+id: picking-up-log5-en
+category: 'Picking Up'
+tags: ['devlog', 'backend-refining', 'concurrency', 'authentication', 'domain-validation', 'en']
+techStack: 'Python, Django REST Framework, Next.js, TypeScript, Oracle Database'
+locale: 'en'
+translationKey: picking-up-log5
+hidden: false
+---
+
+## Goal
+
+Before adding more features, I stopped and reviewed the backend again. A flow working correctly on screen did not mean the data would stay correct when requests overlapped or one write failed halfway through.
+
+I recorded confirmed findings under `docs/refining` with RF numbers and separated them by priority. It was more useful to keep a record of which assumptions were wrong than to make the project look as if the first implementation had been right.
+
+```text
+P0  security / data integrity
+P1  backend reliability / operations
+P2  maintainability work that needs evidence first
+```
+
+This log focuses on task transactions, domain validation, and authentication.
+
+## Sketch
+
+I divided backend responsibility into four boundaries.
+
+```text
+Frontend
+  -> responsive interaction and optimistic state
+
+Serializer
+  -> request shape and cross-field rules
+
+Service
+  -> the transaction required by one user action
+
+Database
+  -> invariants that must survive an API bypass
+```
+
+The goal was not to force every rule into the database. JSON-array uniqueness and scope-specific date formats are clearer in serializer code. Simple column relationships and uniqueness rules need a database boundary when an application pre-check can race.
+
+## Plan
+
+1. Compare the current code and documentation, and register only confirmed issues.
+2. Replace task actions composed from multiple API writes with atomic commands.
+3. Add task versions and reject stale writes explicitly.
+4. Trace whether stale optimistic state could be saved again after a failure.
+5. Validate the meaning of a whole task, not only individual field types.
+6. Review password and Google login failure contracts, timing, and throttling.
+7. Separate what local tests prove from what still needs Oracle verification.
+
+## Issues Found During Refinement
+
+### One action on screen was two writes on the server
+
+Nest appended a subtask to the target and then deleted the source task. Promote created a task and then removed the subtask from its parent. Detaching, deleting, or moving a routine occurrence also saved the occurrence and its anchor separately.
+
+If the second request failed, half of the action remained. In the routine case, removing an occurrence without updating the anchor's `excludedDates` could allow the same task to appear again during the next materialization.
+
+I moved these operations into Django service commands.
+
+```text
+request
+  -> load the owner and affected tasks
+  -> check expected versions
+  -> acquire row locks
+  -> run inside transaction.atomic()
+  -> commit everything or roll everything back
+```
+
+`Nest`, `Promote`, `Detach`, `Delete occurrence`, `Reschedule`, and `Reorder` now follow the same pattern. Each task has an increasing `version`, and generic updates and deletes require an `If-Match` precondition. A stale version returns `409 Conflict` instead of overwriting newer data.
+
+Reorder also stopped accepting a float calculated by the browser. The client sends `insertBeforeId`; the server locks the current siblings, confirms the neighbor is still valid, and calculates the stored order.
+
+### I assumed a resync made optimistic state safe
+
+The store already reloaded the server list after a failed command. I initially thought that was enough.
+
+The next queued edit could still hold a complete task snapshot created before the failure. After resync, that old object could be paired with a fresh version and written successfully. If Nest failed and a target-title edit was queued behind it, the later update could save both the title and the subtask that should have been rolled back.
+
+I separated visible optimistic state from authoritative task snapshots. A queued mutation now records intent: field deltas and subtask upsert/remove operations, not a complete captured task. After a failure, the queue waits for resync and reapplies the remaining intent to the refreshed server state.
+
+```text
+failed mutation
+  -> reload server state
+  -> rebase remaining intent
+  -> no-op if the entity disappeared
+  -> continue the queue
+```
+
+Routine exclusion dates needed a separate merge rule. Replacing the array would discard a date added by another session, so the patch records only newly added dates and unions them into the refreshed anchor.
+
+Review also found that an exception inside the failure handler could leave the promise chain rejected and stop every later mutation. I added a defensive tail `.catch()`, and browser task requests now time out after 15 seconds so one hung request cannot block the global queue forever.
+
+### Valid fields could still form an invalid task
+
+The existing serializer checked types and lengths, but not enough cross-field meaning. A direct API caller could create states such as:
+
+- a repeat anchor that was also a generated occurrence;
+- exclusion dates without a repeat schedule;
+- a fixed due date on a routine-managed task;
+- a duration without a start time; or
+- duplicate subtask IDs inside one task.
+
+`TaskSerializer.validate()` now evaluates partial PATCH data together with the current instance. It checks date and time formats, duplicate weekdays, collection uniqueness, and defensive maximum sizes for `subtasks` and `excludedDates`.
+
+Database constraints are reserved for relationships that can be expressed portably and should hold even if code bypasses the API. JSON contents, regex formats, and list uniqueness remain in the serializer instead of being forced into database-specific expressions.
+
+One proposed rule did not have enough evidence. The current UI edits time mainly on day tasks, but that did not prove the backend should reject time on every other scope. I left that rule unenforced rather than turning a UI limitation into an undocumented domain rule.
+
+### Login failures took different paths and different amounts of work
+
+Password login queried the User table directly and issued JWTs by hand. A nonexistent email skipped password hashing, which created an account-existence timing signal. Wrong-password and inactive-user responses also differed from the standard Simple JWT contract.
+
+The login serializer now extends `TokenObtainPairSerializer`, with email lookup handled by a Django authentication backend. A missing or case-insensitively ambiguous email still pays dummy password-hash cost before returning the same 401. Django admin username login remains available through the standard `ModelBackend` configured after it.
+
+I added endpoint-specific burst and sustained throttles to password login, registration, and Google sign-in. The first version still had a problem.
+
+DRF evaluates all configured throttles, so a request already rejected by the burst limit also consumed the sustained daily budget. A short burst of failures could reduce the entire day's allowance. A small mixin now stops after the first rejecting throttle.
+
+There was also a deployment-specific risk. With `DJANGO_NUM_PROXIES=0` behind nginx, every request appears to come from `127.0.0.1`. One user's failures could then consume a site-wide login budget. Production settings now fail at startup if the required proxy count is missing.
+
+### An authentication pre-check did not close a concurrent race
+
+Registration checks `email__iexact`, but two requests can pass that query at the same time. The database unique constraint remains the final boundary, and the losing request's `IntegrityError` needs to become the same validation error as the sequential case.
+
+My first fix queried which field had collided from inside the failed transaction. Django correctly raised `TransactionManagementError` because that transaction was already broken. I wrapped the insert in its own `transaction.atomic()` savepoint, then checked email and username conflicts outside the failed inner block.
+
+Google account linking had a similar race. Two requests could both try to attach an identity to the same password account, and the loser returned 500. The create now runs inside a savepoint; on a uniqueness conflict, the code reloads the database winner instead of guessing.
+
+Django already returned 429 and `Retry-After` for throttled requests, but the Next.js BFF flattened every auth failure to 400 and discarded the header. The BFF now preserves the upstream status and throttle header.
+
+### The test environment also had to follow the production contract
+
+I added separate backend and frontend jobs to GitHub Actions. The first remote run passed the backend job but failed nine frontend route-integration tests at once.
+
+Production code read `DJANGO_API_BASE_URL`, while the test router alone hardcoded `localhost`. CI used `127.0.0.1`, so every otherwise-correct request was rejected as an unexpected origin. The tests now derive their origin from the same environment contract as production code.
+
+CI currently runs Django checks, migration-drift detection, backend tests, frontend tests, lint, and a production build. I left fixed test counts out of this log because they change with each feature.
+
+## Completed Flow
+
+This refinement pass completed:
+
+- versioned task resources and `If-Match` preconditions;
+- atomic Nest, Promote, Detach, Delete-occurrence, Reschedule, and Reorder commands;
+- server-owned reorder and task-creation order;
+- an optimistic queue using authoritative snapshots and intent rebasing;
+- cross-field task validation and selected database constraints;
+- email authentication following the Simple JWT failure contract;
+- endpoint-specific auth throttles and a proxy-configuration guard;
+- concurrent registration and Google identity-link handling;
+- auth BFF passthrough for upstream status and `Retry-After`;
+- separate backend and frontend GitHub Actions jobs; and
+- a refinement register that records verification and unresolved limits.
+
+## Improvements and Notes
+
+- Routine materialization and rollover still begin in the browser. Two sessions can create different occurrences for the same anchor and date, so this needs a server-owned idempotent command.
+- Simultaneous requests can still start sibling access-token refreshes; there is no single-flight refresh strategy yet.
+- API error bodies still use several shapes. Auth status transport is fixed, but a common versioned error envelope remains open.
+- Production operations still need health checks, rollback guidance, and request-correlated logging.
+- SQLite does not exercise real `select_for_update()` contention. Oracle test-schema access is needed before claiming that behavior is verified.
+- Python dependency pinning and clean-build reproducibility still need work.
+
+The biggest change in this pass was how I checked the code. “The UI never sends that value” and “those two requests normally succeed together” are explanations, not guarantees. Whenever I found one of those assumptions, I decided whether the real boundary belonged in a serializer, a transaction, a database constraint, or a regression test.

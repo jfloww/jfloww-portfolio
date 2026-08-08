@@ -1,0 +1,147 @@
+---
+title: 'JFLOWW Portfolio'
+date: '20250603'
+id: jfloww-portfolio-en
+category: 'JFLOWW Portfolio'
+tags: ['devlog', 'content-architecture', 'localization', 'ui-refactor', 'en']
+techStack: 'Next.js, TypeScript, Tailwind CSS, MDX'
+locale: 'en'
+translationKey: jfloww-portfolio
+hidden: false
+---
+
+## Goal
+
+The first portfolio only needed to show a few Projects and profile pages. As Posts grew and Korean routes were added, the same content had to feed several screens and two locale paths without appearing twice.
+
+This pass was less about adding features and more about reducing responsibility. A Project or Post should appear by adding a content file, while page components should keep the same structure as the archive grows. Visually, I also replaced alternating section backgrounds with one surface separated by spacing and dividers.
+
+## Problems in the Previous Structure
+
+- Metadata handling could be repeated across list and detail pages as content grew.
+- English and Korean MDX files could appear as separate Posts instead of one translated entry.
+- Alternating Home-section backgrounds made the header and first sections feel like separate panels.
+- The Project image slider occupied a large area before the article, often repeating the same image already used as the list cover.
+- Applying dark mode after client mount could show a brief light first paint.
+
+## Sketch
+
+The content path became:
+
+```text
+MDX file
+  -> gray-matter frontmatter
+  -> normalizeContentMeta
+  -> visibility / locale grouping
+  -> date + id sorting
+  -> static list and detail route
+  -> server-rendered MDX
+```
+
+Projects and Posts share `ContentMeta`. Their file locations and presentation differ, while one loader owns file access and metadata rules.
+
+## Content Loader
+
+`getContentPaths()` discovers MDX files and excludes templates whose names begin with an underscore. Each file is split into frontmatter and body with `gray-matter`, then passed through `normalizeContentMeta()`.
+
+Normalization handles:
+
+- fallback IDs and titles;
+- `YYYYMMDD` date validation;
+- `hidden` and `draft` visibility;
+- invalid tag and image-array entries; and
+- locale and `translationKey` values.
+
+Page components receive normalized metadata and an MDX body without knowing the file path or parsing rules.
+
+An ID is used as a secondary sort key when two entries share a date. Sequential entries such as Log 4 and Log 5 therefore remain in the expected order even when they are published on the same day.
+
+## Grouping Locale Files as One Post
+
+English and Korean Posts use two files but represent one logical entry.
+
+```text
+picking-up-log5-en.mdx
+picking-up-log5-ko.mdx
+  -> translationKey: picking-up-log5
+```
+
+The loader groups by `translationKey` first. It then selects the requested locale, English, or a locale-neutral fallback, and only afterward applies sorting and limits.
+
+That order matters. Limiting the raw file list could allow two translations of one Post to consume two Home-page positions or push the requested locale outside the limit.
+
+English uses root routes and Korean uses the `/ko` prefix. The header and footer read the locale from the current path so navigation stays within the selected language.
+
+Project bodies are not fully localized yet. Their list descriptions can change by locale, while many detail pages still fall back to the same locale-neutral English MDX file.
+
+## MDX Rendering and the Next.js Runtime
+
+The body is compiled on the server with `next-mdx-remote`. Next.js 16's development React runtime did not match the runtime used by the component produced through `next-mdx-remote/rsc`, so `renderMdx()` executes the compiled source with the active `jsx-runtime` or `jsx-dev-runtime`.
+
+This compatibility boundary lives in one renderer rather than inside each detail route. Projects and Posts use the same function, so runtime changes have one place to verify.
+
+## Moving to One Visual Surface
+
+The previous Home page alternated `background` and `surface-subtle` across sections. Each section looked tidy on its own, but the full page felt segmented across the header, hero, and Projects area.
+
+The current layout keeps one background from header to footer. Sections are separated with:
+
+- a shared `PageShell` width;
+- consistent vertical padding;
+- thin dividers;
+- heading and description spacing; and
+- the structure of Project cards and Post rows themselves.
+
+Pages with less content, such as Contact, use a compact `PageHeader` variant with reduced header and form spacing. Home section padding was also tightened so large screens do not feel unnecessarily empty.
+
+The Project detail image slider was removed. Covers identify Projects in the list; a detail page starts with the title and metadata, followed immediately by the article. Removing the slider also removed `showSlider` metadata, fallback image handling, route props, and the dedicated client component.
+
+## Server and Client Boundaries
+
+Content discovery, locale selection, and MDX compilation stay on the server. Client components are limited to interactions that need browser state:
+
+- mobile navigation;
+- the language menu;
+- the dark-mode toggle;
+- Post category filtering; and
+- the Contact form.
+
+Theme selection does not wait for a component to mount. A small script in the document head reads the saved preference and system color scheme, then updates the `<html>` class before first paint. The toggle stores later changes through the same class boundary.
+
+## Contact API
+
+The Contact form sends name, email, and message to a Next.js route handler. The server trims the values, checks required fields, email shape, and maximum lengths, then sends the message through Nodemailer.
+
+Responses distinguish input errors (`400`), short-window repeated requests (`429`), and mail configuration or delivery failures (`500`). The form reports success and failure through an `aria-live` status area.
+
+The current rate limiter uses a process-local `Map`. It reduces accidental repeated submissions on one instance; it is not a distributed security boundary across several servers.
+
+## Completed Flow
+
+```text
+add an MDX file
+  -> parse frontmatter and body
+  -> select one logical entry for the locale
+  -> show it on Home and archive lists
+  -> generate a static detail route
+  -> render it through the shared server layout
+```
+
+This refactor completed:
+
+- a shared Project/Post content schema and loader;
+- locale grouping, fallback selection, and stable ordering;
+- a server-side MDX rendering boundary;
+- a continuous-surface Home and compact page header;
+- removal of the Project detail image slider;
+- theme preference applied before first paint;
+- a Contact route with validation and distinct status handling; and
+- locale-specific summaries for Project and Post lists.
+
+## Improvements and Notes
+
+- Korean Project detail bodies are not complete.
+- A strict validation mode could fail the build instead of falling back for invalid frontmatter.
+- Contact throttling does not use distributed storage.
+- Content changes still require a repository commit and deployment.
+- Accessibility audits and visual-regression tests are not automated yet.

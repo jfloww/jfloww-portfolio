@@ -22,6 +22,10 @@ function toTime(yyyymmdd: string) {
   return Number.isFinite(time) ? time : 0;
 }
 
+function compareNewestFirst(a: ContentMeta, b: ContentMeta) {
+  return toTime(b.date) - toTime(a.date) || b.id.localeCompare(a.id);
+}
+
 export async function getContentPaths(type: ContentType): Promise<string[]> {
   const contentDir = getContentDir(type);
   const dirents = await fs.readdir(contentDir, { withFileTypes: true });
@@ -48,7 +52,12 @@ function translationKey(meta: ContentMeta) {
 }
 
 function pickLocalizedEntry(entries: ContentEntry[], locale: SupportedLocale) {
-  return entries.find((entry) => entry.meta.locale === locale) ?? entries.find((entry) => entry.meta.locale === 'en') ?? entries.find((entry) => !entry.meta.locale) ?? entries[0];
+  return (
+    entries.find((entry) => entry.meta.locale === locale) ??
+    entries.find((entry) => entry.meta.locale === 'en') ??
+    entries.find((entry) => !entry.meta.locale) ??
+    entries[0]
+  );
 }
 
 function groupEntriesByTranslationKey(entries: ContentEntry[]) {
@@ -70,7 +79,7 @@ async function readVisibleEntries(type: ContentType): Promise<ContentEntry[]> {
 
 export async function getContentList(type: ContentType, limit?: number): Promise<ContentMeta[]> {
   const entries = await readVisibleEntries(type);
-  const visible = entries.map((entry) => entry.meta).sort((a, b) => toTime(b.date) - toTime(a.date));
+  const visible = entries.map((entry) => entry.meta).sort(compareNewestFirst);
 
   if (typeof limit === 'number') {
     return visible.slice(0, limit);
@@ -84,7 +93,7 @@ export async function getLocalizedContentList(type: ContentType, locale: Support
 
   const localized = Array.from(groups.entries())
     .map(([key, group]) => ({ ...pickLocalizedEntry(group, locale).meta, id: key }))
-    .sort((a, b) => toTime(b.date) - toTime(a.date));
+    .sort(compareNewestFirst);
 
   if (typeof limit === 'number') {
     return localized.slice(0, limit);

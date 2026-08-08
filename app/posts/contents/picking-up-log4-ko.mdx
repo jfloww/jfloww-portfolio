@@ -1,0 +1,186 @@
+---
+title: 'Picking Up Log 4'
+date: '20260805'
+id: picking-up-log4-ko
+category: 'Picking Up'
+tags: ['devlog', 'design-revision', 'bucket-list', 'task-commands', 'subtasks', 'ko']
+techStack: 'Next.js, TypeScript, Django REST Framework, Oracle Database'
+locale: 'ko'
+translationKey: picking-up-log4
+hidden: false
+---
+
+## 목적
+
+이전 로그는 Bucket List 작업을 시작하기 직전에 끝났다. 7월 30일부터 8월 7일까지는 아직 날짜가 없는 목표를 보관할 공간을 만들고, task의 순서를 바꾸거나 task와 subtask 사이를 이동하는 기능을 정리하려 했다.
+
+최종 결과는 최초 계획과 꽤 달라졌다. 작은 frontend interaction처럼 보였던 기능에서 모호한 identity, partial write, 오래된 optimistic state, backend invariant 부재가 차례로 드러났다. 이번 로그는 처음 계획이 그대로 완성된 것처럼 기능을 나열하지 않고, 개발하면서 어떤 판단을 바꿨는지에 초점을 맞췄다.
+
+## 최초 계획
+
+처음 범위는 의도적으로 작게 잡았다.
+
+1. `scope.kind = "bucket"`을 추가하고 각 bucket task에 free-text category를 저장한다.
+2. 같은 문자열의 task를 묶어 보여준다. 마지막 task가 없어지면 빈 category도 자연스럽게 사라진다.
+3. `order` field를 추가하고 drag-to-reorder의 fractional order를 browser에서 계산한다.
+4. target update와 source delete, 두 개의 기존 API call로 일반 task를 subtask로 바꾼다.
+5. 반대로 create와 parent update를 조합해 subtask를 일반 task로 Promote한다.
+6. subtask는 `id`, `title`, `done`만 가진 가벼운 구조로 유지하고 notes는 일반 task에만 둔다.
+
+interaction 방향은 유효했지만, 저장 방식에 대한 여러 가정은 실제 구현과 review를 통과하지 못했다.
+
+## 개발하면서 바뀐 점
+
+### Free-text category를 독립 entity로 바꿨다
+
+첫 Bucket List 설계에서는 category 이름이 표시 text이면서 동시에 identity였다.
+
+```text
+Task.scope = { kind: "bucket", category: "Learning" }
+```
+
+이 구조에서는 빈 category가 존재할 수 없다. rename하려면 같은 문자열을 가진 task를 모두 수정해야 하고, 동시에 들어온 두 request가 대소문자나 Unicode 표현만 다른 category를 각각 만들 수도 있었다.
+
+다음 날 설계를 수정했다. `Category`를 user에게 속한 별도 model로 만들고 bucket task가 ID로 참조하도록 바꿨다.
+
+```text
+Category { id, owner, name, normalizedName }
+Task.bucketCategory -> Category.id
+```
+
+`normalizedName`은 Unicode NFKC normalization, trim, `casefold()`를 적용해 만든다. database는 `(user, normalized_name)` uniqueness를 보장하므로 한 user에게 `Straße`와 `STRASSE`가 서로 다른 logical category로 생기지 않는다.
+
+migration 계획도 달라졌다. schema 변경과 backfill을 한 migration에 넣으면 DDL이 auto-commit될 수 있는 Oracle에서 중간 실패 복구가 안전하지 않았다. 최종적으로 nullable key 추가, duplicate merge와 backfill, non-null field와 constraint 확정의 세 경계로 나눴다. 구현 범위는 커졌지만 category identity와 재실행 조건을 명확하게 검토할 수 있게 됐다.
+
+### Nest와 Promote를 client 조합 CRUD에서 server command로 옮겼다
+
+최초 Nest spec은 backend를 바꾸지 않는다고 명시했다. frontend가 target의 `subtasks` 배열을 update한 다음 source task를 삭제하는 방식이었다. Promote는 새 task를 만든 뒤 parent에서 subtask를 제거하려 했다.
+
+```text
+initial Nest
+  PUT target with appended subtask
+  DELETE source task
+```
+
+처음에는 두 request 사이의 실패를 기존 sync error로 처리할 수 있다고 봤다. backend review를 진행하면서 이 결정을 폐기했다. 한 request만 성공하면 같은 항목이 중복되거나 상태 전환의 절반만 남을 수 있었다.
+
+저장 구조를 명시적인 Django command로 교체했다.
+
+```text
+POST /tasks/:id/commands/nest
+POST /tasks/:id/commands/promote-subtask
+
+  -> owner와 관련 task lock
+  -> expected version 확인
+  -> transaction.atomic() 안에서 전체 write 수행
+  -> 모두 commit하거나 모두 rollback
+```
+
+모든 task에는 증가하는 `version`이 생겼다. 오래된 수정은 `409 Conflict`를 반환하며 generic write는 `If-Match` version을 요구한다. 화면은 여전히 optimistic하게 반응하지만, 상태 전환이 유효하고 완전한지는 server가 책임진다.
+
+### Routine 변경도 같은 command 구조로 합쳤다
+
+Detach, delete-occurrence, reschedule에도 같은 two-write 문제가 숨어 있었다. occurrence를 바꿀 때 routine anchor의 `excludedDates`에 원래 날짜를 추가해야 할 수 있다.
+
+occurrence write만 성공하고 anchor update가 실패하면 다음 materialization에서 사용자가 방금 분리하거나 삭제하거나 옮긴 task가 다시 생성될 수 있었다.
+
+세 동작도 atomic하고 versioned된 command로 바꿨다. anchor의 exclusion array 전체를 교체하지 않고 set union으로 날짜를 추가해 다른 작업이 기록한 값도 보존한다. Reschedule은 destination의 order 계산까지 server lock 안에서 처리한다.
+
+### Reorder는 숫자가 아니라 의도를 보내도록 바꿨다
+
+첫 drag-to-reorder 구현은 browser가 fractional `order`를 계산하고 generic task update로 raw float를 보냈다. 이미 오래됐을 수 있는 snapshot을 기준으로 browser가 최종 순서를 결정하는 구조였다.
+
+최종 request는 구조적인 의도만 전달한다.
+
+```text
+{ taskVersion, insertBeforeId }
+```
+
+server가 현재 sibling list를 lock하고, neighbor가 아직 같은 reorderable list에 있는지 확인한 뒤 midpoint를 계산한다. 새 task의 초기 order도 server가 정한다. frontend는 즉시 예상 결과를 보여주지만 저장되는 order를 결정할 권한은 갖지 않는다.
+
+후속 review에서는 별도의 optimistic race도 발견했다. 이전 reorder response가 더 늦게 도착하면 최근 drag를 덮어쓰며 card가 뒤로 움직일 수 있었다. mutation generation을 추가해 오래된 response가 더 최신 local order를 교체하지 못하게 했다.
+
+### Optimistic queue는 단순 resync 이상이 필요했다
+
+첫 command 연결에서는 optimistic mutation이 실패하면 task list를 다시 불러오고 계속할 수 있다고 생각했다. 초기 queue 수정은 resync 뒤에 대기하던 mutation을 버리는 방식으로 상태를 보호하려 했다. test를 돌려보니 정상적인 사용자 action까지 조용히 사라졌다.
+
+그 fence를 없애자 더 심각한 문제가 드러났다. queued edit가 실패 전의 전체 task snapshot을 들고 있다가 resync 후 새 version을 받아, 오래된 optimistic partial state를 정상 write처럼 server에 다시 저장할 수 있었다. 실패한 Nest 다음에 target edit가 이어지면 source task는 그대로인데 target의 subtask만 남는 상황이었다.
+
+queue를 captured object가 아니라 intent 기준으로 다시 설계했다.
+
+```text
+optimistic UI state
+  + 별도의 authoritative task snapshot
+  + field delta / subtask ID operation
+  + mutation generation
+
+failure
+  -> server resync 완료까지 대기
+  -> queued intent를 authoritative state에 rebase
+  -> 사라진 entity는 건너뜀
+  -> queue 계속 진행
+```
+
+`excludedDates`에는 별도의 merge rule이 필요했다. 추가한 날짜만 기록하고, 새로 받아온 anchor 값에 union하도록 했다. browser task request에는 15초 timeout도 추가해 하나의 멈춘 request가 global queue를 무기한 막지 않게 했다.
+
+이 재설계의 작은 부작용도 review에서 발견했다. 완료된 subtask의 Promote를 Undo할 때는 일반적인 completion-history 손실 확인을 건너뛰어야 했다. failure recovery 자체에서 exception이 나도 이후 mutation queue 전체가 영구적으로 멈추지 않도록 tail `.catch()`도 추가했다.
+
+### Subtask를 title-only leaf로 남기지 않았다
+
+초기 Daily와 Nest spec에서는 subtask notes를 명확히 범위 밖으로 뒀다. 하지만 Nest와 Promote로 task가 두 형태 사이를 오가기 시작하자 memo를 잃거나 confirmation dialog의 손실 목록에 넣어야 했다.
+
+`Subtask`에 optional `memo`를 추가하고 Nest와 Promote가 notes를 함께 옮기도록 바꿨다. Memo는 Nest의 data-loss list에서 빠졌다. 반면 schedule, priority, due date, repeat data, completion history처럼 subtask가 담을 수 없는 값은 여전히 확인이 필요하거나 전환을 차단한다.
+
+기존 inline title rename도 Task Details 안에서 열리는 `Subtask Detail` bottom sheet로 바뀌었다. parent를 위에 남겨 둔 채 줄바꿈되는 전체 title과 자동으로 커지는 notes를 편집할 수 있다. overlay가 두 겹이 되면서 Escape 처리, focus trap, focus restoration을 분리해 sheet와 parent drawer가 동시에 닫히거나 focus를 가져가지 않게 했다.
+
+### UI의 가정을 backend rule로 만들었다
+
+초기 API는 각 field의 type과 길이는 검사했지만, frontend가 불가능한 조합을 보내지 않을 것이라고 가정했다. 이전 client, import, direct API call은 이 조건을 우회할 수 있었다.
+
+serializer가 cross-field domain rule을 검사하도록 확장했다. 예를 들어 bucket task는 scheduled scope value를 함께 가질 수 없고, generated occurrence는 자체 repeat pattern을 정의할 수 없으며, repeat anchor가 없는 task는 excluded date를 가질 수 없다. 여러 database에서 표현 가능한 핵심 invariant는 constraint로도 보호한다.
+
+### 구현을 마친 뒤 Bucket List tab을 숨겼다
+
+Bucket task, Category API, migration, store 연결, view 구현은 codebase에 그대로 남아 있다. 하지만 이번 구간이 끝나기 전에 navigation의 Bucket List tab은 잠시 제거했다. 최초 출시 계획에는 없던 변경이다. 현재 사용자에게 보이는 product surface는 Daily, Weekly, Monthly이며, Bucket 구현은 이후 product 결정을 위해 유지하고 있다.
+
+## 최종 구조
+
+```text
+Planner interaction
+  -> optimistic intent
+  -> serialized mutation queue
+  -> Next.js command route
+  -> Django version check
+  -> owner/task row lock
+  -> atomic domain transition
+  -> authoritative response
+  -> generation-aware reconciliation
+```
+
+frontend는 빠른 반응을 담당한다. Django는 유효한 상태 전환, ordering, transaction boundary를 담당한다. production target이 Oracle이기 때문에 migration 경계와 lock 동작은 SQLite test로 증명할 수 있는 범위와 분리해 기록했다.
+
+## 완성된 흐름
+
+8월 7일 기준으로 다음 내용을 구현했다.
+
+- bucket-scoped task를 위한 독립적인 Category entity
+- server가 order를 계산하는 Daily와 Weekly manual ordering
+- repeat/subtask 차단 조건과 명시적 데이터 손실 확인이 있는 drag-to-nest
+- Undo를 제공하는 promote-to-task
+- atomic Nest, Promote, Detach, Delete-occurrence, Reschedule, Reorder command
+- version conflict 감지와 authoritative command response
+- delta 기반 intent rebase를 포함한 failure resync
+- subtask notes와 layered detail panel
+- cross-field API validation과 일부 database constraint
+- feature review 이후 발견한 focus와 layout 문제 수정
+
+## 개선점과 노트
+
+- Bucket List 구현은 남아 있지만 tab은 아직 비활성화 상태다.
+- drag-to-nest는 현재 Daily에서만 시작할 수 있다. Promote는 공통 Task Details drawer에서 사용할 수 있다.
+- server가 command를 commit한 뒤 response만 유실된 경우를 위한 idempotency key는 아직 없다.
+- routine occurrence materialization은 여전히 browser가 시작한다. 두 session이 같은 anchor와 날짜에 서로 다른 occurrence를 만들 수 있어 server-owned materialization이 별도 작업으로 남아 있다.
+- SQLite test는 validation과 rollback을 검증하지만 실제 `select_for_update()` contention은 검증하지 못한다. Oracle concurrency 확인이 필요하다.
+- 현재 frontend는 reorder에 generic update를 사용하지 않지만 backend generic update는 여전히 `order` 값을 받을 수 있다.
+
+이번 단계에서 얻은 가장 큰 결론은 부드러운 drag interaction과 신뢰할 수 있는 저장이 서로 다른 설계 문제라는 점이었다. UI는 즉시 반응할 수 있지만, 하나의 사용자 action이 여러 record를 건드리는 순간 backend는 여러 generic write가 순서대로 성공하기를 기대하는 대신 그 action 자체를 하나의 domain command로 표현해야 했다.

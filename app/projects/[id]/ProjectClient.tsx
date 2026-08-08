@@ -1,7 +1,5 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import ImageSlider from '@/app/components/templates/ImageSlider';
-import { imageType } from '@/app/components/templates/ImageSlider';
 import { dateFormat } from '@/app/components/functions/dateFormat';
 import { localePrefix } from '@/app/lib/i18n';
 
@@ -9,13 +7,11 @@ interface ProjectClientProps {
   title: string;
   date: string;
   techStack: string;
-  images: imageType[];
   mdxContent: ReactNode;
-  showSlider?: boolean;
   locale?: string;
 }
 
-export default function ProjectClient({ title, date, techStack, images, mdxContent, showSlider = true, locale }: ProjectClientProps) {
+export default function ProjectClient({ title, date, techStack, mdxContent, locale }: ProjectClientProps) {
   const prefix = localePrefix(locale);
 
   return (
@@ -33,15 +29,6 @@ export default function ProjectClient({ title, date, techStack, images, mdxConte
             {techStack && <span className="rounded-full border border-gray-200/80 px-3 py-1 dark:border-white/10">{techStack}</span>}
           </div>
         </div>
-
-        {/* Slider */}
-        {showSlider && images.length > 0 && (
-          <div className="mt-5 border-b border-[var(--divider)] pb-6">
-            <div className="overflow-hidden rounded-xl border border-[var(--divider)] bg-[var(--background)]">
-              <ImageSlider images={images} />
-            </div>
-          </div>
-        )}
 
         {/* Content */}
         <div className="mt-6">
