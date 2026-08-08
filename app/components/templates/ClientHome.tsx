@@ -55,8 +55,8 @@ export default function ClientHome({ projList, postList, locale }: ClientHomePro
     <div className="w-full bg-[var(--background)] text-[var(--foreground)]">
       <section className="py-12 md:py-20">
         <PageShell>
-          <div className="flex flex-col-reverse gap-10 md:flex-row md:items-start md:justify-between md:gap-16">
-            <div className="max-w-3xl">
+          <div className="flex flex-col-reverse gap-6 md:flex-row md:items-start md:justify-between md:gap-12 lg:gap-16">
+            <div className="max-w-2xl">
               <p className="mb-4 text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">{copy.role}</p>
               <h1 className="text-4xl font-semibold leading-[1.08] tracking-tight md:text-[52px]">
                 {copy.headline[0]}
@@ -84,15 +84,17 @@ export default function ClientHome({ projList, postList, locale }: ClientHomePro
               </div>
             </div>
 
-            <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-full ring-1 ring-black/5 md:h-40 md:w-40 lg:h-44 lg:w-44 dark:ring-white/10">
-              <Image
-                src="/photo/profile_img.png"
-                alt="Jaehoon Jung"
-                fill
-                priority
-                className="scale-[1.08] object-cover"
-                sizes="(min-width: 1024px) 176px, (min-width: 768px) 160px, 128px"
-              />
+            <div className="flex w-[152px] shrink-0 justify-start md:w-48 md:justify-end lg:w-60">
+              <div className="relative h-[152px] w-[152px] overflow-hidden rounded-full ring-1 ring-black/5 md:h-48 md:w-48 lg:h-56 lg:w-56 dark:ring-white/10">
+                <Image
+                  src="/photo/profile_img.png"
+                  alt="Jaehoon Jung"
+                  fill
+                  priority
+                  className="scale-[1.08] object-cover"
+                  sizes="(min-width: 1024px) 224px, (min-width: 768px) 192px, 152px"
+                />
+              </div>
             </div>
           </div>
         </PageShell>
