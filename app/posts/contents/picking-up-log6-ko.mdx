@@ -1,6 +1,6 @@
 ---
 title: 'Picking Up Log 6: 수동 프로덕션 배포'
-date: '20260808'
+date: '20260809'
 id: picking-up-log6-ko
 category: 'Picking Up'
 tags: ['devlog', 'deployment', 'vercel', 'cloud-run', 'neon', 'ko']
@@ -15,6 +15,12 @@ hidden: false
 이번 Log는 Picking Up의 프로덕션 배포 구성을 정리한 기록이다. CI/CD를 붙이기 전에도 내가 직접 운영하고 확인할 수 있는 release flow가 필요해서, 현재 배포는 의도적으로 수동으로 진행한다.
 
 서비스는 [pickingup.vercel.app](https://pickingup.vercel.app/)에서 확인할 수 있다.
+
+## 배포 계획을 바꾼 이유
+
+최초 production 목표는 Oracle Autonomous Database를 사용하는 OCI VM이었다. Oracle이 느린 API response의 원인일 가능성이 있어, 먼저 portable하게 작성한 Django schema와 test suite를 빈 Neon PostgreSQL branch에서 검증했다.
+
+backend compute를 Cloud Run으로 옮긴 것은 그 다음의 별도 단계였다. image build, runtime user, static asset, startup command, migration boundary를 직접 확인하고 설명할 수 있도록 처음 검토한 buildpacks 방식 대신 Dockerfile을 선택했다. 전체 경로를 직접 운영하고 검증하기 전까지는 deployment를 수동으로 유지했다.
 
 ## Production Topology
 

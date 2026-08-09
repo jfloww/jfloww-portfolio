@@ -1,75 +1,89 @@
 ---
-title: 'Picking Up Overview'
-date: '20260716'
+title: 'Picking Up Overview: 현재 제품'
+date: '20260809'
 id: picking-up-overview-ko
 category: 'Picking Up'
-tags: ['overview', 'product', 'planning', 'ko']
-techStack: 'Next.js, Django, Oracle Database'
+tags: ['overview', 'product', 'architecture', 'responsive-design', 'ko']
+techStack: 'Next.js, Django REST Framework, Vercel, Google Cloud Run, Neon PostgreSQL'
 locale: 'ko'
 translationKey: picking-up-overview
 hidden: false
 ---
 
-## 프로젝트 개요
+## Picking Up이 현재 모습이 되기까지
 
-`Picking Up`은 내가 실제로 매일 쓰기 위한 to-do 플랫폼으로 시작한 프로젝트다.
+`Picking Up`은 내가 매일 사용하기 위한 작은 to-do app으로 시작했다. 최초 계획은 desktop-first였고, task를 localStorage에 저장했으며, Oracle과 OCI를 production 목표로 두었다. 직접 사용하고, 실제 영구 저장을 연결하고, failure case를 검토하고, 모바일 전용 경험을 만들면서 제품의 형태가 달라졌다.
 
-처음 목표는 단순했다. 할 일을 빠르게 추가하고, 오늘 해야 할 일을 보고, 완료 처리하고, 브라우저가 바뀌어도 내 데이터가 유지되는 앱을 만드는 것. 처음부터 협업, AI, 반복 일정, 알림 같은 기능을 넣기보다는, 매일 쓰는 기본 흐름이 먼저 제대로 동작하는지를 확인하는 쪽에 집중했다.
+이 글은 2026년 8월 9일 기준의 현재 상태를 설명한다. Log 1–5는 개발 과정이 처음부터 직선적이었던 것처럼 다시 쓰지 않고, 각 시점에 실제로 맞았던 내용을 그대로 보존한다.
 
-## 제품 방향
+## 현재 제품
 
-기술 방향은 web-first로 잡았다. 먼저 데스크톱 브라우저에서 쓸 수 있는 Next.js 앱을 만들고, 작은 브라우저 창과 모바일 브라우저에서도 깨지지 않게 만든다. 그 다음 필요하면 PWA로 확장하고, 그래도 부족하면 iPhone 앱을 따로 만든다.
+현재 planner는 다음 기능을 제공한다.
 
-모바일 앱을 처음부터 만들기보다, 하나의 Django API를 중심에 두고 웹과 미래의 모바일 클라이언트가 같은 데이터를 쓰는 구조를 선택했다.
+- 하나의 task model을 사용하는 Daily, Weekly, Monthly 계획
+- 반복 routine, 날짜별 예외, 끝내지 못한 task의 rollover
+- drag-to-reschedule, drag-to-reorder, task/subtask 전환
+- task와 subtask notes, nesting, detach, promote
+- email/password와 Google 인증
+- Django API를 통한 사용자별 영구 저장
+
+Yearly는 초기 기획에 있었지만 현재 제품에는 포함하지 않았다. Bucket List resource와 UI도 개발 과정에서 구현했지만, 제품 방향을 다시 판단하기 위해 navigation entry를 숨겼다. 현재 사용자에게 보이는 planner는 Daily, Weekly, Monthly에 집중한다.
+
+## 현재 Architecture
 
 ```text
-Next.js frontend
-        |
-        v
-Django REST API
-        |
-        v
-Oracle Database on OCI
+Browser
+  -> Vercel의 Next.js BFF
+  -> Google Cloud Run의 Django REST API
+  -> Neon PostgreSQL
 ```
 
-## 기술 스택
+browser는 same-origin Next.js route와 통신한다. BFF가 JWT를 HTTP-only cookie에 저장하고 server-to-server Django request에 access token을 붙인다. Django는 user, category, task의 영구 저장 authority다. localStorage는 API 연결 전에 만들어 둔 데이터를 한 번 옮기기 위한 legacy import source로만 남아 있다.
 
-- Frontend: Next.js, React, TypeScript
-- Backend: Django, Django REST Framework
-- Auth: JWT, HTTP-only cookie
-- Database: Oracle Database on OCI
-- Local development DB: SQLite fallback
-- Hosting direction: Vercel + OCI VM
+## Responsive Product Design
 
-프론트엔드는 feature-based 구조를 사용한다. 백엔드는 인증, 권한, API contract, task data, migration을 책임진다. production database는 Oracle Database on OCI를 목표로 한다.
+desktop planner는 더 많은 맥락을 한 화면에 유지한다. Daily는 timeline과 agenda를 함께 보여주고, Weekly와 Monthly는 넓은 calendar layout을 사용한다.
 
-## 설계 기준
+모바일은 desktop을 단순히 줄인 화면이 아니다. 별도의 information structure를 적용했다.
 
-이 프로젝트에서 중요하게 잡은 기준은 두 가지다.
+- compact calendar header와 7일 date strip
+- 항상 접근 가능한 Daily, Weekly, Monthly bottom navigation
+- Daily의 Tasks/Timeline 화면 전환
+- 세로로 쌓이는 Weekly agenda
+- week 단위 Monthly list와 full-screen day agenda
+- safe area를 반영한 full-screen Task Details
+- 모바일 사용을 고려한 persistent quick-add와 touch target
 
-첫 번째는 작게 시작하되 나중에 갈아엎지 않을 구조를 만드는 것이다. 그래서 task data 접근은 repository interface 뒤에 숨기는 방향으로 설계했다. 지금은 localStorage로 task를 저장하지만, 나중에 Django API로 바꿔도 UI 전체를 다시 뜯지 않도록 하기 위해서다.
+선택한 날짜와 task data는 두 presentation에서 공유한다. 반응형 layout이 별도의 제품 동작을 만들지는 않는다.
 
-두 번째는 보기 좋은 앱보다 실제로 쓰는 앱을 만드는 것이다. 랜딩 페이지와 로그인 화면은 미니멀하게 정리했지만, 핵심은 결국 `/app` 안의 task workspace다.
+## Reliability Boundary
 
-## 핵심 기능 방향
+frontend는 optimistic update를 적용하지만 유효한 상태 전환은 Django가 책임진다. 각 task에는 version이 있고, stale write는 `409 Conflict`를 반환한다. Nest, Promote, Detach, Delete occurrence, Reschedule, Reorder처럼 여러 record를 다루는 action은 row lock을 사용하는 atomic command로 실행한다.
 
-현재 만들고 있는 `/app`은 단순한 task list가 아니라 Daily, Weekly, Monthly, Yearly view를 가진 calendar형 to-do workspace다.
+mutation이 실패하면 오래된 task snapshot을 다시 저장하지 않고, 남아 있는 intent를 authoritative server state 위에 재적용한다. cross-field serializer validation과 필요한 database constraint는 현재 UI를 우회한 request에서도 task rule을 보호한다.
 
-핵심 컨셉은 `zoomed-out context, focused present`다. 전체 기간의 맥락은 보여주되, 지금 집중해야 할 날짜, 주, 달을 더 선명하게 보여주는 방식이다.
+## 최초 계획을 바꾼 이유
 
-예를 들어 Weekly view에서는 한 달 전체를 보여주되 현재 주를 강조한다. Daily view에서는 한 주 전체를 보여주되 선택된 하루에 집중한다. Monthly view는 1년의 12개월을 보여주고, Yearly view는 연 단위 목표를 다룬다.
+### localStorage에서 API-backed repository로
 
-## 현재 상태
+localStorage는 첫 calendar interaction을 빠르게 실험하기에는 적합했지만, 여러 기기에서 같은 데이터를 사용하거나 server-side ownership을 보장할 수 없었다. Django API를 연결하면서 browser-only 구조에는 없던 partial write, stale optimistic state, authentication boundary도 드러났다. repository interface는 유지하고 production 구현을 바꿨다.
 
-현재 개발은 Phase 1의 후반부에 있다. 프로젝트 foundation, 인증, 디자인 시스템, 랜딩/auth 화면, task calendar의 핵심 로직과 일부 view까지 구현된 상태다.
+### Oracle과 OCI에서 Neon과 Cloud Run으로
 
-다음 목표는 `/app`의 task calendar를 완성하고, 이후 Django task API와 연결하는 것이다.
+Oracle Autonomous Database가 느린 API response의 원인일 가능성이 있었다. Django settings와 migration을 이미 여러 database에서 동작하도록 작성해 둔 덕분에 domain model을 다시 만들지 않고 빈 Neon branch에서 schema와 test suite를 검증할 수 있었다.
 
-## 다음 단계
+OCI VM에서 Cloud Run으로 backend를 옮긴 것은 별도의 결정이었다. 처음 검토한 buildpacks 대신 Dockerfile을 사용해 image build, runtime user, static asset, startup command, migration boundary를 직접 확인할 수 있게 했다. Cloud Build를 사용한 이유는 Apple Silicon에서 만든 ARM image와 Cloud Run의 Linux/AMD64 runtime이 달라지는 문제를 피하기 위해서이기도 했다.
 
-1. Monthly / Yearly view 마무리
-2. View switcher와 TaskCalendar shell 구현
-3. `/app` page에 task calendar 통합
-4. Django `tasks` app과 task API 구현
-5. localStorage repository를 Django API repository로 교체
-6. Oracle Database 기준 migration과 backend test 검증
+### Responsive 지원에서 모바일 전용 workflow로
+
+처음에는 모바일을 desktop app의 좁은 형태로 생각했다. 실제로는 desktop의 split pane과 calendar grid를 줄이는 것만으로 작은 화면에서 유용한 workflow가 되지 않았다. 그래서 같은 planner state와 action을 유지하면서 navigation과 presentation은 모바일에 맞게 따로 구성했다.
+
+## Production과 다음 작업
+
+production release는 의도적으로 수동으로 진행한다. frontend는 Vercel CLI로 배포하고, backend image는 Cloud Build에서 만든 뒤 immutable Cloud Run revision으로 배포한다. database migration은 container startup에서 자동 실행하지 않고, 해당 schema에 의존하는 backend code보다 먼저 별도 단계로 실행한다.
+
+현재 가장 중요한 남은 작업은 routine occurrence materialization을 idempotent server command로 완전히 옮기는 것이다. 여러 Cloud Run instance가 공유하는 throttle cache와 자동 배포는 실제 traffic과 release 빈도가 필요해질 때 진행할 수 있다.
+
+- [Live app](https://pickingup.vercel.app/)
+- [Project summary](/projects/picking-up)
+- [Deployment log](/posts/picking-up-log6)

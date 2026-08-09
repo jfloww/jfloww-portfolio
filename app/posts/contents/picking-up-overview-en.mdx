@@ -1,75 +1,89 @@
 ---
-title: 'Picking Up Overview'
-date: '20260716'
+title: 'Picking Up Overview: Current Product'
+date: '20260809'
 id: picking-up-overview-en
 category: 'Picking Up'
-tags: ['overview', 'product', 'planning', 'en']
-techStack: 'Next.js, Django, Oracle Database'
+tags: ['overview', 'product', 'architecture', 'responsive-design', 'en']
+techStack: 'Next.js, Django REST Framework, Vercel, Google Cloud Run, Neon PostgreSQL'
 locale: 'en'
 translationKey: picking-up-overview
 hidden: false
 ---
 
-## Project Overview
+## What Picking Up Became
 
-`Picking Up` is a to-do platform I started building for my own daily use.
+`Picking Up` began as a small to-do app for my own daily use. The first plan was desktop-first, stored tasks in localStorage, and targeted Oracle on OCI. The product changed as I used it, connected real persistence, reviewed failure cases, and built a mobile-specific experience.
 
-The initial goal was simple: add tasks quickly, see what needs to be done today, mark tasks as complete, and keep my data available across browsers. Instead of starting with collaboration, AI, recurring schedules, or notifications, I wanted to first prove that the daily task loop works well.
+This page is the current-state overview as of August 9, 2026. Logs 1–5 preserve what was true at each stage rather than rewriting the development history to look linear.
 
-## Product Direction
+## Current Product
 
-The project is web-first. The first target is a desktop browser app built with Next.js, while still supporting narrow browser windows and mobile browsers through responsive design. After that, the app can move toward PWA support, and only if needed, a native iPhone app.
+The planner now supports:
 
-Rather than building a mobile app first, the plan is to keep one Django API at the center so the web app and any future mobile client share the same users, tasks, and data.
+- Daily, Weekly, and Monthly planning over one task model;
+- repeating routines, per-date exceptions, and unfinished-task rollover;
+- drag-to-reschedule, drag-to-reorder, and task/subtask transitions;
+- task notes, subtask notes, nesting, detaching, and promotion;
+- email/password and Google authentication; and
+- per-user persistence through the Django API.
+
+Yearly was an early planning idea, but it is not part of the current product. Bucket List resources and UI were implemented during development, then the navigation entry was hidden while the product direction is reconsidered. The visible planner therefore stays focused on Daily, Weekly, and Monthly.
+
+## Current Architecture
 
 ```text
-Next.js frontend
-        |
-        v
-Django REST API
-        |
-        v
-Oracle Database on OCI
+Browser
+  -> Next.js BFF on Vercel
+  -> Django REST API on Google Cloud Run
+  -> Neon PostgreSQL
 ```
 
-## Tech Stack
+The browser communicates with same-origin Next.js routes. The BFF stores JWTs in HTTP-only cookies and attaches the access token to server-to-server Django requests. Django is the persistent authority for users, categories, and tasks. localStorage remains only as a one-time import source for data created before the API migration.
 
-- Frontend: Next.js, React, TypeScript
-- Backend: Django, Django REST Framework
-- Auth: JWT, HTTP-only cookie
-- Database: Oracle Database on OCI
-- Local development DB: SQLite fallback
-- Hosting direction: Vercel + OCI VM
+## Responsive Product Design
 
-The frontend follows a feature-based structure. The backend owns authentication, authorization, API contracts, task data, and migrations. The production database target is Oracle Database on OCI.
+The desktop planner keeps more context visible: Daily presents the timeline and agenda together, while Weekly and Monthly use wider calendar layouts.
 
-## Design Principles
+Mobile is not a compressed desktop layout. It has a dedicated information structure:
 
-Two principles guide this project.
+- a compact calendar header and seven-day date strip;
+- persistent Daily, Weekly, and Monthly bottom navigation;
+- a Tasks/Timeline switch for the Daily view;
+- a vertically stacked Weekly agenda;
+- a week-grouped Monthly list with a full-screen day agenda;
+- full-screen Task Details with safe-area-aware actions; and
+- persistent quick-add controls and touch targets designed around mobile use.
 
-The first is to start small without building something that has to be rewritten later. Task data access is placed behind a repository interface. For now, tasks can persist in localStorage, but the UI should be able to switch to a Django API-backed repository later without a major rewrite.
+The selected date and task data stay shared across these presentations, so the responsive layouts do not create separate product behavior.
 
-The second is to build an app that is actually useful, not just visually polished. The landing and auth screens are intentionally minimal, but the real product is the task workspace inside `/app`.
+## Reliability Boundaries
 
-## Core Feature Direction
+The frontend applies optimistic updates, but Django owns valid state transitions. Each task has a version, stale writes return `409 Conflict`, and multi-record actions such as Nest, Promote, Detach, Delete occurrence, Reschedule, and Reorder run as atomic commands with row locking.
 
-The `/app` workspace is not planned as a simple task list. It is a calendar-style to-do workspace with Daily, Weekly, Monthly, and Yearly views.
+After a failed mutation, queued intent is reapplied to authoritative server state rather than saving an old task snapshot. Cross-field serializer validation and selected database constraints protect task rules even when a request bypasses the current UI.
 
-The core concept is `zoomed-out context, focused present`: show the larger time container while making the current day, week, or month visually clear.
+## Why the Original Plan Changed
 
-For example, the Weekly view shows the current month but emphasizes the focused week. The Daily view shows one week while focusing on one day. The Monthly view shows all 12 months of a year, and the Yearly view handles year-level goals.
+### localStorage became an API-backed repository
 
-## Current Status
+localStorage made the first calendar interactions fast to prototype, but it could not provide cross-device data or meaningful server-side ownership. Connecting the Django API also exposed partial writes, stale optimistic state, and authentication boundaries that did not exist in the browser-only version. The repository interface stayed; its production implementation changed.
 
-The project is now in the later part of Phase 1. The project foundation, authentication, design system, landing/auth pages, and the core task calendar logic are already in place. Some calendar views are implemented as well.
+### Oracle and OCI became Neon and Cloud Run
 
-The next goal is to finish the `/app` task calendar and then connect it to the Django task API.
+Oracle Autonomous Database was suspected of contributing to slow API responses. Because the Django settings and migrations were already portable, the schema and test suite could be verified against an empty Neon branch without rewriting the domain model.
 
-## Next Steps
+Moving the backend from the OCI VM to Cloud Run was a separate decision. A Dockerfile replaced the initial buildpacks plan so the image build, runtime user, static assets, startup command, and migration boundary remained explicit. Cloud Build also avoids producing an ARM image on an Apple Silicon machine for Cloud Run's Linux/AMD64 runtime.
 
-1. Finish Monthly and Yearly views
-2. Implement the view switcher and TaskCalendar shell
-3. Integrate the task calendar into `/app`
-4. Build the Django `tasks` app and task API
-5. Replace the localStorage repository with a Django API repository
-6. Verify migrations and backend tests against Oracle Database
+### Responsive support became a mobile-specific workflow
+
+The first plan treated mobile as a narrower version of the desktop app. In practice, the desktop split panes and calendar grids did not produce a useful small-screen workflow. The final mobile structure therefore uses its own navigation and presentation while preserving the same planner state and actions.
+
+## Production and Next Work
+
+Production releases are intentionally manual. I deploy the frontend with Vercel CLI, build the backend image with Cloud Build, and deploy an immutable Cloud Run revision. Database migrations run as a deliberate step before dependent backend code, never during container startup.
+
+The main remaining engineering work is moving routine occurrence materialization fully to an idempotent server command. Shared throttling across multiple Cloud Run instances and automated deployment can follow when the application's traffic and release frequency justify them.
+
+- [Live app](https://pickingup.vercel.app/)
+- [Project summary](/projects/picking-up)
+- [Deployment log](/posts/picking-up-log6)
