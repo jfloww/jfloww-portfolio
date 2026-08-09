@@ -1,7 +1,7 @@
 ---
 title: 'Picking Up'
 date: '20260713'
-techStack: 'Python, Django REST Framework, Next.js, TypeScript, Oracle Database'
+techStack: 'Python, Django REST Framework, Next.js, TypeScript, Google Cloud Run, Neon PostgreSQL'
 id: picking-up
 hidden: false
 images:
@@ -14,7 +14,7 @@ images:
 
 **Purpose:** Build a task and routine planner around the way I organize a week: recurring work, unfinished tasks that roll forward, and subtasks that can become full tasks.
 
-**My role:** Solo developer responsible for the Python/Django backend, data model, Next.js frontend and BFF routes, authentication, tests, and deployment documentation.
+**My role:** I developed the Python/Django backend and data model, with Claude reviewing the backend implementation. I built the Next.js frontend and BFF routes with Claude Code as a coding collaborator. I personally deployed and verified the production releases, and handled authentication and tests.
 
 ## Core Functionality
 
@@ -28,7 +28,7 @@ images:
 ## Architecture
 
 ```text
-Browser -> Next.js BFF -> Django REST API -> Oracle Database
+Browser -> Next.js BFF on Vercel -> Django REST API on Cloud Run -> Neon PostgreSQL
 ```
 
 Next.js keeps JWTs in HTTP-only cookies. Django owns task validation and multi-record transitions through dedicated commands for Nest, Promote, Detach, Delete-occurrence, Reschedule, and Reorder.
@@ -41,14 +41,22 @@ Each task has a version. Commands check the expected version, lock the affected 
 - **Optimistic reconciliation** — The UI updates immediately, while queued field and subtask deltas are rebased onto authoritative server state after a conflict or sync failure.
 - **Domain and auth boundaries** — Added cross-field task validation, selected database constraints, consistent Simple JWT failure handling, endpoint throttles, and concurrency-safe registration and Google identity linking.
 
+## Deployment
+
+I deploy the frontend manually from the Next.js app with Vercel CLI. Its BFF routes use the server-only `DJANGO_API_BASE_URL`, so the browser never calls Django directly.
+
+For the API, I build the Django/Gunicorn Docker image with Cloud Build and deploy the resulting image to Google Cloud Run. Production data runs on Neon PostgreSQL through the pooled connection, and I run database migrations deliberately before the API deployment rather than during container startup. Cloud Run revisions and Vercel deployments provide the rollback points.
+
 ## Result
 
 Picking Up is an application I use to plan my own work rather than a static demo. The frontend stays responsive, while the backend owns version conflicts, transaction boundaries, ordering, and task validity.
 
-The main remaining work is server-owned routine materialization and direct Oracle concurrency verification.
+The main remaining work is server-owned routine materialization and direct production-like concurrency verification.
 
 ## Links
 
 - [GitHub repository](https://github.com/jfloww/picking-up)
+- [Live app](https://pickingup.vercel.app/)
+- [Deployment log](/posts/picking-up-log6)
 - [Backend refinement log](/posts/picking-up-log5)
 - [Task interaction and command design log](/posts/picking-up-log4)

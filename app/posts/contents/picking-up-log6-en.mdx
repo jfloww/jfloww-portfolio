@@ -1,0 +1,78 @@
+---
+title: 'Picking Up Log 6: Manual Production Deployment'
+date: '20260808'
+id: picking-up-log6-en
+category: 'Picking Up'
+tags: ['devlog', 'deployment', 'vercel', 'cloud-run', 'neon', 'en']
+techStack: 'Next.js, Django REST Framework, Docker, Google Cloud Run, Vercel, Neon PostgreSQL'
+locale: 'en'
+translationKey: picking-up-log6
+hidden: false
+---
+
+## Goal
+
+This log records the production deployment setup for Picking Up. I wanted a release flow that I could operate and verify myself before adding CI/CD, so deployments are intentionally manual.
+
+The live application is available at [pickingup.vercel.app](https://pickingup.vercel.app/).
+
+## Production Topology
+
+```text
+Browser
+  -> Next.js BFF on Vercel
+  -> Django REST API on Google Cloud Run
+  -> Neon PostgreSQL
+```
+
+The browser communicates with Next.js rather than Django directly. The BFF keeps the API base URL server-side and continues to own the browser-facing cookie and proxy boundary.
+
+## Frontend: Vercel
+
+The frontend is deployed manually from the `frontend/` directory with the Vercel CLI.
+
+```bash
+vercel --prod
+```
+
+`DJANGO_API_BASE_URL` is configured as a server-side environment variable. Changing it requires a new frontend deployment, which keeps the release boundary explicit. Git pushes do not automatically release production.
+
+## Backend: Cloud Run
+
+The Django API runs behind Gunicorn in Docker. Before deploying, I build and run the container locally and check `GET /api/health/`. The production image is then built through Cloud Build, stored in Artifact Registry, and deployed to Cloud Run.
+
+```text
+local Docker health check
+  -> Cloud Build image build
+  -> Artifact Registry
+  -> Cloud Run revision
+```
+
+Using Cloud Build avoids an Apple Silicon development machine producing an ARM image for Cloud Run's Linux/AMD64 runtime. A new Cloud Run revision receives traffic only after it is healthy.
+
+## Database and Migrations
+
+Production uses the Neon production branch. Local development can use a direct database connection, while Cloud Run uses Neon's pooled connection string to suit short-lived serverless connections.
+
+Migrations are a deliberate release step:
+
+```bash
+python manage.py migrate
+```
+
+I run them before deploying code that depends on the schema. The API container does not run migrations during startup, so a new instance cannot race another instance or block a rollout on database work.
+
+## Verification and Rollback
+
+After each release, I check the live frontend, the API health endpoint, authentication, and a real read/write path. I carried out the production deployment and this verification myself.
+
+Cloud Run preserves immutable revisions, so I can route traffic back to a previous healthy revision. Vercel likewise lets me promote an earlier deployment if the frontend needs to be rolled back.
+
+## What This Setup Gives Me
+
+- A small BFF boundary between the browser and Django
+- Separate, inspectable releases for the frontend and backend
+- Explicit database migration timing
+- A clear rollback path on both hosting platforms
+
+For now, this manual flow is the right trade-off: every production change is visible and easy to trace while the application is still evolving.

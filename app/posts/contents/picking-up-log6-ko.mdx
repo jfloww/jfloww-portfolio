@@ -1,0 +1,78 @@
+---
+title: 'Picking Up Log 6: 수동 프로덕션 배포'
+date: '20260808'
+id: picking-up-log6-ko
+category: 'Picking Up'
+tags: ['devlog', 'deployment', 'vercel', 'cloud-run', 'neon', 'ko']
+techStack: 'Next.js, Django REST Framework, Docker, Google Cloud Run, Vercel, Neon PostgreSQL'
+locale: 'ko'
+translationKey: picking-up-log6
+hidden: false
+---
+
+## 목적
+
+이번 Log는 Picking Up의 프로덕션 배포 구성을 정리한 기록이다. CI/CD를 붙이기 전에도 내가 직접 운영하고 확인할 수 있는 release flow가 필요해서, 현재 배포는 의도적으로 수동으로 진행한다.
+
+서비스는 [pickingup.vercel.app](https://pickingup.vercel.app/)에서 확인할 수 있다.
+
+## Production Topology
+
+```text
+Browser
+  -> Vercel의 Next.js BFF
+  -> Google Cloud Run의 Django REST API
+  -> Neon PostgreSQL
+```
+
+browser는 Django를 직접 호출하지 않고 Next.js와 통신한다. BFF가 API base URL을 server-side에만 두고, browser cookie와 proxy 경계를 계속 담당한다.
+
+## Frontend: Vercel
+
+frontend는 `frontend/` directory에서 Vercel CLI로 수동 배포한다.
+
+```bash
+vercel --prod
+```
+
+`DJANGO_API_BASE_URL`은 server-side environment variable로 설정한다. 이 값을 바꾸면 frontend를 다시 배포해야 하므로 release 경계가 명확하다. Git push만으로 production이 자동 배포되지는 않는다.
+
+## Backend: Cloud Run
+
+Django API는 Docker 안에서 Gunicorn으로 실행된다. 배포 전에는 container를 local에서 build하고 실행한 뒤 `GET /api/health/`를 확인한다. 그 다음 Cloud Build로 production image를 만들고 Artifact Registry에 올린 뒤 Cloud Run에 배포한다.
+
+```text
+local Docker health check
+  -> Cloud Build image build
+  -> Artifact Registry
+  -> Cloud Run revision
+```
+
+Apple Silicon 개발 환경에서 Cloud Run의 Linux/AMD64 runtime과 다른 ARM image가 만들어지는 문제를 피하기 위해 Cloud Build를 사용했다. Cloud Run은 새 revision이 정상 상태가 된 뒤에 traffic을 받는다.
+
+## Database와 Migration
+
+production은 Neon의 production branch를 사용한다. local 개발은 direct connection을 사용할 수 있고, Cloud Run에서는 짧게 살아나는 serverless connection에 맞게 Neon의 pooled connection string을 사용한다.
+
+migration은 의도적으로 분리한 release step이다.
+
+```bash
+python manage.py migrate
+```
+
+schema에 의존하는 code를 배포하기 전에 실행한다. API container가 startup 때 migration을 실행하지 않도록 해서 여러 instance가 동시에 migration을 실행하거나 rollout이 database 작업에 막히지 않게 했다.
+
+## 확인과 Rollback
+
+배포 뒤에는 live frontend, API health endpoint, authentication, 실제 read/write path를 확인한다. production 배포와 이 확인 과정은 내가 직접 진행했다.
+
+Cloud Run은 immutable revision을 보관하므로 이전에 정상적이었던 revision으로 traffic을 되돌릴 수 있다. frontend 문제는 Vercel에서 이전 deployment를 promote하는 방식으로 rollback할 수 있다.
+
+## 이 구성에서 얻은 점
+
+- browser와 Django 사이의 작은 BFF 경계
+- frontend와 backend를 각각 확인할 수 있는 release
+- 명시적인 database migration 시점
+- 두 hosting platform에서 확보한 rollback 경로
+
+지금은 이 수동 flow가 맞는 선택이다. application이 계속 바뀌는 동안에도 production change를 쉽게 추적할 수 있기 때문이다.

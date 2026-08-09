@@ -17,6 +17,7 @@ const PROJECT_DESCRIPTIONS: Record<SupportedLocale, Record<string, string>> = {
 const POST_SUMMARIES: Record<SupportedLocale, Record<string, string>> = {
   en: {
     'jfloww-portfolio': 'Content loading, localization, MDX rendering, and the continuous-surface UI refactor.',
+    'picking-up-log6': 'A manual production deployment flow across Vercel, Cloud Run, and Neon.',
     'picking-up-log5': 'Backend refinement across transactions, validation, authentication, and CI.',
     'picking-up-log4': 'How Bucket List and task mutations changed from the initial plan.',
     'picking-up-log3': 'Task sync, Monthly, and Google login.',
@@ -28,6 +29,7 @@ const POST_SUMMARIES: Record<SupportedLocale, Record<string, string>> = {
   },
   ko: {
     'jfloww-portfolio': 'Content loader, localization, MDX rendering, continuous-surface UI를 정리한 기록.',
+    'picking-up-log6': 'Vercel, Cloud Run, Neon으로 정리한 수동 프로덕션 배포 기록.',
     'picking-up-log5': 'Transaction, domain validation, authentication, CI를 다시 점검한 backend refining 기록.',
     'picking-up-log4': 'Bucket List와 task mutation이 최초 계획에서 달라진 과정.',
     'picking-up-log3': '할 일 동기화, Monthly, Google 로그인 작업.',
