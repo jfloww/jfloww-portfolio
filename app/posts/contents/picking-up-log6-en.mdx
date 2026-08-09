@@ -1,6 +1,6 @@
 ---
 title: 'Picking Up Log 6: Manual Production Deployment'
-date: '20260808'
+date: '20260809'
 id: picking-up-log6-en
 category: 'Picking Up'
 tags: ['devlog', 'deployment', 'vercel', 'cloud-run', 'neon', 'en']
@@ -15,6 +15,12 @@ hidden: false
 This log records the production deployment setup for Picking Up. I wanted a release flow that I could operate and verify myself before adding CI/CD, so deployments are intentionally manual.
 
 The live application is available at [pickingup.vercel.app](https://pickingup.vercel.app/).
+
+## Why the Deployment Plan Changed
+
+The first production target was an OCI VM with Oracle Autonomous Database. Oracle was suspected of contributing to slow API responses, so I first verified the portable Django schema and test suite against a clean Neon PostgreSQL branch.
+
+Moving backend compute to Cloud Run was a separate step. I replaced the initial buildpacks approach with a Dockerfile because I wanted the image build, runtime user, static assets, startup command, and migration boundary to stay visible and explainable. I kept deployment manual until I had operated and verified the full path myself.
 
 ## Production Topology
 
