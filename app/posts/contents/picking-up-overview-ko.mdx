@@ -82,7 +82,7 @@ OCI VM에서 Cloud Run으로 backend를 옮긴 것은 별도의 결정이었다.
 
 production release는 의도적으로 수동으로 진행한다. frontend는 Vercel CLI로 배포하고, backend image는 Cloud Build에서 만든 뒤 immutable Cloud Run revision으로 배포한다. database migration은 container startup에서 자동 실행하지 않고, 해당 schema에 의존하는 backend code보다 먼저 별도 단계로 실행한다.
 
-현재 가장 중요한 남은 작업은 routine occurrence materialization을 idempotent server command로 완전히 옮기는 것이다. 여러 Cloud Run instance가 공유하는 throttle cache와 자동 배포는 실제 traffic과 release 빈도가 필요해질 때 진행할 수 있다.
+현재 가장 중요한 남은 작업은 routine occurrence materialization을 idempotent server command로 완전히 옮기는 것이다. Vercel BFF의 trusted client-IP 전달, 여러 Cloud Run instance가 공유하는 throttle cache, 자동 배포는 실제 traffic과 release 빈도가 필요해질 때 진행할 수 있다.
 
 - [Live app](https://pickingup.vercel.app/)
 - [Project summary](/projects/picking-up)

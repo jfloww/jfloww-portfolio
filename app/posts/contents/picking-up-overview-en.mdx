@@ -82,7 +82,7 @@ The first plan treated mobile as a narrower version of the desktop app. In pract
 
 Production releases are intentionally manual. I deploy the frontend with Vercel CLI, build the backend image with Cloud Build, and deploy an immutable Cloud Run revision. Database migrations run as a deliberate step before dependent backend code, never during container startup.
 
-The main remaining engineering work is moving routine occurrence materialization fully to an idempotent server command. Shared throttling across multiple Cloud Run instances and automated deployment can follow when the application's traffic and release frequency justify them.
+The main remaining engineering work is moving routine occurrence materialization fully to an idempotent server command. Trusted client-IP propagation through the Vercel BFF, shared throttling across multiple Cloud Run instances, and automated deployment can follow when the application's traffic and release frequency justify them.
 
 - [Live app](https://pickingup.vercel.app/)
 - [Project summary](/projects/picking-up)

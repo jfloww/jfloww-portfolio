@@ -1,7 +1,7 @@
 ---
 title: 'Picking Up'
 date: '20260713'
-techStack: 'Python, Django REST Framework, Next.js, TypeScript, Google Cloud Run, Neon PostgreSQL'
+techStack: 'Next.js, TypeScript, Django REST Framework, PostgreSQL (Neon), Docker, Google Cloud Run, Vercel'
 id: picking-up
 hidden: false
 images:
@@ -15,6 +15,13 @@ images:
 **Purpose:** Build a task and routine planner around the way I organize a week: recurring work, unfinished tasks that roll forward, and subtasks that can become full tasks.
 
 **My role:** I designed the product, developed the Python/Django backend and data model, implemented authentication and tests, and personally ran production deployment and verification. I built the Next.js frontend and BFF routes with Claude Code as an implementation partner; Claude also reviewed backend changes and deployment decisions.
+
+## Selected Engineering Contributions
+
+- **Frontend** — Built responsive Daily, Weekly, and Monthly planning workflows for desktop and mobile web, including agenda/timeline modes, full-screen task editing, drag-to-reorder and drag-to-reschedule interactions, and optimistic state reconciliation.
+- **Backend — Commands** — Designed six versioned, transactional DRF command endpoints for Nest, Promote, Detach, Delete occurrence, Reschedule, and Reorder. Atomic transactions, row-level locks, and `409 Conflict` responses prevent stale or partial multi-record writes.
+- **Backend — Integrity and authentication** — Enforced Unicode-normalized, case-insensitive category uniqueness at the database boundary, and hardened authentication with consistent failure contracts, endpoint-specific burst and sustained throttles, and a production proxy-configuration guard.
+- **Deployment** — Migrated production from Oracle Autonomous Database and an OCI VM to Dockerized Django on Cloud Run, Neon PostgreSQL, and a Next.js BFF on Vercel. Verified API health, authentication, and persistent task writes in production.
 
 ## Core Functionality
 
@@ -57,11 +64,13 @@ I deploy the frontend manually from the Next.js app with Vercel CLI. Its BFF rou
 
 For the API, I build the Django/Gunicorn Docker image with Cloud Build and deploy the resulting image to Google Cloud Run. Production data runs on Neon PostgreSQL through the pooled connection, and I run database migrations deliberately before the API deployment rather than during container startup. Cloud Run revisions and Vercel deployments provide the rollback points.
 
+For the first live release, I verified Cloud Run health and ran registration, login, and task-creation requests against the deployed API and Neon database. I then exercised the Vercel BFF-to-Cloud Run path through the live registration route.
+
 ## Result
 
 Picking Up is an application I use to plan my own work rather than a static demo. Its desktop and mobile layouts now present the same planner state in ways suited to each screen, while the backend owns version conflicts, transaction boundaries, ordering, and task validity.
 
-The main remaining work is server-owned routine materialization and direct production-like concurrency verification.
+The main remaining work is server-owned routine materialization and direct production-like concurrency verification. Trusted client-IP propagation through the Vercel BFF and shared throttle state across Cloud Run instances also remain operational follow-ups.
 
 ## Links
 

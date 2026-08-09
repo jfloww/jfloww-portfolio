@@ -70,9 +70,17 @@ I run them before deploying code that depends on the schema. The API container d
 
 ## Verification and Rollback
 
-After each release, I check the live frontend, the API health endpoint, authentication, and a real read/write path. I carried out the production deployment and this verification myself.
+For the first Cloud Run release, I checked `GET /api/health/`, then ran a register → login → create-task smoke test against the live API. I confirmed the test user and task were persisted in Neon before deleting that temporary data.
+
+After connecting Vercel, I verified that the live frontend loaded and that registration completed through the full Vercel BFF → Cloud Run → Neon path. These checks prove the deployed authentication boundary and persistent backend write path. A full browser task-CRUD pass remains a manual release check rather than an automated deployment gate.
 
 Cloud Run preserves immutable revisions, so I can route traffic back to a previous healthy revision. Vercel likewise lets me promote an earlier deployment if the frontend needs to be rolled back.
+
+## Current Operational Limits
+
+Authentication has endpoint-specific burst and sustained throttles, and production refuses to start without an explicit trusted-proxy count. However, the current Next.js BFF does not forward the original browser client IP to Django. I therefore do not treat per-browser IP isolation as proven in the Vercel topology; trusted client-IP propagation or edge-side limiting remains follow-up work.
+
+The Django throttle cache is also local to each Cloud Run instance. A shared cache is required before claiming one global throttle budget across multiple instances.
 
 ## What This Setup Gives Me
 
@@ -80,5 +88,6 @@ Cloud Run preserves immutable revisions, so I can route traffic back to a previo
 - Separate, inspectable releases for the frontend and backend
 - Explicit database migration timing
 - A clear rollback path on both hosting platforms
+- Explicitly documented limits instead of overstating production guarantees
 
 For now, this manual flow is the right trade-off: every production change is visible and easy to trace while the application is still evolving.
