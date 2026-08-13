@@ -9,5 +9,5 @@ interface LocalePageProps {
 export default async function LocalizedAboutPage({ params }: LocalePageProps) {
   const { locale } = await params;
   if (!isSupportedLocale(locale)) notFound();
-  return <AboutPage />;
+  return <AboutPage locale={locale} />;
 }

@@ -24,6 +24,14 @@ export default async function LocalizedProjectPage({ params }: ProjectPageProps)
 
   const mdxContent = await renderMdx(entry.content);
   return (
-    <ProjectClient title={entry.meta.title} date={entry.meta.date} techStack={entry.meta.techStack ?? ''} mdxContent={mdxContent} locale={locale} />
+    <ProjectClient
+      id={entry.meta.id}
+      cover={entry.meta.images?.[0]}
+      title={entry.meta.title}
+      date={entry.meta.date}
+      techStack={entry.meta.techStack ?? ''}
+      mdxContent={mdxContent}
+      locale={locale}
+    />
   );
 }

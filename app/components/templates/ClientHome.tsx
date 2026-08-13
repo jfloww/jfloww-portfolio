@@ -6,6 +6,7 @@ import ProjectTile from '@/app/components/projects/ProjectTile';
 import { localePrefix, SupportedLocale } from '@/app/lib/i18n';
 import { getPostSummary, getProjectDescription } from '@/app/lib/content/presentation';
 import type { ContentMeta } from '@/app/lib/content/schema';
+import OSHomeDesktop from '@/app/components/os/OSHomeDesktop';
 
 interface ClientHomeProps {
   locale?: SupportedLocale;
@@ -52,7 +53,11 @@ export default function ClientHome({ projList, postList, locale }: ClientHomePro
   const copy = HOME_COPY[currentLocale];
 
   return (
-    <div className="w-full bg-[var(--background)] text-[var(--foreground)]">
+    <>
+      <div className="hidden w-full md:block">
+        <OSHomeDesktop locale={currentLocale} projList={projList} postList={postList} />
+      </div>
+      <div className="w-full bg-[var(--background)] text-[var(--foreground)] md:hidden">
       <section className="py-12 md:py-20">
         <PageShell>
           <div className="flex flex-col-reverse gap-6 md:flex-row md:items-start md:justify-between md:gap-12 lg:gap-16">
@@ -175,6 +180,7 @@ export default function ClientHome({ projList, postList, locale }: ClientHomePro
           </Link>
         </PageShell>
       </section>
-    </div>
+      </div>
+    </>
   );
 }

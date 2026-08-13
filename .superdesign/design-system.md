@@ -103,3 +103,64 @@ Use Apple.com as a single visual reference source, adapted for a portfolio rathe
 - Preserve bilingual routing and existing content concepts.
 - Do not introduce fonts, colors, decorative effects, or component styles outside this system.
 - Do not make the page look like a generic SaaS landing page.
+
+## JFLOWW hybrid OS shell
+
+This section defines the approved desktop-inspired shell for Home, About, Projects, Project detail, Archive, Contact, and Resume access. For drafts explicitly named `JFLOWW OS`, these rules supersede conflicting page-shell rules above, including the continuous-canvas requirement and the prohibition on glass surfaces or atmospheric gradients. Posts index and Post detail remain editorial reading surfaces and retain their current PageShell, filter, typography, divider, and MDX formats.
+
+### Product intent
+
+- Make the first viewport memorable and playful while keeping a recruiter-friendly path to Projects, Posts, About, Resume, Contact, and the live Picking Up product.
+- Treat the operating-system metaphor as a navigation shell, not a simulation. Every visible app maps to a real existing route or external profile.
+- Preserve the relationship between finished projects and their development notes. Do not add unrelated lifestyle, health, weather, books, films, or fake system-status widgets.
+- Keep the interface recognizably JFLOWW. It may feel desktop-inspired but must not reproduce Apple branding, proprietary wallpapers, Finder, or macOS icons.
+- Preserve browser URLs, deep links, back/forward behavior, bilingual routing, and semantic page headings. Window state may enhance navigation but must never replace real routes.
+- Treat Posts as the deliberate exception: choosing Posts leaves the floating-window composition and opens the existing quiet editorial list or article reading layout. Do not wrap long posts in a decorative desktop window.
+
+### Desktop composition
+
+- Design the OS routes for a full viewport with a slim 28px top menu bar, a custom atmospheric wallpaper, and a centered 68–72px floating dock near the bottom edge.
+- Top bar: custom JFLOWW mark, then the name of the currently focused surface (`JFLOWW`, `Archive`, `About`, or the project title), followed by `Go`, `View`, `Window`, and `Help`. At right show locale, theme control, generic custom status glyphs, and a quiet tabular local time. The menus expose only real actions: route navigation, theme, open-window focus, Resume, and Contact.
+- Desktop shortcuts are limited to `Archive`, `README.md`, and `Resume.pdf`. `README.md` opens About. Do not repeat About, Projects, and Notes as separate desktop shortcuts.
+- Archive is a portfolio content browser, not a fake filesystem. Its root contains `Projects/`, `Notes/`, `Documents/`, and `README.md`. `Projects/` maps to existing project entries, `Notes/` maps to the existing posts route, `Documents/` exposes the real resume, and `README.md` maps to About.
+- `Picking Up` lives in the dock rather than the desktop shortcut column. It opens `https://pickingup.vercel.app/` externally and carries `Live app ↗` in its tooltip. The `Archive / Projects / Picking Up` item remains the separate internal case study. Give the dock item one restrained custom planner/checkmark icon using JFLOWW blue; do not imitate a native macOS application icon.
+- Keep one useful window open on arrival so the page never feels like an empty puzzle. The primary Welcome window contains the existing role, greeting, Python / SQL / TypeScript stack, profile portrait, and direct Projects / About actions.
+- Surface selected work and latest development notes in at most two supporting widgets. Project items open their existing case studies in a project document window; note items navigate to the unchanged editorial Posts format.
+- Archive uses a custom file-browser window with a narrow sidebar and accessible list rows. Root and folder navigation happen inside the Archive window, while opening a project creates or focuses a separate project document window.
+- Project detail retains the existing MDX content, order, images, and technical copy. On desktop, add only OS document chrome: a 40px title bar, back/breadcrumb controls, a compact metadata toolbar, a 16:9 project image, and one scrollable document region approximately 720–760px wide. Remove the oversized bottom `Back to Projects` pill in favor of the window toolbar. Do not redesign the project as a marketing landing page or split its article into dashboard cards.
+- Window chrome uses a compact title bar, three small controls, clear title, and a visible route-safe open/full-page action where useful. Red closes; amber and green remain disabled because minimize and maximize are outside scope.
+- Preserve readable information density: the first viewport must expose identity, two projects, and at least two recent notes without requiring every item to be opened.
+
+### Visual language and tokens
+
+- Continue using the neutral system sans-serif stack with Korean-capable fallbacks and no decorative display face.
+- Wallpaper palette: deep ink blue `#0B233B`, slate blue `#315B7D`, mist `#B8CFDC`, and restrained warm sand `#D7C2A2`. Gradients are allowed only in the wallpaper.
+- Light glass surface: `rgba(248, 251, 253, 0.78)` with dark text `#17212B`; dark glass surface: `rgba(16, 24, 32, 0.78)` with text `#F2F5F7`.
+- Glass is limited to the top bar, windows, widgets, and dock. Use 16–20px backdrop blur, a 1px `rgba(255,255,255,0.55)` edge, and one restrained shadow such as `0 18px 50px rgba(8,24,40,0.18)`.
+- Primary windows use 16px radius; widgets and dock use 18px radius; desktop icons themselves have 12px icon tiles. Do not turn every content row into a rounded card.
+- Use existing JFLOWW interaction blue `#0066CC` sparingly for links, active app indicators, and keyboard focus. Window controls may use muted red, amber, and green only at their conventional tiny 10–12px size.
+- Typography inside windows follows the editorial system: 30–36px window hero, 17–22px section titles, 14–16px body, 11–13px metadata.
+
+### Balanced desktop realism
+
+- Use a balanced, macOS-adjacent level of realism without copying Apple branding, proprietary icons, Finder, or any macOS wallpaper. JFLOWW remains the active product identity and all icons remain custom.
+- Refine the top menu bar to 28px on desktop. Keep the JFLOWW mark and active app name at the left, followed by compact 13px menu labels; place generic custom status glyphs and a tabular local time at the right. Use restrained translucency, a 20px backdrop blur, and a single soft bottom highlight rather than a heavy border.
+- Give every open content surface recognizable window anatomy: a 38–40px title bar, a centered or clearly aligned title, and three 12px traffic-light controls with 8px gaps and muted conventional red, amber, and green. The red control closes the window; amber and green remain visibly disabled because minimize and maximize are outside this mock's scope. Never use Apple logos or proprietary control glyphs.
+- Focused windows use the full glass opacity, crisp 1px edge, and layered shadow `0 22px 60px rgba(6,18,30,0.24), 0 3px 12px rgba(6,18,30,0.14)`. Inactive windows reduce shadow strength and title-bar/control saturation while keeping all text fully legible. Clicking any visible part of a window raises it above the others.
+- Use `backdrop-filter: blur(20px) saturate(125%)` for windows and the dock. Keep content regions calm and readable; the wallpaper may show through around windows, not compete through text-heavy regions.
+- Refine the dock into a continuous 68–72px glass shelf with 16px outer radius, 8px internal padding, and custom 44–48px app tiles. Hover or keyboard focus may magnify the target to about `1.22`, its immediate neighbors to about `1.10`, and lift them 6–10px. Use 160–220ms spring-like easing without bounce loops.
+- Show one 4px active dot below each currently open app. Dock tooltips appear above icons on hover and keyboard focus. A closed app's dock item reopens its mapped window; an open app's dock item focuses it.
+- Interaction scope is intentionally narrow: open, close, and focus windows only. Do not add dragging, resizing, minimizing, maximizing, desktop selection rectangles, fake context menus, or simulated system apps.
+- Welcome, Archive, About, Contact, and Project detail may behave as real windows. Selected Work and Latest Notes may remain lightweight desktop widgets. Posts never become floating windows. Archive, README, Resume, dock items, widgets, and menu commands retain real destinations; Picking Up remains the external live product and its Archive entry remains the internal case-study route.
+- Use the existing system UI font stack only. Do not import Google Fonts or introduce a new display face for this variant.
+
+### Motion, behavior, and responsive rules
+
+- Suggested implementation motion is 160–240ms for opening, focus, dock magnification, and hover; no bouncing loops or novelty cursor effects.
+- Desktop windows may overlap slightly, but important text must remain unobscured and the starting layout must look intentionally composed.
+- Every desktop shortcut, menu command, Archive row, traffic-light control, and dock item needs a text label or accessible name, visible focus state, and a real destination or state change. Do not require double-click; a single activation must work for keyboard, touch, and pointer users.
+- Under 768px, remove the 28px menu bar, free positioning, traffic-light chrome, wallpaper-heavy composition, and floating dock. Use a 52–56px sticky JFLOWW header with locale/theme controls, then a compact four-item app launcher for Archive, About, Projects, and Resume. Place `Open Picking Up ↗` as one separate centered live-product action below the launcher; do not mix it into the navigation items.
+- Mobile Archive becomes an ordinary stacked content browser: folder chips or rows first, followed by full-width project rows with title, year, and one-line description. No narrow desktop sidebar, dense table columns, overlapping windows, hover-only actions, or horizontal scrolling.
+- Mobile Project detail is a normal full-page document using the current MDX order, 16:9 media, 24px side padding, 44px minimum touch targets, and a compact sticky back/title bar. Do not shrink the desktop window into the viewport.
+- Mobile Posts index and Post detail remain the current editorial formats. Preserve search and category filtering on the index, the existing prose typography on detail pages, and the shared mobile header/footer.
+- Deep links, browser back/forward, and standard routes remain available even if desktop interactions later open window overlays.

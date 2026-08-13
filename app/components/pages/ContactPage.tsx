@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import PageHeader from '../layout/PageHeader';
 import PageShell from '../layout/PageShell';
+import OSContactDesktop from '../os/OSContactDesktop';
 
 const inputClass =
   'w-full rounded-[4px] border border-[var(--divider)] bg-transparent px-4 py-3 text-[15px] text-[var(--foreground)] placeholder:text-[var(--muted)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]';
@@ -41,8 +42,12 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="w-full bg-[var(--background)]">
-      <PageShell>
+    <>
+      <div className="hidden w-full md:block">
+        <OSContactDesktop formData={formData} onChange={handleChange} onSubmit={handleSubmit} status={status} />
+      </div>
+      <div className="w-full bg-[var(--background)] md:hidden">
+        <PageShell>
         <PageHeader
           compact
           eyebrow="Contact"
@@ -166,7 +171,8 @@ export default function ContactPage() {
             </div>
           </form>
         </section>
-      </PageShell>
-    </div>
+        </PageShell>
+      </div>
+    </>
   );
 }

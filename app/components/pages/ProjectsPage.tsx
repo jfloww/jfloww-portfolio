@@ -5,6 +5,7 @@ import ProjectTile from '../projects/ProjectTile';
 import { getProjectDescription } from '@/app/lib/content/presentation';
 import { localePrefix } from '@/app/lib/i18n';
 import type { SupportedLocale } from '@/app/lib/i18n';
+import ArchiveDesktop from '@/app/components/os/ArchiveDesktop';
 
 interface ProjectsPageProps {
   locale?: SupportedLocale;
@@ -28,22 +29,27 @@ export default async function ProjectsPage({ locale }: ProjectsPageProps) {
   const copy = COPY[currentLocale];
 
   return (
-    <div className="w-full bg-[var(--background)]">
-      <PageShell>
-        <PageHeader eyebrow="Portfolio" title="Projects" description={copy.description} aside={copy.count(projects.length)} />
+    <>
+      <div className="hidden w-full md:block">
+        <ArchiveDesktop projects={projects} locale={currentLocale} />
+      </div>
+      <div className="w-full bg-[var(--background)] md:hidden">
+        <PageShell>
+          <PageHeader eyebrow="Portfolio" title="Projects" description={copy.description} aside={copy.count(projects.length)} />
 
-        <section className="grid grid-cols-1 gap-x-8 gap-y-16 py-14 md:grid-cols-2 md:py-20">
-          {projects.map((project, index) => (
-            <ProjectTile
-              key={project.id}
-              href={`${prefix}/projects/${project.id}`}
-              project={project}
-              description={getProjectDescription(project, currentLocale)}
-              priority={index < 2}
-            />
-          ))}
-        </section>
-      </PageShell>
-    </div>
+          <section className="grid grid-cols-1 gap-x-8 gap-y-16 py-14 md:grid-cols-2 md:py-20">
+            {projects.map((project, index) => (
+              <ProjectTile
+                key={project.id}
+                href={`${prefix}/projects/${project.id}`}
+                project={project}
+                description={getProjectDescription(project, currentLocale)}
+                priority={index < 2}
+              />
+            ))}
+          </section>
+        </PageShell>
+      </div>
+    </>
   );
 }

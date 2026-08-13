@@ -1,14 +1,112 @@
 import Image from 'next/image';
 import PageHeader from '../layout/PageHeader';
 import PageShell from '../layout/PageShell';
+import OSDesktopShell from '../os/OSDesktopShell';
+import OSIcon from '../os/OSIcon';
+import OSWindow from '../os/OSWindow';
+import { localePrefix, type SupportedLocale } from '@/app/lib/i18n';
 
 const sectionClass = 'grid gap-6 py-10 md:grid-cols-[180px_1fr] md:gap-12 md:py-12';
 const sectionTitleClass = 'text-sm font-semibold uppercase tracking-[0.14em] text-[var(--muted)]';
 
-export default function AboutPage() {
+interface AboutPageProps {
+  locale?: SupportedLocale;
+}
+
+export default function AboutPage({ locale = 'en' }: AboutPageProps) {
+  const prefix = localePrefix(locale);
+
   return (
-    <div className="w-full bg-[var(--background)]">
-      <PageShell>
+    <>
+      <div className="hidden w-full md:block">
+        <OSDesktopShell activeApp="README.md">
+          <OSWindow
+            id="about-readme-window"
+            title="README.md"
+            closeHref={prefix || '/'}
+            className="os-about-window"
+            titleAction={
+              <a href="/resume/Jaehoon-Jung-resume.pdf" target="_blank" rel="noopener noreferrer" className="os-window-action-link">
+                Resume ↗
+              </a>
+            }
+          >
+            <div className="os-about-window-body">
+              <aside className="os-about-sidebar" aria-label="About sections">
+                <p className="os-about-sidebar-label">README</p>
+                <nav className="space-y-1">
+                  <a href="#about-profile" className="os-about-sidebar-row is-current"><OSIcon name="user" className="h-4 w-4" /> Profile</a>
+                  <a href="#about-stack" className="os-about-sidebar-row"><OSIcon name="grid" className="h-4 w-4" /> Tech Stack</a>
+                  <a href="#about-experience" className="os-about-sidebar-row"><OSIcon name="documents" className="h-4 w-4" /> Experience</a>
+                  <a href="#about-education" className="os-about-sidebar-row"><OSIcon name="notes" className="h-4 w-4" /> Education</a>
+                </nav>
+              </aside>
+
+              <div className="os-about-document">
+                <section id="about-profile" className="grid grid-cols-[190px_1fr] gap-10 border-b border-[var(--os-divider)] pb-10">
+                  <Image
+                    src="/photo/my-profile.png"
+                    alt="Jay Jaehoon Jung"
+                    width={190}
+                    height={238}
+                    priority
+                    className="aspect-[4/5] w-full rounded-[6px] object-cover ring-1 ring-black/5"
+                  />
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--os-muted)]">About</p>
+                    <h1 className="mt-2 text-[36px] font-semibold tracking-[-0.035em] text-[var(--os-text)]">Jay (Jaehoon) Jung</h1>
+                    <p className="mt-3 max-w-xl text-[15px] leading-6 text-[var(--os-muted)]">Software Engineer focused on backend systems, data, and reliable web applications.</p>
+                    <dl className="mt-7 divide-y divide-[var(--os-divider)] border-y border-[var(--os-divider)] text-[13px]">
+                      <div className="grid grid-cols-[90px_1fr] gap-4 py-3"><dt className="text-[var(--os-muted)]">Role</dt><dd className="font-medium">Software Engineer</dd></div>
+                      <div className="grid grid-cols-[90px_1fr] gap-4 py-3"><dt className="text-[var(--os-muted)]">Current</dt><dd className="font-medium">ComGen America</dd></div>
+                      <div className="grid grid-cols-[90px_1fr] gap-4 py-3"><dt className="text-[var(--os-muted)]">Focus</dt><dd className="font-medium">Backend systems, APIs, databases, and application reliability</dd></div>
+                    </dl>
+                    <div className="mt-6 flex items-center gap-5 text-[13px] font-semibold">
+                      <a href="/resume/Jaehoon-Jung-resume.pdf" target="_blank" rel="noopener noreferrer" className="text-[var(--os-accent)] hover:underline">View Resume ↗</a>
+                      <a href="mailto:hoon7589@gmail.com" className="text-[var(--os-accent)] hover:underline">Contact</a>
+                    </div>
+                  </div>
+                </section>
+
+                <section id="about-stack" className="os-about-section">
+                  <h2>Tech Stack</h2>
+                  <dl className="space-y-3">
+                    <div><dt>Backend</dt><dd>Python, Django, Node.js, C#, .NET Core</dd></div>
+                    <div><dt>Database</dt><dd>Oracle Database, PostgreSQL, SQL Server, SQLite</dd></div>
+                    <div><dt>Frontend</dt><dd>TypeScript, JavaScript, Vue.js, React, Next.js</dd></div>
+                    <div><dt>Infrastructure</dt><dd>Docker, AWS, Tomcat, Apache, Git</dd></div>
+                  </dl>
+                </section>
+
+                <section id="about-experience" className="os-about-section">
+                  <h2>Experience</h2>
+                  <div className="space-y-8">
+                    <article>
+                      <div className="flex items-baseline justify-between gap-5"><h3>Software Engineer · ComGen America</h3><time>Feb 2023 – Present</time></div>
+                      <ul><li>Developed and maintained backend services and web applications for logistics automation.</li><li>Modernized legacy systems and performed database upgrades and data migrations.</li><li>Managed HTTPS, integration, firewall, and network troubleshooting work.</li></ul>
+                    </article>
+                    <article>
+                      <div className="flex items-baseline justify-between gap-5"><h3>Monitoring Analyst · Republic of Korea Army</h3><time>Jan 2020 – Aug 2021</time></div>
+                      <ul><li>Monitored operational information and managed a 12-person team.</li><li>Sergeant, honorably discharged.</li></ul>
+                    </article>
+                  </div>
+                </section>
+
+                <section id="about-education" className="os-about-section">
+                  <h2>Education</h2>
+                  <div className="space-y-5 text-[13px] leading-6 text-[var(--os-muted)]">
+                    <p><strong className="block text-[var(--os-text)]">M.S. Computer Science</strong>Georgia Institute of Technology</p>
+                    <p><strong className="block text-[var(--os-text)]">B.S. Applied Mathematics &amp; Statistics</strong>SUNY Stony Brook</p>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </OSWindow>
+        </OSDesktopShell>
+      </div>
+
+      <div className="w-full bg-[var(--background)] md:hidden">
+        <PageShell>
         <PageHeader
           eyebrow="About"
           title="Jay (Jaehoon) Jung"
@@ -178,7 +276,8 @@ export default function AboutPage() {
             </div>
           </section>
         </div>
-      </PageShell>
-    </div>
+        </PageShell>
+      </div>
+    </>
   );
 }

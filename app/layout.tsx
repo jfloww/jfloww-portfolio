@@ -1,9 +1,8 @@
 // layout.tsx
 import './globals.css';
-import Header from './components/templates/MainHeader';
-import Footer from './components/templates/MainFooter';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
+import SiteChrome from './components/layout/SiteChrome';
 
 const themeInitScript = `
 (() => {
@@ -27,9 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="flex min-h-screen min-w-0 flex-col overflow-x-hidden bg-[var(--background)] text-[var(--foreground)]">
         <SpeedInsights />
         <Analytics />
-        <Header />
-        <main className="flex w-full flex-grow">{children}</main>
-        <Footer />
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );
