@@ -7,6 +7,7 @@ import type { ContentImage } from '@/app/lib/content/schema';
 import OSDesktopShell from '@/app/components/os/OSDesktopShell';
 import OSIcon from '@/app/components/os/OSIcon';
 import OSWindow from '@/app/components/os/OSWindow';
+import MobileOSShell from '@/app/components/os/MobileOSShell';
 
 interface ProjectClientProps {
   cover?: ContentImage;
@@ -90,7 +91,9 @@ export default function ProjectClient({ cover, id, title, date, techStack, mdxCo
         </OSDesktopShell>
       </div>
 
-      <div className="w-full px-3 py-2 md:hidden">
+      <MobileOSShell title={title} backHref={projectsHref} backLabel="Archive">
+        <div className="mobile-os-document-surface">
+        <div className="w-full px-5 py-5">
         <section className="mx-auto w-full max-w-4xl">
         {/* Header */}
         <div className="flex flex-col gap-4 border-b border-[var(--divider)] pb-5">
@@ -139,7 +142,9 @@ export default function ProjectClient({ cover, id, title, date, techStack, mdxCo
           </Link>
         </div>
         </section>
-      </div>
+        </div>
+        </div>
+      </MobileOSShell>
     </>
   );
 }

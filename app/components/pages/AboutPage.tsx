@@ -4,6 +4,7 @@ import PageShell from '../layout/PageShell';
 import OSDesktopShell from '../os/OSDesktopShell';
 import OSIcon from '../os/OSIcon';
 import OSWindow from '../os/OSWindow';
+import MobileOSShell from '../os/MobileOSShell';
 import { localePrefix, type SupportedLocale } from '@/app/lib/i18n';
 
 const sectionClass = 'grid gap-6 py-10 md:grid-cols-[180px_1fr] md:gap-12 md:py-12';
@@ -105,7 +106,8 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
         </OSDesktopShell>
       </div>
 
-      <div className="w-full bg-[var(--background)] md:hidden">
+      <MobileOSShell title="README.md" backHref={prefix || '/'}>
+        <div className="mobile-os-document-surface">
         <PageShell>
         <PageHeader
           eyebrow="About"
@@ -277,7 +279,8 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
           </section>
         </div>
         </PageShell>
-      </div>
+        </div>
+      </MobileOSShell>
     </>
   );
 }

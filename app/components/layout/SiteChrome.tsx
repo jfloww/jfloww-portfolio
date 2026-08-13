@@ -1,6 +1,5 @@
 'use client';
 
-import clsx from 'clsx';
 import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
 import MainFooter from '../templates/MainFooter';
@@ -26,11 +25,11 @@ export default function SiteChrome({ children }: SiteChromeProps) {
 
   return (
     <>
-      <div className={clsx(isOSRoute && 'md:hidden')}>
+      <div className={isOSRoute ? 'hidden' : ''}>
         <MainHeader />
       </div>
-      <main className={clsx('flex w-full flex-grow', isOSRoute && 'md:min-h-screen')}>{children}</main>
-      <div className={clsx(isOSRoute && 'md:hidden')}>
+      <main className={`flex min-w-0 w-full flex-grow ${isOSRoute ? 'min-h-screen overflow-hidden' : ''}`}>{children}</main>
+      <div className={isOSRoute ? 'hidden' : ''}>
         <MainFooter />
       </div>
     </>

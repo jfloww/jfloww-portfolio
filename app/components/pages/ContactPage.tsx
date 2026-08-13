@@ -1,14 +1,19 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import PageHeader from '../layout/PageHeader';
 import PageShell from '../layout/PageShell';
 import OSContactDesktop from '../os/OSContactDesktop';
+import MobileOSShell from '../os/MobileOSShell';
+import { localePrefix, normalizeLocaleFromPath } from '@/app/lib/i18n';
 
 const inputClass =
   'w-full rounded-[4px] border border-[var(--divider)] bg-transparent px-4 py-3 text-[15px] text-[var(--foreground)] placeholder:text-[var(--muted)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]';
 
 export default function ContactPage() {
+  const pathname = usePathname();
+  const prefix = localePrefix(normalizeLocaleFromPath(pathname));
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
@@ -46,7 +51,8 @@ export default function ContactPage() {
       <div className="hidden w-full md:block">
         <OSContactDesktop formData={formData} onChange={handleChange} onSubmit={handleSubmit} status={status} />
       </div>
-      <div className="w-full bg-[var(--background)] md:hidden">
+      <MobileOSShell title="Contact" backHref={prefix || '/'}>
+        <div className="mobile-os-document-surface">
         <PageShell>
         <PageHeader
           compact
@@ -172,7 +178,8 @@ export default function ContactPage() {
           </form>
         </section>
         </PageShell>
-      </div>
+        </div>
+      </MobileOSShell>
     </>
   );
 }
