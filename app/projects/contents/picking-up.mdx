@@ -2,6 +2,8 @@
 title: 'Picking Up'
 date: '20260713'
 techStack: 'Next.js, TypeScript, Django REST Framework, PostgreSQL (Neon), Docker, Google Cloud Run, Vercel'
+repoUrl: 'https://github.com/jfloww/picking-up'
+liveUrl: 'https://pickingup.vercel.app/'
 id: picking-up
 hidden: false
 images:
@@ -10,11 +12,12 @@ images:
     description: 'Picking Up task planner app mark'
 ---
 
-# Project Summary
+# Executive Summary
 
-**Purpose:** Build a task and routine planner around the way I organize a week: recurring work, unfinished tasks that roll forward, and subtasks that can become full tasks.
-
-**My role:** I designed the product, developed the Python/Django backend and data model, implemented authentication and tests, and personally ran production deployment and verification. I built the Next.js frontend and BFF routes with Claude Code as an implementation partner; Claude also reviewed backend changes and deployment decisions.
+- **Problem:** I wanted one planner for recurring work, unfinished tasks that roll forward, and subtasks that can become full tasks.
+- **My role:** I designed the product, developed the Python/Django backend and data model, implemented authentication and tests, and ran production deployment and verification. I built the Next.js frontend and BFF routes with Claude Code as an implementation partner and reviewed the resulting changes.
+- **Key decisions:** Task changes use versioned, transactional commands so stale or partial multi-record writes do not silently overwrite valid state.
+- **Outcome:** Picking Up is deployed on Vercel, Cloud Run, and Neon PostgreSQL, and I use it to plan my own work.
 
 ## Selected Engineering Contributions
 

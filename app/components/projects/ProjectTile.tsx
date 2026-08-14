@@ -20,13 +20,17 @@ export default function ProjectTile({ href, project, description, priority = fal
         aria-label={`View ${project.title} project`}
         className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]"
       >
-        <div className="relative aspect-video w-full overflow-hidden bg-white ring-1 ring-inset ring-black/5 dark:bg-white/5 dark:ring-white/10">
+        <div
+          className={`relative aspect-video w-full overflow-hidden ring-1 ring-inset ring-black/5 dark:ring-white/10 ${
+            preserveFullImage ? 'bg-[#101820]' : 'bg-white dark:bg-white/5'
+          }`}
+        >
           <Image
             src={cover?.src ?? '/temp/test1.jpg'}
             alt={cover?.description ?? project.title}
             fill
             priority={priority}
-            className={`${preserveFullImage ? 'object-contain' : 'object-cover'} transition-transform duration-300 group-hover:scale-[1.02]`}
+            className={`${preserveFullImage ? 'object-contain p-[8%]' : 'object-cover'} transition-transform duration-300 group-hover:scale-[1.02]`}
             sizes="(max-width: 767px) calc(100vw - 48px), (max-width: 1279px) calc(50vw - 48px), 528px"
           />
         </div>

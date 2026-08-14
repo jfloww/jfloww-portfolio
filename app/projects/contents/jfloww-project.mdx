@@ -2,6 +2,7 @@
 title: 'JFLOWW Portfolio'
 date: '20250605'
 techStack: 'Next.js, TypeScript, Tailwind CSS, MDX'
+repoUrl: 'https://github.com/jfloww/jfloww-portfolio'
 id: jfloww-project
 hidden: false
 images:
@@ -10,11 +11,12 @@ images:
     description: 'JFLOWW portfolio home page'
 ---
 
-# Project Summary
+# Executive Summary
 
-**Purpose:** Build a portfolio where Projects and development Posts can grow without adding a new page component for every entry.
-
-**My role:** Designed and implemented the content model, Next.js routes, responsive UI, localization flow, theme behavior, and Contact endpoint.
+- **Problem:** I wanted Projects and development Posts to grow without adding a new page component for every entry.
+- **My role:** I designed and implemented the content model, Next.js routes, responsive UI, localization flow, theme behavior, and Contact endpoint.
+- **Key decisions:** Projects and Posts share one typed MDX loader, while desktop and mobile use different layouts over the same content.
+- **Outcome:** New content can be published by adding an MDX file and assets, and the same data feeds the Home, Archive, and localized routes.
 
 ## Core Functionality
 

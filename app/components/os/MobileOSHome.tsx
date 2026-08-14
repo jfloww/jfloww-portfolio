@@ -26,7 +26,7 @@ const COPY = {
     notes: 'Notes',
     recent: 'Recently opened',
     resume: 'Resume',
-    role: 'Full Stack Software Developer',
+    role: 'Software Engineer · Backend & Full-Stack',
     about: 'About',
   },
   ko: {
@@ -39,7 +39,7 @@ const COPY = {
     notes: '개발 기록',
     recent: '최근에 연 항목',
     resume: '이력서',
-    role: 'Full Stack Software Developer',
+    role: 'Software Engineer · Backend & Full-Stack',
     about: '소개',
   },
 } as const;

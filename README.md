@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JFLOWW Portfolio
 
-## Getting Started
+This is my personal portfolio and development log. I use it to show finished projects, explain how I built them, and keep track of what I learned along the way.
 
-First, run the development server:
+The desktop version uses a small operating-system style interface. The mobile version has a simpler app layout made for touch. Both versions use the same project and post content.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## About me
+
+I'm Jay, a software engineer who works mainly with backend systems, APIs, databases, and web applications.
+
+I enjoy learning new things and getting better through real work. When a tool can help, including an AI tool, I learn how to use it and fit it into my process. I still read the changes, test the result, and make the final decision myself.
+
+I like working with other people. I try to share context, listen carefully, and keep communication clear. I also take time before making decisions that can affect users, data, or production. When a change has risk, I try to prepare a backup or rollback plan first.
+
+## Featured project
+
+### Picking Up
+
+Picking Up is a task and routine planner that I use for my own work. It supports recurring tasks, rollover, task nesting, and desktop and mobile planning views.
+
+I designed the product and built the Django backend, data model, authentication, tests, and deployment flow. I also built the Next.js frontend and BFF routes with Claude Code as an implementation partner, then reviewed and tested the resulting changes.
+
+- [Live app](https://pickingup.vercel.app/)
+- [GitHub repository](https://github.com/jfloww/picking-up)
+- [Case study](app/projects/contents/picking-up.mdx)
+
+## What is in this repository
+
+- Projects are short case studies about finished work.
+- Posts are development logs about decisions, problems, and changes.
+- English routes live at the root and Korean routes live under `/ko`.
+- MDX frontmatter is normalized through one typed content loader.
+- Desktop and mobile use different layouts while sharing the same data.
+
+## Main stack
+
+- Next.js 16 and React 19
+- TypeScript
+- Tailwind CSS
+- MDX
+- Vercel Analytics and Speed Insights
+
+## Project structure
+
+```text
+app/
+  components/       shared page, OS, layout, and project components
+  projects/contents project case studies
+  posts/contents/   development logs
+  lib/content/      MDX loading, metadata, and rendering
+public/
+  icons/            site and social icons
+  photo/            profile and project images
+  resume/           public resume
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Run locally
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The development server runs on `http://localhost:10001`.
 
-## Learn More
+## Checks
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run lint
+npm run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Contact
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [GitHub](https://github.com/jfloww)
+- [LinkedIn](https://www.linkedin.com/in/jfloww/)
+- [Instagram](https://www.instagram.com/jaehoon_jung98/)

@@ -556,7 +556,7 @@ textarea:focus-visible {
 
 .os-home-welcome-content {
   display: flex;
-  min-height: 360px;
+  min-height: 400px;
   align-items: center;
   gap: clamp(24px, 3vw, 48px);
   padding: 38px 42px 40px;
@@ -569,7 +569,25 @@ textarea:focus-visible {
 }
 
 .os-home-work-window { top: 42px; }
-.os-home-notes-window { top: 284px; }
+.os-home-notes-window { top: 342px; }
+
+@media (min-width: 1440px) {
+  .os-home-welcome-window {
+    left: clamp(112px, 7.25vw, 144px);
+    width: min(47vw, 860px);
+  }
+
+  .os-home-work-window {
+    right: clamp(24px, 3vw, 54px);
+    left: auto;
+    width: clamp(420px, 29vw, 540px);
+  }
+
+  .os-home-notes-window {
+    top: 472px;
+    width: clamp(420px, 29vw, 540px);
+  }
+}
 
 /* Finder / Archive */
 .os-archive-window,
@@ -796,17 +814,21 @@ textarea:focus-visible {
   .os-home-welcome-content > :last-child { height: 158px; width: 158px; }
   .os-home-work-window,
   .os-home-notes-window { width: 30vw; }
-  .os-home-notes-window { top: 282px; }
+  .os-home-notes-window { top: 340px; }
   .os-about-document { padding-right: 32px; padding-left: 32px; }
   .os-about-document > section:first-child { grid-template-columns: 160px minmax(0, 1fr); gap: 28px; }
 }
 
 @media (max-height: 800px) and (min-width: 768px) {
   .os-desktop-shell { height: 100svh; min-height: 680px; }
-  .os-home-welcome-content { min-height: 320px; padding-top: 30px; padding-bottom: 30px; }
-  .os-home-notes-window { top: 264px; }
+  .os-home-welcome-content { min-height: 340px; padding-top: 30px; padding-bottom: 30px; }
+  .os-home-notes-window { top: 320px; }
   .os-contact-window { top: 32px; height: calc(100% - 125px); }
   .os-contact-sidebar { padding-top: 26px; padding-bottom: 26px; gap: 20px; }
+}
+
+@media (max-height: 800px) and (min-width: 1440px) {
+  .os-home-notes-window { top: 472px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

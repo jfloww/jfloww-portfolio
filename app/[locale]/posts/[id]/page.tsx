@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { getLocalizedContentById, getLocalizedContentStaticParams } from '@/app/lib/content/loader';
 import { dateFormat } from '@/app/components/functions/dateFormat';
 import { isSupportedLocale } from '@/app/lib/i18n';
+import { getPostSummary } from '@/app/lib/content/presentation';
+import type { Metadata } from 'next';
 
 interface PostPageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -14,6 +16,25 @@ export async function generateStaticParams() {
 }
 
 export const dynamicParams = false;
+
+export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
+  const { locale, id } = await params;
+  if (!isSupportedLocale(locale)) return { title: 'Post' };
+
+  const entry = await getLocalizedContentById('posts', id, locale);
+  if (!entry) return { title: 'Post' };
+
+  const description = getPostSummary(entry.meta, locale);
+  return {
+    title: entry.meta.title,
+    description,
+    alternates: {
+      canonical: `/ko/posts/${id}`,
+      languages: { 'en-US': `/posts/${id}`, 'ko-KR': `/ko/posts/${id}` },
+    },
+    openGraph: { type: 'article', title: entry.meta.title, description },
+  };
+}
 
 export default async function LocalizedPostDetailPage({ params }: PostPageProps) {
   const { locale, id } = await params;

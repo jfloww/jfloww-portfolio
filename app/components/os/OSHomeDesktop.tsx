@@ -27,23 +27,29 @@ interface HomeWindowState {
 const COPY = {
   en: {
     about: 'About Me',
+    caseStudy: 'Case Study',
+    dataNotebook: 'Data Notebook',
+    featured: 'Featured Project',
     headline: ['Hi, there', 'Welcome to my page.'],
     latestNotes: 'Latest Notes',
     openFull: 'Open full page',
     projects: 'View Projects',
-    role: 'Full Stack Software Developer',
-    selectedWork: 'Selected Work',
+    role: 'Software Engineer · Backend & Full-Stack',
+    selectedWork: 'Projects',
     stack: 'Main Stack',
     welcome: 'Welcome to JFLOWW',
   },
   ko: {
     about: '소개 보기',
+    caseStudy: 'Case Study',
+    dataNotebook: 'Data Notebook',
+    featured: 'Featured Project',
     headline: ['안녕하세요,', '개발자 정재훈입니다.'],
     latestNotes: '최근 개발 기록',
     openFull: '전체 페이지 열기',
     projects: '프로젝트 보기',
-    role: 'Full Stack Software Developer',
-    selectedWork: 'Selected Work',
+    role: 'Software Engineer · Backend & Full-Stack',
+    selectedWork: '프로젝트',
     stack: 'Main Stack',
     welcome: 'JFLOWW에 오신 것을 환영합니다',
   },
@@ -87,11 +93,11 @@ export default function OSHomeDesktop({ locale, postList, projList }: OSHomeDesk
       activeDock="home"
       onHomeActivate={() => focusWindow('welcome')}
       windowItems={(Object.keys(labels) as HomeWindowId[]).map((id) => ({
-        id,
-        isOpen: windows[id].open,
-        label: labels[id],
-        onSelect: () => focusWindow(id),
-      }))}
+          id,
+          isOpen: windows[id].open,
+          label: labels[id],
+          onSelect: () => focusWindow(id),
+        }))}
     >
       {windows.welcome.open && (
         <OSWindow
@@ -151,26 +157,43 @@ export default function OSHomeDesktop({ locale, postList, projList }: OSHomeDesk
             </Link>
           }
         >
-          <div className="divide-y divide-[var(--os-divider)] px-4 py-2">
-            {projList.slice(0, 2).map((project) => {
+          <div className="divide-y divide-[var(--os-divider)] px-4 py-1">
+            {projList.slice(0, 3).map((project, index) => {
               const cover = project.images?.[0];
+              const isJfloww = project.id === 'jfloww-project';
               return (
-                <Link key={project.id} href={`${prefix}/projects/${project.id}`} className="group flex items-center gap-3 py-3">
-                  <span className="relative h-14 w-24 shrink-0 overflow-hidden rounded-[6px] border border-[var(--os-divider)] bg-white">
+                <Link
+                  key={project.id}
+                  href={`${prefix}/projects/${project.id}`}
+                  className={`group min-h-[112px] items-center gap-4 py-4 ${index === 2 ? 'hidden min-[1440px]:flex' : 'flex'}`}
+                >
+                  <span
+                    className={`relative h-[82px] w-32 shrink-0 overflow-hidden rounded-[6px] border border-[var(--os-divider)] ${
+                      isJfloww ? 'bg-[#101820]' : 'bg-white'
+                    }`}
+                  >
                     <Image
                       src={cover?.src ?? '/temp/test1.jpg'}
                       alt={cover?.description ?? project.title}
                       fill
-                      className="object-cover transition-transform duration-200 group-hover:scale-[1.03]"
-                      sizes="96px"
+                      className={`${isJfloww ? 'object-contain p-2.5' : 'object-cover'} transition-transform duration-200 group-hover:scale-[1.03]`}
+                      sizes="128px"
                     />
                   </span>
-                  <span className="min-w-0">
-                    <span className="flex items-baseline gap-2">
-                      <strong className="truncate text-[13px] font-semibold text-[var(--os-text)] group-hover:text-[var(--os-accent)]">{project.title}</strong>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center justify-between gap-2">
+                      <small className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-[var(--os-muted)]">
+                        {project.id === 'picking-up'
+                          ? copy.featured
+                          : project.id === '2022-qatar-world-cup'
+                            ? copy.dataNotebook
+                            : copy.caseStudy}
+                      </small>
                       <small className="text-[10px] tabular-nums text-[var(--os-muted)]">{project.date.slice(0, 4)}</small>
                     </span>
+                    <strong className="mt-1 block truncate text-[13px] font-semibold text-[var(--os-text)] group-hover:text-[var(--os-accent)]">{project.title}</strong>
                     <span className="mt-1 line-clamp-2 text-[11px] leading-4 text-[var(--os-muted)]">{getProjectDescription(project, locale)}</span>
+                    {project.techStack && <span className="mt-1 block truncate text-[9px] text-[var(--os-muted)] opacity-80">{project.techStack}</span>}
                   </span>
                 </Link>
               );
@@ -208,6 +231,7 @@ export default function OSHomeDesktop({ locale, postList, projList }: OSHomeDesk
           </div>
         </OSWindow>
       )}
+
     </OSDesktopShell>
   );
 }

@@ -42,3 +42,11 @@ next-env.d.ts
 
 # Superdesign workspace files
 .superdesign/
+
+# Local job application files. Keep only the public resume deployable.
+/public/resume/*.docx
+/public/resume/*Cover-Letter*
+/public/resume/*cover-letter*
+/public/resume/*Cover_Letter*
+/public/resume/~$*
+/public/resume/Jaehoon-Jung-CV-1.pdf

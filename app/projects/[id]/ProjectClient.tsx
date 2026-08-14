@@ -17,9 +17,11 @@ interface ProjectClientProps {
   techStack: string;
   mdxContent: ReactNode;
   locale?: string;
+  repoUrl?: string;
+  liveUrl?: string;
 }
 
-export default function ProjectClient({ cover, id, title, date, techStack, mdxContent, locale }: ProjectClientProps) {
+export default function ProjectClient({ cover, id, title, date, techStack, mdxContent, locale, repoUrl, liveUrl }: ProjectClientProps) {
   const prefix = localePrefix(locale);
   const projectsHref = `${prefix}/projects`;
   const preserveFullImage = id === 'jfloww-project' || cover?.src.endsWith('.svg');
@@ -34,10 +36,19 @@ export default function ProjectClient({ cover, id, title, date, techStack, mdxCo
             closeHref={projectsHref}
             className="os-project-window"
             titleAction={
-              id === 'picking-up' ? (
-                <a href="https://pickingup.vercel.app/" target="_blank" rel="noopener noreferrer" className="os-window-action-link inline-flex items-center gap-1">
-                  Live app <OSIcon name="external" className="h-3 w-3" />
-                </a>
+              liveUrl || repoUrl ? (
+                <span className="flex items-center gap-3">
+                  {liveUrl && (
+                    <a href={liveUrl} target="_blank" rel="noopener noreferrer" className="os-window-action-link inline-flex items-center gap-1">
+                      Live app <OSIcon name="external" className="h-3 w-3" />
+                    </a>
+                  )}
+                  {repoUrl && (
+                    <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="os-window-action-link inline-flex items-center gap-1">
+                      GitHub <OSIcon name="external" className="h-3 w-3" />
+                    </a>
+                  )}
+                </span>
               ) : (
                 <Link href={projectsHref} className="os-window-action-link">Archive</Link>
               )
@@ -106,6 +117,12 @@ export default function ProjectClient({ cover, id, title, date, techStack, mdxCo
             <span className="rounded-full border border-gray-200/80 px-3 py-1 dark:border-white/10 tabular-nums">{dateFormat(date)}</span>
             {techStack && <span className="rounded-full border border-gray-200/80 px-3 py-1 dark:border-white/10">{techStack}</span>}
           </div>
+          {(liveUrl || repoUrl) && (
+            <div className="flex flex-wrap items-center gap-5 text-sm font-semibold">
+              {liveUrl && <a href={liveUrl} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline hover:underline-offset-4">Live app ↗</a>}
+              {repoUrl && <a href={repoUrl} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline hover:underline-offset-4">GitHub ↗</a>}
+            </div>
+          )}
         </div>
 
         {/* Content */}

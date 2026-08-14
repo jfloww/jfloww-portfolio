@@ -14,6 +14,8 @@ export interface ContentMeta {
   category?: string;
   tags?: string[];
   techStack?: string;
+  repoUrl?: string;
+  liveUrl?: string;
   hidden?: boolean;
   draft?: boolean;
   locale?: 'en' | 'ko';
@@ -38,6 +40,8 @@ export function normalizeContentMeta(input: Record<string, unknown>, fallbackId:
   };
 
   if (typeof input.techStack === 'string') meta.techStack = input.techStack;
+  if (typeof input.repoUrl === 'string' && input.repoUrl.trim()) meta.repoUrl = input.repoUrl.trim();
+  if (typeof input.liveUrl === 'string' && input.liveUrl.trim()) meta.liveUrl = input.liveUrl.trim();
   if (typeof input.category === 'string' && input.category.trim()) meta.category = input.category.trim();
   if (Array.isArray(input.tags)) {
     meta.tags = input.tags.filter((tag): tag is string => typeof tag === 'string' && tag.trim().length > 0).map((tag) => tag.trim());

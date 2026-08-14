@@ -56,11 +56,12 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--os-muted)]">About</p>
                     <h1 className="mt-2 text-[36px] font-semibold tracking-[-0.035em] text-[var(--os-text)]">Jay (Jaehoon) Jung</h1>
-                    <p className="mt-3 max-w-xl text-[15px] leading-6 text-[var(--os-muted)]">Software Engineer focused on backend systems, data, and reliable web applications.</p>
+                    <p className="mt-3 max-w-xl text-[15px] leading-6 text-[var(--os-muted)]">Backend-focused software engineer who also builds complete web products.</p>
                     <dl className="mt-7 divide-y divide-[var(--os-divider)] border-y border-[var(--os-divider)] text-[13px]">
-                      <div className="grid grid-cols-[90px_1fr] gap-4 py-3"><dt className="text-[var(--os-muted)]">Role</dt><dd className="font-medium">Software Engineer</dd></div>
+                      <div className="grid grid-cols-[90px_1fr] gap-4 py-3"><dt className="text-[var(--os-muted)]">Role</dt><dd className="font-medium">Software Engineer · Backend &amp; Full-Stack</dd></div>
                       <div className="grid grid-cols-[90px_1fr] gap-4 py-3"><dt className="text-[var(--os-muted)]">Current</dt><dd className="font-medium">ComGen America</dd></div>
                       <div className="grid grid-cols-[90px_1fr] gap-4 py-3"><dt className="text-[var(--os-muted)]">Focus</dt><dd className="font-medium">Backend systems, APIs, databases, and application reliability</dd></div>
+                      <div className="grid grid-cols-[90px_1fr] gap-4 py-3"><dt className="text-[var(--os-muted)]">Education</dt><dd className="font-medium">Georgia Tech OMSCS · Part-time, In Progress</dd></div>
                     </dl>
                     <div className="mt-6 flex items-center gap-5 text-[13px] font-semibold">
                       <a href="/resume/Jaehoon-Jung-resume.pdf" target="_blank" rel="noopener noreferrer" className="text-[var(--os-accent)] hover:underline">View Resume ↗</a>
@@ -96,8 +97,8 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
                 <section id="about-education" className="os-about-section">
                   <h2>Education</h2>
                   <div className="space-y-5 text-[13px] leading-6 text-[var(--os-muted)]">
-                    <p><strong className="block text-[var(--os-text)]">M.S. Computer Science</strong>Georgia Institute of Technology</p>
-                    <p><strong className="block text-[var(--os-text)]">B.S. Applied Mathematics &amp; Statistics</strong>SUNY Stony Brook</p>
+                    <p><strong className="block text-[var(--os-text)]">M.S. Computer Science (OMSCS)</strong>Georgia Institute of Technology · Part-time · In Progress</p>
+                    <p><strong className="block text-[var(--os-text)]">B.S. Applied Mathematics &amp; Statistics</strong>Stony Brook University · Alumnus</p>
                   </div>
                 </section>
               </div>
@@ -112,7 +113,7 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
         <PageHeader
           eyebrow="About"
           title="Jay (Jaehoon) Jung"
-          description="Software Engineer focused on backend systems, data, and reliable web applications"
+          description="Backend-focused software engineer who also builds complete web products"
         />
 
         <section className="grid gap-10 border-b border-[var(--divider)] py-12 md:grid-cols-[240px_1fr] md:gap-16 md:py-16">
@@ -129,7 +130,7 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
             <dl className="divide-y divide-[var(--divider)] border-y border-[var(--divider)] text-[15px]">
               <div className="grid grid-cols-[100px_1fr] gap-5 py-4">
                 <dt className="text-[var(--muted)]">Role</dt>
-                <dd className="font-medium">Software Engineer</dd>
+                <dd className="font-medium">Software Engineer · Backend &amp; Full-Stack</dd>
               </div>
               <div className="grid grid-cols-[100px_1fr] gap-5 py-4">
                 <dt className="text-[var(--muted)]">Current</dt>
@@ -138,6 +139,10 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
               <div className="grid grid-cols-[100px_1fr] gap-5 py-4">
                 <dt className="text-[var(--muted)]">Focus</dt>
                 <dd className="font-medium">Backend systems, APIs, databases, and application reliability</dd>
+              </div>
+              <div className="grid grid-cols-[100px_1fr] gap-5 py-4">
+                <dt className="text-[var(--muted)]">Education</dt>
+                <dd className="font-medium">Georgia Tech OMSCS · Part-time, In Progress</dd>
               </div>
             </dl>
 
@@ -231,9 +236,9 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
             <h2 className={sectionTitleClass}>Education</h2>
             <div className="space-y-6 text-[15px] leading-relaxed text-[var(--muted)]">
               <p>
-                <span className="block font-medium text-[var(--foreground)]">M.S. Computer Science</span>
+                <span className="block font-medium text-[var(--foreground)]">M.S. Computer Science (OMSCS)</span>
                 <a href="https://www.cc.gatech.edu/" target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline">
-                  Georgia Institute of Technology
+                  Georgia Institute of Technology · Part-time · In Progress
                 </a>
               </p>
               <p>
@@ -244,7 +249,7 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
                   rel="noopener noreferrer"
                   className="text-[var(--accent)] hover:underline"
                 >
-                  SUNY Stony Brook
+                  Stony Brook University · Alumnus
                 </a>
               </p>
             </div>
