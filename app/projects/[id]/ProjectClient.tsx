@@ -102,7 +102,7 @@ export default function ProjectClient({ cover, id, title, date, techStack, mdxCo
         </OSDesktopShell>
       </div>
 
-      <MobileOSShell title={title} backHref={projectsHref} backLabel="Archive">
+      <MobileOSShell title={title} backHref={projectsHref} backLabel={locale === 'ko' ? '프로젝트' : 'Projects'}>
         <div className="mobile-os-document-surface">
         <div className="w-full px-5 py-5">
         <section className="mx-auto w-full max-w-4xl">

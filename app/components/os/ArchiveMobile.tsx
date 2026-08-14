@@ -15,8 +15,8 @@ interface ArchiveMobileProps {
 }
 
 const COPY = {
-  en: { archive: 'Archive', documents: 'Documents', folders: 'Folders', notes: 'Notes', projects: 'Projects', readme: 'README', search: 'Search projects' },
-  ko: { archive: 'Archive', documents: '문서', folders: '폴더', notes: '개발 기록', projects: '프로젝트', readme: '소개', search: '프로젝트 검색' },
+  en: { archive: 'Projects', documents: 'Documents', folders: 'Folders', notes: 'Notes', projects: 'Projects', readme: 'README', search: 'Search projects' },
+  ko: { archive: '프로젝트', documents: '문서', folders: '폴더', notes: '개발 기록', projects: '프로젝트', readme: '소개', search: '프로젝트 검색' },
 } as const;
 
 export default function ArchiveMobile({ locale, projects }: ArchiveMobileProps) {

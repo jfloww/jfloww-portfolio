@@ -81,17 +81,31 @@ export default function MobileOSShell({ activeHome, backHref, backLabel = 'Home'
         {!home && title && <h1 className="mobile-os-topbar-title">{title}</h1>}
 
         <div className="mobile-os-topbar-side justify-end">
-          <Link href={localeTarget(pathname)} className="mobile-os-utility" aria-label="Switch language">
-            {locale === 'ko' ? 'KO' : 'EN'}
-          </Link>
-          <button type="button" onClick={toggleOSTheme} className="mobile-os-utility" aria-label={darkMode ? 'Use light appearance' : 'Use dark appearance'}>
-            <OSIcon name={darkMode ? 'moon' : 'sun'} className="h-4 w-4" />
-          </button>
+          {home && (
+            <div className="mobile-os-utility-group">
+              <Link
+                href={localeTarget(pathname)}
+                className="mobile-os-utility"
+                aria-label={locale === 'ko' ? 'Switch to English' : '한국어로 전환'}
+              >
+                {locale === 'ko' ? 'EN' : 'KO'}
+              </Link>
+              <span className="mobile-os-utility-divider" aria-hidden="true" />
+              <button
+                type="button"
+                onClick={toggleOSTheme}
+                className="mobile-os-utility"
+                aria-label={darkMode ? 'Use light appearance' : 'Use dark appearance'}
+              >
+                <OSIcon name={darkMode ? 'moon' : 'sun'} className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
       <div className="mobile-os-scroll">{children}</div>
-      <MobileOSDock activeHome={activeHome} />
+      {home && <MobileOSDock activeHome={activeHome} />}
     </section>
   );
 }
