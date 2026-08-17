@@ -80,7 +80,11 @@ export default function ProjectClient({ cover, id, title, date, techStack, mdxCo
                 </header>
 
                 {cover && (
-                  <div className="relative mt-7 aspect-video overflow-hidden rounded-[8px] border border-[var(--os-divider)] bg-white">
+                  <div
+                    className={`relative mt-7 aspect-video overflow-hidden rounded-[8px] border border-[var(--os-divider)] ${
+                      id === 'jfloww-project' ? 'bg-[#101820]' : 'bg-white'
+                    }`}
+                  >
                     <Image src={cover.src} alt={cover.description ?? title} fill priority className={preserveFullImage ? 'object-contain p-5' : 'object-cover'} sizes="760px" />
                   </div>
                 )}
