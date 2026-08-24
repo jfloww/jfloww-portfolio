@@ -1,0 +1,148 @@
+---
+title: 'Personal Finance Copilot Log 3'
+date: '20260823'
+id: personal-finance-copilot-log3-ko
+category: 'Personal Finance Copilot'
+tags: ['devlog', 'csv-ingest', 'transaction-safety', 'llm-evaluation', 'ko']
+techStack: 'Python, PostgreSQL, Anthropic API'
+locale: 'ko'
+translationKey: personal-finance-copilot-log3
+hidden: false
+---
+
+## 목적
+
+Offer comparison은 계산 근거를 보여줄 수 있었지만 spending assumption은 여전히 손으로 구성했다. 다음 목표는 불확실한 categorisation이 exact arithmetic을 오염시키지 않으면서 실제 bank export를 engine이 사용할 수 있는 input으로 만드는 것이었다.
+
+이 작업을 거치며 product 범위가 OfferDelta에서 Personal Finance Copilot으로 넓어졌다. Offer comparison은 중요한 scenario로 남고, transaction ingest, closed taxonomy, rules/LLM evaluation이 personal evidence를 engine에 연결하는 경로가 됐다.
+
+## 스케치
+
+새 boundary는 language work를 deterministic calculation보다 앞에 두었다.
+
+```text
+bank CSV
+  -> mapping detection + date parsing
+  -> preview
+  -> safe transaction persistence
+  -> rules / LLM / hybrid categorisation
+  -> validated closed taxonomy
+  -> deterministic engine
+  -> answer + derivation tree
+```
+
+Model에는 한 번에 transaction 하나의 좁은 projection만 보낸다.
+
+```text
+normalised merchant
+raw description
+amount
+account type
+```
+
+Balance, 주변 transaction, database access, 새로운 label을 만드는 권한은 주지 않는다. Arithmetic은 계속 model 밖에 둔다.
+
+## 계획
+
+1. 특정 bank format에 묶이지 않도록 transaction을 parse하고 normalize한다.
+2. Engine이 답할 decision을 기준으로 30개 label taxonomy를 정한다.
+3. Score를 주장하기 전에 evaluation dataset, merchant-disjoint split, metric, rule baseline, LLM, hybrid를 만든다.
+4. Production LLM client를 기존 provider port 뒤에 두고 offline test와 명시적인 live opt-in을 적용한다.
+5. 전체 preview와 명시적인 확인을 거친 뒤에만 import를 저장한다.
+6. Export가 만들어진 방식을 추측하지 않고 snapshot과 incremental identity를 분리한다.
+7. 실제 Chase, Capital One, Amex file을 통과시키고 synthetic fixture가 놓친 점을 기록한다.
+
+## 만들면서 생긴 이슈
+
+### Identity를 정의하지 않은 채 fingerprint를 identity처럼 사용했다
+
+첫 persistence pass는 amount, date, description, account text, occurrence를 hash했다. Review에서 같은 transaction이 두 번 저장될 수 있는 독립적인 원인 세 가지를 찾았다.
+
+- `-4.50`과 `-4.5`를 quantise하기 전에 hash했다.
+- `Checking`과 `checking`이 서로 다른 account history를 만들었다.
+- Merchant normalization이 바뀌어도 fingerprint version이 없었다.
+
+이제 amount는 hash 전에 quantise하고, signed zero를 normalize하며, fingerprint에 version을 기록한다. Account는 canonical registry key를 사용한다. Account key에는 Unicode NFKC normalization과 alphanumeric character를 사용해 `Café Checking`이 `Caf Checking`과 충돌하지 않고 non-Latin name도 거부하지 않게 했다.
+
+### Snapshot과 incremental export는 같은 identity를 갖지 않았다
+
+Fingerprint와 occurrence number만으로 세 번째 동일한 coffee가 새 결제인지 이미 저장한 row인지 알 수 없다. File 안에 없는 정보는 bank가 그 file을 어떻게 만들었는지다.
+
+```text
+snapshot mode
+  -> complete declared date window
+  -> multiplicity-aware fingerprint identity
+
+incremental mode
+  -> append-only activity
+  -> stable bank transaction id required
+```
+
+한 row라도 external id가 없으면 incremental mode를 거부한다. Account의 mode 변경도 거부한다. Snapshot row는 external id가 없기 때문에 incremental deduplication에서 보이지 않아 중복될 수 있기 때문이다.
+
+### 실제 export는 synthetic fixture가 강화한 가정을 깨뜨렸다
+
+첫 real file들은 한 오후에 세 가지 defect를 찾았다.
+
+Chase에는 중간중간 섞인 junk row가 206개 있었다. 이제 mapped field 전체가 비어 있을 때만 row를 건너뛴다. 일부만 채워진 row는 추측하지 않고 계속 거부한다.
+
+Capital One에는 `Transaction Date`와 `Posted Date`가 모두 있었다. `--map` override는 실제 import를 바꿨지만 preview에는 detected mapping이 그대로 표시됐다. Preview가 실제로 사용할 mapping을 render하도록 수정했다.
+
+Amex는 charge를 positive로 표시했고 다른 file은 money out을 negative로 표시했다. Sign convention은 distribution에서 추측하지 않고 `--sign`으로 선언한다. Mostly-positive file에 warning은 줄 수 있지만, 값의 의미는 file을 받은 사람만 결정할 수 있다.
+
+### Preview와 commit이 하나의 위험한 command가 됐다
+
+첫 CLI는 같은 invocation에서 preview를 render한 뒤 commit할 수 있었고 unknown flag를 조용히 무시했다. `--day-first` typo가 사라진 채 날짜를 11개월 틀리게 저장할 수 있었다.
+
+새 CLI는 argparse를 사용하고 command를 분리했다.
+
+```text
+transactions.py preview ...  -> 절대 write하지 않음
+transactions.py commit ...   -> summary 출력 후 --yes 또는 interactive yes 요구
+```
+
+Non-terminal input은 거부하고, parsing error가 있는 file은 일부만 commit하지 않는다.
+
+### 실제 model을 실행하기 전에 LLM benchmark가 완성된 것처럼 보일 수 있었다
+
+Rule baseline, LLM adapter, hybrid router, metric, report는 있었지만 hand-labelled dataset과 live evaluation은 아직 없었다. Synthetic data나 25-row smoke test의 F1을 공개하면 evidence가 없는 숫자가 된다.
+
+Live path는 opt-in이고 요청 전에 cost를 estimate하며 dataset, prompt, model version을 기록한다. Dataset에는 두 개의 independent annotation과 별도 adjudication field를 유지한다. `UNKNOWN`을 사용하면 system이 category를 지어내지 않고 schema 안에서 abstain할 수 있다.
+
+## 완성된 흐름
+
+8월 23일 기준으로 local data path가 end-to-end로 동작했다.
+
+```text
+account 등록
+  -> write 없이 bank CSV preview
+  -> mapping, date, sign, rejected row 확인
+  -> declared snapshot 또는 incremental mode로 commit
+  -> independent pass로 transaction annotation
+  -> dataset validation
+  -> live evaluation을 켠 경우 rules / LLM / hybrid 비교
+```
+
+마지막 working-day record에서는 1,089개 test와 다섯 quality check가 모두 통과한 것을 확인했다. 실제 transaction 742개도 일곱 account와 일곱 import batch에 import했다. Real data는 local과 gitignore 안에 유지했고 import path는 deploy하지 않았다.
+
+이번 기간에 완료한 내용은 다음과 같다.
+
+- generic CSV mapping과 whole-column date-order inference
+- exact transaction entity, normalization, recurrence detection, provenance
+- 30개 label의 closed taxonomy
+- rule, LLM, hybrid evaluation system
+- merchant-disjoint split, macro metric, coverage, cost, latency report
+- forced tool output, retry policy, deadline, secret redaction을 가진 production Anthropic adapter
+- PostgreSQL account, import-batch, transaction persistence
+- 명시적인 snapshot / incremental import mode
+- preview-only path와 confirmation-gated commit path
+- merchant memory를 가진 three-pass annotation tool
+- CLI와 HTTP를 통한 manual transaction entry
+
+## 개선점과 노트
+
+- 아직 공개한 evaluation score는 없다. Hand-labelled dataset과 live run이 필요하다.
+- 실제 financial data는 repository에서 제외하고 deployed demo는 synthetic value를 사용한다.
+- LLM transport는 synchronous라 batch call이 겹쳐 실행되지 않는다.
+- Deterministic comparison demo는 deploy됐지만 import와 categorisation은 local에 남아 있다.
+- Package와 live URL은 여전히 OfferDelta 이름을 사용한다. 이름 변경은 behavior를 바꾸지 않으면서 migration risk만 추가할 수 있어 유지했다.

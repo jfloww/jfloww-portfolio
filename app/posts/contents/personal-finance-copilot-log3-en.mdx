@@ -1,0 +1,148 @@
+---
+title: 'Personal Finance Copilot Log 3'
+date: '20260823'
+id: personal-finance-copilot-log3-en
+category: 'Personal Finance Copilot'
+tags: ['devlog', 'csv-ingest', 'transaction-safety', 'llm-evaluation', 'en']
+techStack: 'Python, PostgreSQL, Anthropic API'
+locale: 'en'
+translationKey: personal-finance-copilot-log3
+hidden: false
+---
+
+## Goal
+
+The offer comparison could explain its calculations, but its spending assumptions were still constructed by hand. The next goal was to turn a real bank export into inputs the engine could use without letting uncertain categorisation contaminate exact arithmetic.
+
+That work widened the product from OfferDelta into Personal Finance Copilot. Offer comparison remained an important scenario, while transaction ingest, a closed taxonomy, and rules/LLM evaluation became the path from personal evidence to the engine.
+
+## Sketch
+
+The new boundary kept language work upstream of the deterministic calculation.
+
+```text
+bank CSV
+  -> mapping detection + date parsing
+  -> preview
+  -> safe transaction persistence
+  -> rules / LLM / hybrid categorisation
+  -> validated closed taxonomy
+  -> deterministic engine
+  -> answer + derivation tree
+```
+
+The model receives only one narrow transaction projection at a time.
+
+```text
+normalised merchant
+raw description
+amount
+account type
+```
+
+It does not receive balances, neighboring transactions, database access, or permission to create new labels. Arithmetic stays outside the model.
+
+## Plan
+
+1. Parse and normalize transactions independently of any one bank format.
+2. Define the thirty-label taxonomy around the decisions the engine needs.
+3. Build the evaluation dataset, merchant-disjoint split, metrics, rule baseline, LLM system, and hybrid before claiming a score.
+4. Put the production LLM client behind the existing provider port with offline tests and explicit live opt-in.
+5. Persist imports only after a complete preview and explicit confirmation.
+6. Separate snapshot and incremental identity instead of guessing how an export was produced.
+7. Run real Chase, Capital One, and Amex files through the path and record what synthetic fixtures missed.
+
+## Issues During Development
+
+### A fingerprint was being treated as identity without defining identity
+
+The first persistence pass hashed amount, date, description, account text, and occurrence. Review found three independent ways the same transaction could be stored twice:
+
+- `-4.50` and `-4.5` were hashed before quantisation;
+- `Checking` and `checking` created separate account histories;
+- merchant normalization could change later without a fingerprint version.
+
+Amounts are now quantised before hashing, signed zero is normalized, the fingerprint carries a version, and accounts use a canonical registry key. Account keys use Unicode NFKC normalization plus alphanumeric characters so `Café Checking` does not collide with `Caf Checking`, and non-Latin names are not rejected.
+
+### Snapshot and incremental exports do not have the same identity
+
+A fingerprint plus an occurrence number cannot tell whether a third identical coffee is a new purchase or a row already stored. The missing fact is how the bank produced the file.
+
+```text
+snapshot mode
+  -> complete declared date window
+  -> multiplicity-aware fingerprint identity
+
+incremental mode
+  -> append-only activity
+  -> stable bank transaction id required
+```
+
+The importer refuses incremental mode when any row lacks the external id. It also refuses switching modes for an account, because snapshot rows have no external id and would otherwise become invisible to incremental deduplication.
+
+### Real exports broke assumptions that synthetic fixtures had reinforced
+
+The first real files found three defects in one afternoon.
+
+Chase contained 206 interleaved junk rows. A row is now skipped only when every mapped field is empty; partially populated rows are still refused rather than guessed.
+
+Capital One had both `Transaction Date` and `Posted Date`. A `--map` override changed the actual import but the preview still displayed the detected mapping. The preview now renders the mapping that will really be used.
+
+Amex represented charges as positive values while the other files represented money out as negative. Sign convention is now declared with `--sign`, never inferred from the distribution. A warning can point out a mostly-positive file, but only the person who obtained it can decide what the values mean.
+
+### Preview and commit had become one unsafe command
+
+The first CLI rendered a preview and could commit during the same invocation while silently ignoring unknown flags. A typo in `--day-first` could therefore disappear and write dates with an eleven-month error.
+
+The replacement uses argparse and separates the commands:
+
+```text
+transactions.py preview ...  -> never writes
+transactions.py commit ...   -> prints a summary and requires --yes or an interactive yes
+```
+
+Non-terminal input is refused, and a file with parsing errors cannot be partially committed.
+
+### An LLM benchmark could look complete before any real model had run
+
+The rule baseline, LLM adapter, hybrid router, metrics, and report existed, but no hand-labelled dataset or live evaluation existed yet. Publishing an F1 from synthetic data or a 25-row smoke test would create a number without evidence.
+
+The live path is opt-in, estimates cost before sending anything, and records dataset, prompt, and model versions. The dataset keeps two independent annotations and a separate adjudication field. `UNKNOWN` lets a system abstain inside the schema instead of inventing a category.
+
+## Completed Flow
+
+As of August 23, the local data path worked end to end:
+
+```text
+register an account
+  -> preview a bank CSV without writing
+  -> inspect mapping, dates, signs, and rejected rows
+  -> commit in declared snapshot or incremental mode
+  -> annotate transactions in independent passes
+  -> validate the dataset
+  -> compare rules, LLM, and hybrid when live evaluation is enabled
+```
+
+The final working-day record verified 1,089 passing tests and all five quality checks. It also verified 742 real transactions imported across seven accounts and seven import batches. The real data remained local and gitignored, and the import path was not deployed.
+
+This period completed:
+
+- generic CSV mapping and whole-column date-order inference;
+- exact transaction entities, normalization, recurrence detection, and provenance;
+- a thirty-label closed taxonomy;
+- rule, LLM, and hybrid evaluation systems;
+- merchant-disjoint splitting, macro metrics, coverage, cost, and latency reporting;
+- a production Anthropic adapter with forced tool output, retry policy, deadlines, and redacted secrets;
+- account, import-batch, and transaction persistence in PostgreSQL;
+- explicit snapshot and incremental import modes;
+- a preview-only path and a confirmation-gated commit path;
+- a three-pass annotation tool with merchant memory;
+- manual transaction entry through both CLI and HTTP.
+
+## Improvements and Notes
+
+- No evaluation score is published yet; the hand-labelled dataset and live run are still required.
+- Real financial data is excluded from the repository and the deployed demo uses synthetic values.
+- The LLM transport is synchronous, so batch calls do not overlap.
+- Import and categorisation remain local even though the deterministic comparison demo is deployed.
+- The package and live URL still use the OfferDelta name; renaming them would add migration risk without changing behavior.

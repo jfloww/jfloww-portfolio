@@ -1,0 +1,160 @@
+---
+title: 'Personal Finance Copilot'
+date: '20260823'
+techStack: 'Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2, PostgreSQL, Alembic, Anthropic API, Render'
+repoUrl: 'https://github.com/jfloww/wdo-delta'
+liveUrl: 'https://offerdelta.onrender.com'
+id: personal-finance-copilot
+hidden: true
+images:
+  - src: '/photo/proj/personal-finance-copilot/cover.svg'
+    title: 'Personal Finance Copilot'
+    description: 'A bank statement flowing through a deterministic financial decision engine'
+---
+
+# Executive Summary
+
+- **Problem:** Personal-finance tools can summarize past spending, but they rarely answer future-facing questions from a person's real costs while showing how every figure was calculated.
+- **My role:** I designed the product boundary, financial domain model, deterministic comparison engine, transaction-import identity, evaluation methodology, API, persistence, tests, and deployment.
+- **Key decisions:** AI handles only the fuzzy classification problem. Exact `Decimal` code owns all arithmetic, every result carries a derivation, and ambiguous bank-import identity is declared rather than guessed.
+- **Outcome:** A public comparison demo is deployed on Render. The local data path has processed real Chase, Capital One, and Amex exports while keeping the source data outside the repository. No model score is published before the hand-labelled benchmark and live evaluation exist.
+
+## Selected Engineering Contributions
+
+- **Deterministic financial engine** — Built explicit money, period, percentage, evidence, cost-ownership, employment, benefit, and household models. Monthly reconciliation stops an inconsistent comparison before it can return.
+- **Decision solvers** — Implemented equivalent salary, first and stable break-even, and negotiation-gap calculations on top of the same comparison path used by the main result.
+- **Auditable API** — Serialized money as decimal strings across HTTP, returned per-number derivations, enforced idempotent writes, and persisted immutable calculation runs through SQLAlchemy, Alembic, and PostgreSQL.
+- **Transaction ingest** — Added mapping detection, whole-column date-order inference, preview-only parsing, explicit snapshot/incremental modes, versioned fingerprints, account identity, import batches, and source provenance.
+- **Evaluation and LLM boundary** — Built a rule baseline, constrained LLM categoriser, hybrid router, merchant-disjoint split, annotation workflow, metrics, cost and latency reporting, and a live path that requires explicit opt-in.
+
+## Product Flow
+
+```text
+bank CSV
+  -> detect and verify mapping
+  -> preview without writing
+  -> persist with declared identity rules
+  -> rules / LLM / hybrid categorisation
+  -> validate against a closed taxonomy
+  -> deterministic comparison engine
+  -> decision + derivation tree
+```
+
+The offer-comparison scenario combines a current job, a candidate offer, personal costs, benefits, relocation, commuting cash and time, and explicit assumptions. The result separates cash, wealth, time, and liquidity instead of compressing unlike effects into one unexplained number.
+
+## Architecture
+
+```text
+CLI / Browser
+      |
+      v
+FastAPI application layer
+      |
+      +--> transaction ingest --> PostgreSQL
+      |
+      +--> rules / LLM / hybrid --> validated category
+      |
+      +--> deterministic domain engine
+                    |
+                    +--> comparison
+                    +--> solvers
+                    └--> derivation tree
+```
+
+The domain package uses the Python standard library and remains independent of FastAPI, SQLAlchemy, PostgreSQL, and the LLM provider. Import-linter contracts enforce those boundaries rather than leaving them as architectural intent.
+
+The application layer orchestrates use cases. Infrastructure adapters own PostgreSQL and Anthropic details, while FastAPI owns the HTTP boundary and presentation schemas.
+
+## Exact Financial Modeling
+
+Financial calculations fail in ways that still look plausible, so the model carries information a bare number cannot.
+
+- `Money` rejects `float` and cross-currency arithmetic.
+- `PeriodicAmount` distinguishes hourly, biweekly, semimonthly, monthly, annual, and one-time values.
+- Named `RoundingPolicy` objects are applied at specific boundaries instead of using one global rule.
+- `Money.allocate` distributes integer minor units by largest remainder and preserves the original total.
+- Every cost category has one owner so housing, living, commuting, and relocation cannot count the same expense twice.
+- Monthly cash flow is computed through independent routes and must reconcile before a result can be returned.
+
+Money remains `Decimal` in Python, `NUMERIC` in PostgreSQL, and a decimal string in JSON. A contract test inspects the raw response and fails if an amount is emitted as a JSON number.
+
+## Derivations and Decision Solvers
+
+The API returns a result tree rather than only a final number. Each component records its formula, inputs, evidence, rounding policy, and parent relationship. A node whose children do not reconcile with its total cannot be constructed.
+
+The same engine answers three follow-up questions:
+
+- **Equivalent salary** — the target salary that preserves the current economic position.
+- **Break-even** — both the first month cumulative value becomes positive and the month after which it remains positive.
+- **Negotiation gap** — the remaining shortfall and independently evaluated offer changes that could close it.
+
+A `TaxModel` port keeps tax calculation replaceable. Phase 1 uses an observed net-pay override whose input fingerprint becomes `STALE` when salary, pay frequency, filing assumptions, or contribution fields change.
+
+## Safe Transaction Identity
+
+Bank exports do not share one schema, sign convention, date convention, or identity model. The importer therefore previews before writing and refuses when it cannot establish a safe interpretation.
+
+```text
+snapshot
+  -> complete declared date window
+  -> multiplicity-aware, versioned fingerprint
+
+incremental
+  -> append-only activity
+  -> stable bank transaction id required
+```
+
+The importer does not infer between these modes. A fingerprint plus an occurrence number cannot distinguish a genuine repeated charge from one already stored because that fact is not present in the row.
+
+Amounts are quantised before hashing, signed zero is normalized, and account keys use Unicode NFKC normalization. Import batches retain source checksums and provenance. Switching an account between snapshot and incremental mode is refused because the two modes do not share enough identity to deduplicate an overlap safely.
+
+Real exports changed the implementation:
+
+- Chase files contained interleaved junk rows, so a row is skipped only when every mapped field is empty.
+- Capital One files carried both transaction and posted dates, so the preview now displays the mapping that will actually be used.
+- Amex represented charges with the opposite sign, so sign convention is declared by the person importing the file and never inferred from the amount distribution.
+
+## Bounded LLM Categorisation
+
+The model sees one deliberately narrow transaction projection: normalized merchant, raw description, amount, and account type. It does not see balances, neighboring transactions, credentials, or the database.
+
+Output is forced through a tool schema whose label field is a closed enum. The model can choose a valid category or return `UNKNOWN`; it cannot create a category or change any arithmetic. Prompt delimiters reduce instruction-injection risk, while schema validation is the structural boundary that remains enforceable even when model behavior is not.
+
+The provider sits behind an injected transport with offline tests, retry classification, full jitter, `Retry-After` support, a wall-clock deadline, and redacted configuration representations.
+
+## Evaluation Integrity
+
+The comparison order is rules first, LLM second, hybrid third. This keeps a free deterministic baseline beside every model result and shows whether model cost changes the outcome.
+
+- Train and evaluation sets are merchant-disjoint.
+- Dataset splits are deterministic.
+- Two annotators work independently, with disagreement stored separately from adjudication.
+- Ambiguous rows require an authored acceptable-label set and explanation.
+- Reports include macro metrics, coverage, failures, rejected outputs, cost per transaction, and p95 latency.
+- Dataset, prompt, and model versions travel with every result.
+
+The repository deliberately publishes no F1 yet. The harness is implemented, but the hand-labelled dataset and full live run are still required. A partial smoke test cannot be presented as a benchmark.
+
+## Deployment and Verification
+
+The deterministic demo is deployed as a container on Render and uses marked synthetic inputs. The first request after an idle period may wait for the free service to wake.
+
+The repository's quality command runs formatting, linting, strict type checks, architecture contracts, and tests. The August 23 development record verified all five gates and recorded 1,089 passing tests. That record also verified 742 real transactions imported locally across seven accounts and seven import batches.
+
+The transaction data, annotation dataset, and credentials remain gitignored. Import and categorisation are not deployed, so the live URL demonstrates the deterministic comparison rather than presenting local data handling as a production feature.
+
+## Result
+
+Personal Finance Copilot now joins two different kinds of work without blurring their trust boundaries: language-assisted interpretation for messy descriptions and deterministic arithmetic for decisions.
+
+The strongest result is not a model score. It is that a transaction can retain its source identity, a categoriser can abstain inside a closed schema, and every downstream amount can be traced back through exact calculations and evidence.
+
+The main remaining work is completing the hand-labelled dataset, running the staged live evaluation, replacing synthetic comparison inputs with user-editable forms, and validating the transaction path before any deployment.
+
+## Links
+
+- [Live deterministic demo](https://offerdelta.onrender.com)
+- [GitHub repository](https://github.com/jfloww/wdo-delta)
+- [Log 1 — Scope and architecture](/posts/personal-finance-copilot-log1)
+- [Log 2 — Deterministic engine and deployment](/posts/personal-finance-copilot-log2)
+- [Log 3 — Real imports and evaluation path](/posts/personal-finance-copilot-log3)

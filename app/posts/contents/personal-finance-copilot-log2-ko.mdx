@@ -1,0 +1,127 @@
+---
+title: 'Personal Finance Copilot Log 2'
+date: '20260817'
+id: personal-finance-copilot-log2-ko
+category: 'Personal Finance Copilot'
+tags: ['devlog', 'deterministic-engine', 'financial-modeling', 'fastapi', 'ko']
+techStack: 'Python, FastAPI, SQLAlchemy, PostgreSQL'
+locale: 'ko'
+translationKey: personal-finance-copilot-log2
+hidden: false
+---
+
+## 목적
+
+첫 번째 로그에서 불확실한 input은 나중에 도움을 받을 수 있지만, 모든 financial result는 deterministic code로 계산하고 스스로 근거를 보여줘야 한다는 경계를 정했다.
+
+이번 milestone은 그 설계를 complete vertical slice로 만드는 작업이었다. Salary difference를 반환하는 formula 하나로 끝내지 않고, money의 정확성을 유지하고, 스스로 cash flow를 reconcile하고, 후속 질문을 풀고, 각 result의 계산 과정을 보여주는 deployed comparison을 목표로 했다.
+
+## 스케치
+
+Engine은 API, solver, demo가 하나의 comparison path를 공유하도록 구성했다.
+
+```text
+current profile + candidate profile + cost assumptions
+  -> income / benefits / housing / living / commute / relocation
+  -> monthly comparison
+  -> reconciliation invariant
+  -> result components + derivation tree
+  -> equivalent salary / break-even / negotiation gap
+```
+
+Tax 계산은 port 뒤에 두었다.
+
+```text
+ComparisonEngine
+  -> TaxModel
+       └─ NetPayOverrideTaxModel
+```
+
+첫 버전은 실제 net pay를 사용할 수 있으면서도, 나머지 engine이 임시 구현에 의존하지 않게 했다.
+
+## 계획
+
+1. `Money`, `RoundingPolicy`, `PeriodicAmount`, `Percentage`, `DateRange`를 구현한다.
+2. 전체 model을 채우기 전에 FastAPI와 browser를 통과하는 walking skeleton을 배포한다.
+3. Employment, compensation, benefit, household cost와 두 개의 reference profile을 추가한다.
+4. 각 calculator를 만들고 monthly reconciliation invariant 뒤에서 결합한다.
+5. Equivalent-salary, break-even, negotiation-gap solver를 추가한다.
+6. Comparison과 derivation을 HTTP로 노출한다.
+7. SQLAlchemy, Alembic, PostgreSQL과 idempotency contract로 완료된 run을 저장한다.
+
+## 만들면서 생긴 이슈
+
+### Exact money를 나누는 작업에도 rounding rule이 필요했다
+
+`Decimal`은 binary floating-point error를 막지만, 1 cent를 여러 사람에게 나누면 여전히 remainder가 생긴다.
+
+`Money.allocate`는 amount를 integer minor unit으로 바꾸고 largest remainder 방식으로 남은 cent를 결정적으로 배분한다. Property test는 가장 중요한 규칙을 확인한다.
+
+```text
+sum(allocated shares) == original amount
+```
+
+구현은 global rounding mode에 의존하지 않는다. Payroll, statistics, whole-dollar tax rule이 실제 boundary에서 서로 다른 named policy를 사용할 수 있게 했다.
+
+### Tax shortcut을 나중에 교체할 수 있어야 했다
+
+실제 paystub value는 첫 comparison을 만들기에 충분했지만, 이를 engine에 hard-code하면 이후 tax 작업이 rewrite가 된다.
+
+`NetPayOverrideTaxModel`은 향후 federal/state calculator가 구현할 수 있는 것과 같은 `TaxModel` port를 구현한다. Solver도 comparison engine을 통해 이 port를 사용하므로 equivalent salary가 headline result와 다른 tax assumption을 사용하지 않는다.
+
+### 첫 negotiation-gap 계산에서 pre-move cost가 빠졌다
+
+초기 solver는 이사 후 반복되는 차이에 집중했다. 하지만 deposit, lease break, moving, furnishing cost가 새 monthly state가 안정되기 전에 발생하므로 offer가 메워야 할 금액을 작게 계산했다.
+
+한 solver만 patch하지 않고 pre-move cost를 shared comparison path에 추가했다. Negotiation gap, break-even result, main comparison이 같은 cost ownership과 timing rule을 사용하도록 맞췄다.
+
+### Reconciliation을 실제보다 강하게 설명할 수 있었다
+
+Engine은 monthly cash flow를 서로 다른 route로 계산해 비교하고 residual이 0이 아니면 result를 반환하지 않는다. 유용한 invariant지만 ledger account와 debit/credit pair가 없으므로 double-entry accounting은 아니다.
+
+문서에는 더 좁고 정확한 표현을 남겼다. Reconciliation은 이 model 안의 누락과 double count를 찾지만 application을 accounting system으로 만들지는 않는다.
+
+### Request retry가 calculation run을 두 번 만들 수 있었다
+
+HTTP client는 server가 commit한 뒤 timeout을 만나 같은 POST를 다시 보낼 수 있다. 그래서 완료된 comparison run에 idempotency key를 사용했다.
+
+```text
+same key + same body       -> 저장된 response replay
+same key + different body -> conflict
+```
+
+다른 body에도 첫 result를 조용히 반환하면 API는 성공처럼 보이지만 다른 질문에 답하게 된다.
+
+## 완성된 흐름
+
+8월 17일 기준 deployed slice에서는 다음 흐름이 동작했다.
+
+```text
+synthetic Auburn / New Jersey profile load
+  -> deterministic comparison 실행
+  -> cash, wealth, time, liquidity effect 분리
+  -> equivalent salary와 break-even 확인
+  -> result component 선택
+  -> formula, input, evidence, rounding 추적
+```
+
+구현된 범위는 다음과 같다.
+
+- exact money, percentage, date range, 명시적인 period conversion
+- employment, compensation, benefit, cost, household split, evidence
+- income, housing, living, commute, relocation, retirement, health, equity calculator
+- monthly cash-flow reconciliation
+- equivalent-salary, first/stable break-even, negotiation-gap solver
+- money를 string으로 serialize하는 FastAPI response schema
+- 모든 result component의 derivation tree
+- idempotent comparison endpoint
+- SQLAlchemy와 Alembic을 사용한 PostgreSQL persistence
+- 명확히 표시된 synthetic assumption을 사용하는 Render public demo
+
+## 개선점과 노트
+
+- 방문자는 seeded comparison을 확인할 수 있었지만 자신의 complete profile을 입력할 수는 없었다.
+- 첫 tax 구현은 override-backed port이며 federal/state tax engine은 아니다.
+- Demo는 single-user이고 authentication이 없다.
+- Transaction import, categorisation, evaluation은 이 engine milestone의 범위가 아니었다.
+- 다음 작업은 exact arithmetic boundary를 약하게 만들지 않으면서 실제 spending을 calculation에 연결하는 것이다.

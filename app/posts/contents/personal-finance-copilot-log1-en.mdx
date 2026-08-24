@@ -1,0 +1,109 @@
+---
+title: 'Personal Finance Copilot Log 1'
+date: '20260813'
+id: personal-finance-copilot-log1-en
+category: 'Personal Finance Copilot'
+tags: ['devlog', 'planning', 'financial-modeling', 'domain-design', 'en']
+techStack: 'Python, FastAPI, PostgreSQL'
+locale: 'en'
+translationKey: personal-finance-copilot-log1
+hidden: false
+---
+
+## Goal
+
+The project began with a practical question: would a higher salary in another city actually improve my life after taxes, housing, commuting, relocation, benefits, and time were counted?
+
+Most salary and cost-of-living calculators compare generic averages. I wanted the comparison to start from a person's real circumstances and to make every result inspectable. The first scope therefore focused on a deterministic engine rather than an AI answer. A model could later help interpret messy documents or transaction descriptions, but it would never be allowed to perform the arithmetic.
+
+## Sketch
+
+The first product boundary separated uncertain inputs from exact calculations.
+
+```text
+current job + candidate offer + personal costs
+  -> normalize periods and ownership
+  -> deterministic comparison engine
+  -> equivalent salary / break-even / negotiation gap
+  -> result + derivation tree
+```
+
+Money would remain exact across every layer.
+
+```text
+Python Decimal
+  -> PostgreSQL NUMERIC
+  -> JSON string
+  -> display in the browser
+```
+
+The browser would not receive a money value as a JSON number. JavaScript represents numbers as binary floating point, so converting `4217.33` at the boundary would weaken a guarantee the backend was designed to preserve.
+
+## Plan
+
+1. Define the money and period primitives first — every later calculation would depend on their rules.
+2. Deploy a walking skeleton early — one real number and its derivation should cross the complete stack before the engine became large.
+3. Model employment, benefits, household costs, and evidence — the comparison needed explicit inputs rather than hidden constants.
+4. Build calculators before solvers — equivalent salary and break-even should use the same comparison engine as the main result.
+5. Expose results through FastAPI and PostgreSQL — completed runs needed a reproducible boundary and storage model.
+6. Keep AI, AWS workflows, and document extraction outside phase 1 — they could not delay a trustworthy comparison.
+
+## Issues During Design
+
+### A monthly amount could be wrong by twelve and still look reasonable
+
+A plain decimal does not say whether it is hourly, biweekly, monthly, annual, or one-time. The design introduced `PeriodicAmount` so the period travels with the value.
+
+```text
+biweekly     -> 26 periods per year
+semimonthly -> 24 periods per year
+one-time     -> cannot be annualized
+```
+
+This made period conversion a domain operation instead of a convention scattered across calculators.
+
+### One expense could be counted by more than one calculator
+
+Housing, commuting, relocation, and ordinary living costs overlap easily. Parking, for example, could be interpreted as housing or commuting depending on why it exists.
+
+The taxonomy assigns every category to exactly one owner, and an import-time partition check fails if a category is missing or claimed twice. Preventing double counting became a structural rule rather than a review reminder.
+
+### A paystub override could become stale without looking stale
+
+The first phase did not include a complete tax engine, so an observed net-pay override was necessary. Reusing that value after changing salary, filing status, pay frequency, or a 401(k) contribution would silently detach it from its evidence.
+
+The override therefore carries a fingerprint of the fields that produced it and moves from `ACTIVE` to `STALE` when an invalidating field changes. The API should name the field rather than returning a generic failure.
+
+### A single break-even date could hide a later reversal
+
+Relocation costs can make cumulative value cross zero once and then fall below it again. The solver was designed to report both the first crossing and the stable break-even month.
+
+```text
+first_crossing_month
+stable_break_even_month
+```
+
+The distinction matters because the optimistic answer is not always the durable one.
+
+## Scope Established
+
+The initial design fixed the following rules:
+
+- exact `Decimal` arithmetic and named rounding policies;
+- money serialized as strings across HTTP;
+- explicit periods and evidence on financial inputs;
+- category ownership that prevents double counting;
+- monthly reconciliation before a comparison can return;
+- derivations with formula, inputs, provenance, and rounding policy;
+- equivalent-salary, break-even, and negotiation-gap solvers;
+- immutable completed runs and idempotent writes;
+- a public walking skeleton before the full interface.
+
+The phase boundary was intentionally narrower than the full idea. Federal and state tax calculation, document AI, AWS, public-data pipelines, authentication, and multi-user collaboration were deferred. The first proof had to be a comparison that could explain itself.
+
+## Improvements and Notes
+
+- The first demo would use synthetic profiles and an explicit net-pay override.
+- A derivation tree and reconciliation invariant were non-negotiable even if other UI had to be cut.
+- The calculation core was named OfferDelta internally; the wider product identity would change as transaction work expanded.
+- The next step was implementing the walking skeleton and proving that one exact value could survive the complete deployment path.

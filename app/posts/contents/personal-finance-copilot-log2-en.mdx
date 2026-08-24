@@ -1,0 +1,127 @@
+---
+title: 'Personal Finance Copilot Log 2'
+date: '20260817'
+id: personal-finance-copilot-log2-en
+category: 'Personal Finance Copilot'
+tags: ['devlog', 'deterministic-engine', 'financial-modeling', 'fastapi', 'en']
+techStack: 'Python, FastAPI, SQLAlchemy, PostgreSQL'
+locale: 'en'
+translationKey: personal-finance-copilot-log2
+hidden: false
+---
+
+## Goal
+
+The first log set the boundary: uncertain inputs could be assisted later, but every financial result had to come from deterministic code and explain itself.
+
+This milestone turned that design into a complete vertical slice. The target was not only a formula that returned a salary difference. It was a deployed comparison that kept money exact, reconciled its own cash flow, solved follow-up questions, and showed how each result was derived.
+
+## Sketch
+
+The engine was organized around one comparison path shared by the API, solvers, and demo.
+
+```text
+current profile + candidate profile + cost assumptions
+  -> income / benefits / housing / living / commute / relocation
+  -> monthly comparison
+  -> reconciliation invariant
+  -> result components + derivation tree
+  -> equivalent salary / break-even / negotiation gap
+```
+
+Tax calculation remained behind a port.
+
+```text
+ComparisonEngine
+  -> TaxModel
+       └─ NetPayOverrideTaxModel
+```
+
+That allowed the first version to use observed net pay without making the rest of the engine depend on a temporary implementation.
+
+## Plan
+
+1. Implement `Money`, `RoundingPolicy`, `PeriodicAmount`, `Percentage`, and `DateRange`.
+2. Ship a walking skeleton through FastAPI and the browser before filling out the model.
+3. Add employment, compensation, benefits, household costs, and two reference profiles.
+4. Build each calculator and combine them behind a monthly reconciliation invariant.
+5. Add equivalent-salary, break-even, and negotiation-gap solvers.
+6. Expose the comparison and derivation over HTTP.
+7. Persist completed runs with SQLAlchemy, Alembic, PostgreSQL, and an idempotency contract.
+
+## Issues During Development
+
+### Splitting exact money still needed a rounding rule
+
+`Decimal` avoids binary floating-point error, but dividing a cent across several recipients still produces a remainder.
+
+`Money.allocate` converts the amount to integer minor units, applies largest remainder, and distributes the leftover cents deterministically. A property test checks the rule that matters:
+
+```text
+sum(allocated shares) == original amount
+```
+
+The implementation does not depend on a global rounding mode. Payroll, statistical values, and whole-dollar tax rules can use different named policies at their actual boundaries.
+
+### The tax shortcut had to remain replaceable
+
+An observed paystub value was enough to build the first comparison, but hard-coding it into the engine would make future tax work a rewrite.
+
+`NetPayOverrideTaxModel` implements the same `TaxModel` port a later federal and state calculator can implement. Solvers call the port through the comparison engine, so equivalent salary does not accidentally use a different tax assumption from the headline result.
+
+### The first negotiation-gap calculation missed pre-move costs
+
+The initial solver focused on the recurring difference after the move. That understated the amount an offer needed to close because deposits, lease breaks, moving, and furnishing costs happen before the new monthly state stabilizes.
+
+Pre-move costs were added to the shared comparison path rather than patched only into one solver. The negotiation gap, break-even result, and main comparison now receive the same cost ownership and timing rules.
+
+### Reconciliation could be described more strongly than it was
+
+The engine computes monthly cash flow through independent routes and refuses to return a result when the residual does not vanish. That is a useful invariant, but it is not double-entry accounting: there are no ledger accounts and no debit/credit pairs.
+
+The project records the narrower claim. Reconciliation catches omissions and double counts inside this model; it does not turn the application into an accounting system.
+
+### Retrying a request could create two calculation runs
+
+An HTTP client can time out after the server commits and then retry the same POST. Completed comparison runs therefore use an idempotency key.
+
+```text
+same key + same body      -> replay the stored response
+same key + different body -> conflict
+```
+
+Silently returning the first result for a different body would make the API look successful while answering the wrong question.
+
+## Completed Flow
+
+As of August 17, the deployed slice could follow this path:
+
+```text
+load the synthetic Auburn and New Jersey profiles
+  -> run the deterministic comparison
+  -> separate cash, wealth, time, and liquidity effects
+  -> inspect equivalent salary and break-even
+  -> open any result component
+  -> trace its formula, inputs, evidence, and rounding
+```
+
+The implemented scope included:
+
+- exact money, percentages, date ranges, and explicit period conversion;
+- employment, compensation, benefits, costs, household splitting, and evidence;
+- income, housing, living, commute, relocation, retirement, health, and equity calculators;
+- monthly cash-flow reconciliation;
+- equivalent-salary, first/stable break-even, and negotiation-gap solvers;
+- FastAPI response schemas that serialize money as strings;
+- a derivation tree for every result component;
+- idempotent comparison endpoints;
+- PostgreSQL persistence with SQLAlchemy and Alembic;
+- a public Render demo using marked synthetic assumptions.
+
+## Improvements and Notes
+
+- A visitor could inspect the seeded comparison but could not yet enter a complete personal profile.
+- The first tax implementation was an override-backed port, not a federal or state tax engine.
+- The demo was single-user and had no authentication.
+- Transaction imports, categorisation, and evaluation were not part of this engine milestone.
+- The next work was to connect real spending to the calculation without weakening the exact arithmetic boundary.

@@ -3,11 +3,13 @@ import type { ContentMeta } from './schema';
 
 const PROJECT_DESCRIPTIONS: Record<SupportedLocale, Record<string, string>> = {
   en: {
+    'personal-finance-copilot': 'An auditable personal-finance decision engine with exact arithmetic, safe bank imports, and bounded LLM categorisation.',
     'picking-up': 'A task and routine planner built around atomic commands, versioned writes, and optimistic reconciliation.',
     'jfloww-project': 'A bilingual MDX portfolio with static content routes and a responsive continuous-surface layout.',
     '2022-qatar-world-cup': 'A notebook project that estimates World Cup results from historical matches and FIFA ranking data.',
   },
   ko: {
+    'personal-finance-copilot': 'Exact arithmetic, 안전한 bank import, 제한된 LLM categorisation을 결합한 감사 가능한 personal-finance decision engine입니다.',
     'picking-up': 'Atomic command, versioned write, optimistic reconciliation을 적용한 task·routine planner입니다.',
     'jfloww-project': '정적 content route와 반응형 continuous-surface layout을 적용한 한·영 MDX 포트폴리오입니다.',
     '2022-qatar-world-cup': '과거 경기 결과와 FIFA 랭킹 데이터로 월드컵 결과를 예측한 노트북 프로젝트입니다.',
@@ -17,6 +19,9 @@ const PROJECT_DESCRIPTIONS: Record<SupportedLocale, Record<string, string>> = {
 const POST_SUMMARIES: Record<SupportedLocale, Record<string, string>> = {
   en: {
     'jfloww-portfolio': 'Content loading, localization, MDX rendering, and the continuous-surface UI refactor.',
+    'personal-finance-copilot-log3': 'Real bank imports, explicit data identity, and a guarded rules/LLM evaluation path.',
+    'personal-finance-copilot-log2': 'The deterministic comparison engine, solvers, derivations, API, and first deployment.',
+    'personal-finance-copilot-log1': 'The initial scope and architecture for an auditable relocation and offer decision engine.',
     'picking-up-log6': 'A manual production deployment flow across Vercel, Cloud Run, and Neon.',
     'picking-up-log5': 'Backend refinement across transactions, validation, authentication, and CI.',
     'picking-up-log4': 'How Bucket List and task mutations changed from the initial plan.',
@@ -29,6 +34,9 @@ const POST_SUMMARIES: Record<SupportedLocale, Record<string, string>> = {
   },
   ko: {
     'jfloww-portfolio': 'Content loader, localization, MDX rendering, continuous-surface UI를 정리한 기록.',
+    'personal-finance-copilot-log3': '실제 bank export, 명시적인 data identity, 안전한 rules/LLM evaluation 작업.',
+    'personal-finance-copilot-log2': 'Deterministic comparison engine, solver, derivation, API와 첫 배포 작업.',
+    'personal-finance-copilot-log1': '감사 가능한 relocation·offer decision engine의 초기 범위와 architecture.',
     'picking-up-log6': 'Vercel, Cloud Run, Neon으로 정리한 수동 프로덕션 배포 기록.',
     'picking-up-log5': 'Transaction, domain validation, authentication, CI를 다시 점검한 backend refining 기록.',
     'picking-up-log4': 'Bucket List와 task mutation이 최초 계획에서 달라진 과정.',
