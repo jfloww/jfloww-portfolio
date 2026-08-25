@@ -9,6 +9,23 @@ import { localePrefix, type SupportedLocale } from '@/app/lib/i18n';
 
 const sectionClass = 'grid gap-6 py-10 md:grid-cols-[180px_1fr] md:gap-12 md:py-12';
 const sectionTitleClass = 'text-sm font-semibold uppercase tracking-[0.14em] text-[var(--muted)]';
+const skills = [
+  { label: 'Programming', value: 'TypeScript/JavaScript, Python, SQL, C#' },
+  { label: 'Frontend', value: 'Vue.js, React, Next.js' },
+  { label: 'Backend', value: 'Node.js, FastAPI, Django, ASP.NET' },
+  { label: 'Databases', value: 'PostgreSQL, Oracle Database, MySQL' },
+  { label: 'Integration', value: 'EDI (X12), AS2, SFTP, CData Arc, TCP sockets' },
+  { label: 'Cloud & Tools', value: 'AWS, Google Cloud Run, Docker, Git' },
+];
+const comgenDescription = 'Logistics, scanning, and EDI/EAI systems for automotive OEM and supplier plants (Hyundai, Kia, Ford, and GM).';
+const comgenExperience = [
+  'Built production applications end to end — system design, API development, deployment, monitoring, and incident response — delivering WMS, EDI, and JIS workflows (inventory, production planning, part validation, ASN generation, and shipping) with client stakeholders across five partner environments.',
+  'Redesigned EDI ingestion from per-document sequential processing to staged bulk loading (temporary tables, indexing, validation, and transactional batch inserts), cutting processing time from 23 seconds to about 5 seconds for a roughly 1,000-transaction-per-day pipeline across five B2B partners.',
+  'Migrated socket-based partner integrations from on-premises servers to AWS (EC2, VPC, S3, IAM, CloudWatch, and Site-to-Site VPN), reducing connectivity-related downtime from about three incidents per month to about one per year and cutting infrastructure maintenance cost to 30% of the on-premises baseline.',
+  'Cut recurring support calls by making failures self-diagnosable for end users: standardized error codes, restructured application logs, and exposed real-time health checks and CloudWatch dashboards, allowing operators to distinguish partner-side and network faults from application faults without escalation and providing evidence for fault isolation during partner incidents.',
+  'Modernized legacy C# and ASP.NET applications into TypeScript and Vue interfaces backed by Node.js or Django services; established shared application patterns, reviewed pull requests from junior engineers, and ran staged test-server-to-production releases with stakeholder UAT before deployment.',
+  'Built an internal web application that automated corporate credit card statement processing, including transaction grouping, categorization, and report generation, replacing a manual Excel workflow and reducing monthly reconciliation from about one hour to about 10 seconds.',
+];
 
 interface AboutPageProps {
   locale?: SupportedLocale;
@@ -40,7 +57,7 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
                     <OSIcon name="user" className="h-4 w-4" /> Profile
                   </a>
                   <a href="#about-stack" className="os-about-sidebar-row">
-                    <OSIcon name="grid" className="h-4 w-4" /> Tech Stack
+                    <OSIcon name="grid" className="h-4 w-4" /> Skills
                   </a>
                   <a href="#about-experience" className="os-about-sidebar-row">
                     <OSIcon name="documents" className="h-4 w-4" /> Experience
@@ -104,24 +121,14 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
                 </section>
 
                 <section id="about-stack" className="os-about-section">
-                  <h2>Tech Stack</h2>
+                  <h2>Skills</h2>
                   <dl className="space-y-3">
-                    <div>
-                      <dt>Backend</dt>
-                      <dd>Python, Django, Node.js, C#, .NET Core</dd>
-                    </div>
-                    <div>
-                      <dt>Database</dt>
-                      <dd>Oracle Database, PostgreSQL, SQL Server, SQLite</dd>
-                    </div>
-                    <div>
-                      <dt>Frontend</dt>
-                      <dd>TypeScript, JavaScript, Vue.js, React, Next.js</dd>
-                    </div>
-                    <div>
-                      <dt>Infrastructure</dt>
-                      <dd>Docker, AWS, Tomcat, Apache, Git</dd>
-                    </div>
+                    {skills.map((skill) => (
+                      <div key={skill.label}>
+                        <dt>{skill.label}</dt>
+                        <dd>{skill.value}</dd>
+                      </div>
+                    ))}
                   </dl>
                 </section>
 
@@ -130,13 +137,14 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
                   <div className="space-y-8">
                     <article>
                       <div className="flex items-baseline justify-between gap-5">
-                        <h3>Software Engineer · ComGen America</h3>
+                        <h3>Software Engineer · ComGen America · Auburn, AL</h3>
                         <time>Feb 2023 – Present</time>
                       </div>
+                      <p className="mt-2 text-[12px] leading-[1.65] text-[var(--os-muted)]">{comgenDescription}</p>
                       <ul>
-                        <li>Developed and maintained backend services and web applications for logistics automation.</li>
-                        <li>Modernized legacy systems and performed database upgrades and data migrations.</li>
-                        <li>Managed HTTPS, integration, firewall, and network troubleshooting work.</li>
+                        {comgenExperience.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
                       </ul>
                     </article>
                     <article>
@@ -230,24 +238,14 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
 
             <div className="divide-y divide-[var(--divider)]">
               <section className={sectionClass}>
-                <h2 className={sectionTitleClass}>Tech Stack</h2>
+                <h2 className={sectionTitleClass}>Skills</h2>
                 <dl className="space-y-4 text-[15px] leading-relaxed text-[var(--muted)]">
-                  <div className="grid gap-1 sm:grid-cols-[120px_1fr] sm:gap-4">
-                    <dt className="font-medium text-[var(--foreground)]">Backend</dt>
-                    <dd>Python, Django, Node.js, C#, .NET Core</dd>
-                  </div>
-                  <div className="grid gap-1 sm:grid-cols-[120px_1fr] sm:gap-4">
-                    <dt className="font-medium text-[var(--foreground)]">Database</dt>
-                    <dd>Oracle Database, PostgreSQL, SQL Server, SQLite</dd>
-                  </div>
-                  <div className="grid gap-1 sm:grid-cols-[120px_1fr] sm:gap-4">
-                    <dt className="font-medium text-[var(--foreground)]">Frontend</dt>
-                    <dd>TypeScript, JavaScript, Vue.js, React, Next.js</dd>
-                  </div>
-                  <div className="grid gap-1 sm:grid-cols-[120px_1fr] sm:gap-4">
-                    <dt className="font-medium text-[var(--foreground)]">Infrastructure &amp; Tools</dt>
-                    <dd>Docker, AWS, Tomcat, Apache, Git</dd>
-                  </div>
+                  {skills.map((skill) => (
+                    <div key={skill.label} className="grid gap-1 sm:grid-cols-[120px_1fr] sm:gap-4">
+                      <dt className="font-medium text-[var(--foreground)]">{skill.label}</dt>
+                      <dd>{skill.value}</dd>
+                    </div>
+                  ))}
                 </dl>
               </section>
 
@@ -267,12 +265,11 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
                     >
                       ComGen America · Full-time
                     </a>
+                    <p className="mt-3 text-[15px] leading-relaxed text-[var(--muted)]">{comgenDescription}</p>
                     <ul className="mt-5 list-disc space-y-2 pl-5 text-[15px] leading-relaxed text-[var(--muted)]">
-                      <li>Developed and maintained backend services and web applications for logistics automation.</li>
-                      <li>Modernized legacy Visual Basic, C#, and .NET Core systems with Node.js, Python, Vue, and TypeScript.</li>
-                      <li>Performed Oracle DB version upgrades and data migrations.</li>
-                      <li>Managed HTTPS migrations, certificate renewal, AS2 setup, and firewall configurations.</li>
-                      <li>Troubleshot TCP resets, firewall timeouts, and routing issues.</li>
+                      {comgenExperience.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
                     </ul>
                   </article>
 
