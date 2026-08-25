@@ -3,13 +3,13 @@ import type { ContentMeta } from './schema';
 
 const PROJECT_DESCRIPTIONS: Record<SupportedLocale, Record<string, string>> = {
   en: {
-    'personal-finance-copilot': 'An auditable personal-finance decision engine with exact arithmetic, safe bank imports, and bounded LLM categorisation.',
+    'personal-finance-copilot': 'A personal project for learning FastAPI, PostgreSQL, and LLM evaluation while studying real spending patterns.',
     'picking-up': 'A task and routine planner built around atomic commands, versioned writes, and optimistic reconciliation.',
     'jfloww-project': 'A bilingual MDX portfolio with static content routes and a responsive continuous-surface layout.',
     '2022-qatar-world-cup': 'A notebook project that estimates World Cup results from historical matches and FIFA ranking data.',
   },
   ko: {
-    'personal-finance-copilot': 'Exact arithmetic, 안전한 bank import, 제한된 LLM categorisation을 결합한 감사 가능한 personal-finance decision engine입니다.',
+    'personal-finance-copilot': 'FastAPI, PostgreSQL, LLM evaluation을 공부하며 실제 거래 내역으로 소비 패턴을 살펴본 개인 프로젝트입니다.',
     'picking-up': 'Atomic command, versioned write, optimistic reconciliation을 적용한 task·routine planner입니다.',
     'jfloww-project': '정적 content route와 반응형 continuous-surface layout을 적용한 한·영 MDX 포트폴리오입니다.',
     '2022-qatar-world-cup': '과거 경기 결과와 FIFA 랭킹 데이터로 월드컵 결과를 예측한 노트북 프로젝트입니다.',
@@ -19,6 +19,7 @@ const PROJECT_DESCRIPTIONS: Record<SupportedLocale, Record<string, string>> = {
 const POST_SUMMARIES: Record<SupportedLocale, Record<string, string>> = {
   en: {
     'jfloww-portfolio': 'Content loading, localization, MDX rendering, and the continuous-surface UI refactor.',
+    'personal-finance-copilot-log4': 'Comparing keyword rules with Claude on labelled spending data and improving the prompt without tuning on the benchmark.',
     'personal-finance-copilot-log3': 'Real bank imports, explicit data identity, and a guarded rules/LLM evaluation path.',
     'personal-finance-copilot-log2': 'The deterministic comparison engine, solvers, derivations, API, and first deployment.',
     'personal-finance-copilot-log1': 'The initial scope and architecture for an auditable relocation and offer decision engine.',
@@ -34,6 +35,7 @@ const POST_SUMMARIES: Record<SupportedLocale, Record<string, string>> = {
   },
   ko: {
     'jfloww-portfolio': 'Content loader, localization, MDX rendering, continuous-surface UI를 정리한 기록.',
+    'personal-finance-copilot-log4': 'Labelled spending data에서 keyword rules와 Claude를 비교하고 prompt를 개선한 기록.',
     'personal-finance-copilot-log3': '실제 bank export, 명시적인 data identity, 안전한 rules/LLM evaluation 작업.',
     'personal-finance-copilot-log2': 'Deterministic comparison engine, solver, derivation, API와 첫 배포 작업.',
     'personal-finance-copilot-log1': '감사 가능한 relocation·offer decision engine의 초기 범위와 architecture.',

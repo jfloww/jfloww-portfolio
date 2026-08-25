@@ -1,11 +1,11 @@
 ---
 title: 'Personal Finance Copilot'
-date: '20260823'
+date: '20260824'
 techStack: 'Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2, PostgreSQL, Alembic, Anthropic API, Render'
 repoUrl: 'https://github.com/jfloww/wdo-delta'
 liveUrl: 'https://offerdelta.onrender.com'
 id: personal-finance-copilot
-hidden: true
+hidden: false
 images:
   - src: '/photo/proj/personal-finance-copilot/cover.svg'
     title: 'Personal Finance Copilot'
@@ -14,18 +14,27 @@ images:
 
 # Executive Summary
 
-- **Problem:** Personal-finance tools can summarize past spending, but they rarely answer future-facing questions from a person's real costs while showing how every figure was calculated.
-- **My role:** I designed the product boundary, financial domain model, deterministic comparison engine, transaction-import identity, evaluation methodology, API, persistence, tests, and deployment.
-- **Key decisions:** AI handles only the fuzzy classification problem. Exact `Decimal` code owns all arithmetic, every result carries a derivation, and ambiguous bank-import identity is declared rather than guessed.
-- **Outcome:** A public comparison demo is deployed on Render. The local data path has processed real Chase, Capital One, and Amex exports while keeping the source data outside the repository. No model score is published before the hand-labelled benchmark and live evaluation exist.
+- **Why I built it:** I wanted to learn a new Python backend, database, and LLM evaluation stack through a problem connected to my own life: understanding where my money goes.
+- **What it does:** The project imports bank and credit-card CSV files, organizes transactions into spending categories, and uses those patterns in financial decisions such as comparing a job offer in another city.
+- **What I worked on:** I built the FastAPI/PostgreSQL backend, CSV import flow, transaction categorisation, evaluation framework, deterministic calculation engine, tests, and deployment.
+- **Outcome:** The project processed 742 transactions from three financial institutions across four CSV formats. I labelled 400 rows by hand and compared keyword rules with Claude Haiku 4.5 on a separate 135-row benchmark.
 
-## Selected Engineering Contributions
+## Why I Built It
 
-- **Deterministic financial engine** — Built explicit money, period, percentage, evidence, cost-ownership, employment, benefit, and household models. Monthly reconciliation stops an inconsistent comparison before it can return.
-- **Decision solvers** — Implemented equivalent salary, first and stable break-even, and negotiation-gap calculations on top of the same comparison path used by the main result.
-- **Auditable API** — Serialized money as decimal strings across HTTP, returned per-number derivations, enforced idempotent writes, and persisted immutable calculation runs through SQLAlchemy, Alembic, and PostgreSQL.
-- **Transaction ingest** — Added mapping detection, whole-column date-order inference, preview-only parsing, explicit snapshot/incremental modes, versioned fingerprints, account identity, import batches, and source provenance.
-- **Evaluation and LLM boundary** — Built a rule baseline, constrained LLM categoriser, hybrid router, merchant-disjoint split, annotation workflow, metrics, cost and latency reporting, and a live path that requires explicit opt-in.
+I wanted a project that would let me study unfamiliar tools through real data instead of building another tutorial application. My own bank and credit-card exports provided a practical dataset, and the first question was simple: can I organize these transactions well enough to understand my spending patterns?
+
+The project originally started as OfferDelta, a calculator for comparing a current job with an offer in another city. Generic cost-of-living averages were not enough for that comparison. Connecting the calculator to actual spending meant solving a larger problem first: importing inconsistent bank files and deciding what each transaction represented.
+
+That is how the project grew into Personal Finance Copilot. The LLM is used only where language is genuinely useful—interpreting descriptions such as merchant abbreviations. Ordinary Python code still performs every financial calculation, so a model never decides or changes an amount.
+
+## What I Built
+
+- **Backend and database** — A FastAPI application with PostgreSQL, SQLAlchemy, and Alembic for storing transactions and completed comparison runs.
+- **Bank-data import** — A preview-first CSV importer for three financial institutions and four file formats, with checks for malformed rows, date formats, sign conventions, duplicates, and unclear mappings.
+- **Spending categories** — A fixed category list for expenses, income, transfers, and refunds, shaped around the questions the financial calculator needs to answer.
+- **Rules and LLM comparison** — A keyword baseline and a Claude Haiku 4.5 categoriser measured on the same labelled benchmark instead of assuming the model would be better.
+- **Evaluation workflow** — A 400-row hand-labelled dataset, separate development and benchmark splits, saved aggregate results, prompt experiments, cost tracking, latency tracking, and failure analysis.
+- **Financial comparison** — Exact calculations for salary, benefits, housing, commuting, relocation, equivalent salary, and break-even, with an explanation for each result.
 
 ## Product Flow
 
@@ -128,33 +137,101 @@ The comparison order is rules first, LLM second, hybrid third. This keeps a free
 
 - Train and evaluation sets are merchant-disjoint.
 - Dataset splits are deterministic.
-- Two annotators work independently, with disagreement stored separately from adjudication.
+- One annotator labelled every row in two separate passes, with both labels preserved separately from self-adjudication.
 - Ambiguous rows require an authored acceptable-label set and explanation.
 - Reports include macro metrics, coverage, failures, rejected outputs, cost per transaction, and p95 latency.
 - Dataset, prompt, and model versions travel with every result.
 
-The repository deliberately publishes no F1 yet. The harness is implemented, but the hand-labelled dataset and full live run are still required. A partial smoke test cannot be presented as a benchmark.
+The source data contained 742 imported transactions. One annotator labelled the same 400 rows in two separate passes and then adjudicated the disagreements. Agreement between the passes was 91.85%, with Cohen's kappa of 0.9055. These are intra-rater repeat-consistency measures, not independent inter-annotator agreement. The frozen validation benchmark contains 135 rows across 60 merchants, with no merchant shared with the development split.
+
+The simplest reading is that keyword rules were free and easy to inspect, but answered only 20% of the benchmark. Claude answered every row and performed better overall, with measurable latency and cost.
+
+| System                               |   Macro F1 | Weighted F1 | Acceptable-label acc. | Abstention |         Mean |          p95 |        Cost / row |
+| ------------------------------------ | ---------: | ----------: | --------------------: | ---------: | -----------: | -----------: | ----------------: |
+| Rule baseline                        |     0.0464 |      0.0549 |                0.0667 |      80.0% |            — |            — | No external calls |
+| Claude `categorise/v1`               |     0.4277 |      0.7201 |                0.6593 |       0.0% |     1,779 ms |     2,327 ms |         $0.001781 |
+| Claude `categorise/v2`, rejected     |     0.4397 |      0.7108 |                0.6519 |       0.0% |            — |            — |         $0.001864 |
+| **Claude `categorise/v3`, selected** | **0.4724** |  **0.7298** |            **0.6667** |       0.0% | **1,472 ms** | **1,781 ms** |         $0.001913 |
+
+Accuracy and abstention are reported separately. The rule baseline's low overall accuracy reflects both incorrect answers and the rows it declined to classify. Empty timing fields mean the public result does not provide a comparable value; they are not back-filled from a different run or replaced with zero. The baseline is described as making no external calls rather than assigned an invented price.
+
+### Controlled Prompt Iteration
+
+The second prompt added one rule: treat `LIVING_OTHER` as a last resort rather than a default. The model, benchmark rows, split, taxonomy, scoring, and inference settings remained fixed.
+
+The target category did not improve. Weighted F1 fell from 0.7201 to 0.7108, accuracy fell from 0.6593 to 0.6519, and cost rose from $0.001781 to $0.001864 per row. Four categories regressed while two improved. An earlier paired run recorded worse p95 latency for v2, but the public summary leaves v2 timing blank rather than mixing that run with the later v1 rerun shown above.
+
+Macro F1 alone rose from 0.4277 to 0.4397, but the summed per-label F1 fell. The reported macro average increased because v2 stopped predicting an always-wrong class, reducing the number of labels in the denominator from 21 to 20. Read with the other metrics, the revision was a regression.
+
+Version 3's two rules were selected from the 265-row development split rather than by searching the benchmark. There, `REFUND` scored F1 0.0000 on nineteen rows, and `TRANSFER` lost thirteen of twenty-six rows to `LIVING_CARD_FEE`. Failure analysis showed that the model often understood “refund” or “card payment” in its explanation but still selected the wrong category. Both rules were checked against development examples before being added to v1.
+
+|             |         Development, tuned on | Frozen validation benchmark |
+| ----------- | ----------------------------: | --------------------------: |
+| Macro F1    | 0.4263 → 0.5699 (**+0.1436**) | 0.4277 → 0.4724 (**+0.0447**) |
+| Accuracy    |               0.6302 → 0.7434 |             0.6593 → 0.6667 |
+| `REFUND` F1 |               0.0000 → 0.6896 |             0.6667 → 0.6667 |
+
+The development improvement was much larger than the benchmark improvement. On the benchmark, `LIVING_CARD_FEE` improved from 0.0000 to 0.5000, while `REFUND` was already at 0.6667 and did not move. The gap is consistent with the two merchant-disjoint splits presenting different category difficulty, but a single pair of runs cannot establish how much of the difference came from the split, the prompt, or run-to-run variation.
+
+Both v2 and v3 reduced the macro denominator from 21 labels to 20. Version 2's summed per-label F1 fell from 8.9814 to 8.7936, while version 3's rose to 9.4480. Version 3 was selected because weighted F1 and accuracy also improved; its recorded run was faster, but without repetitions the latency difference cannot be attributed to the prompt alone.
+
+Each result is a single live run without repetitions, so run-to-run variance is not separated from the prompt effect. Earlier benchmark results also informed later decisions. The 135 rows are therefore a frozen validation benchmark, not an independent or untouched test set.
+
+### Failure Analysis
+
+| Mode                                  |   Rows | Most frequent example                               |
+| ------------------------------------- | -----: | --------------------------------------------------- |
+| Abstention would have been better     |     20 | Dining, subscriptions, and grocery → `LIVING_OTHER` |
+| Thin description, under 15 characters |      9 | `LIVING_TRAVEL` → `COMMUTE_TRANSIT_FARE` ×5         |
+| Confident but wrong, at least 0.80    |      7 | `REFUND` → `TRANSFER` ×4                            |
+| Rules right, model wrong              |      1 | —                                                   |
+| **Model right, rules wrong**          | **82** | What the model added over the baseline              |
+
+Mean confidence was 0.8411 when the model was right and 0.6078 when it was wrong. Twenty wrong answers were already below the 0.60 confidence threshold, suggesting that abstaining on low confidence may be more useful than adding another prompt rule.
+
+### Harness Changes
+
+- Row-level predictions are saved with the dataset checksum so failures can be inspected without paying for inference again. They remain under a git-denied data path.
+- Reports now include mean latency alongside p50 and p95.
+- Disagreement between the two annotation passes is reported as a difficulty stratum, not automatically treated as legitimate ambiguity.
+- `--split development` gives prompt work a place that is separate from the benchmark, while `--systems` controls which systems make paid model calls.
+
+### Reproducing the Evaluation
+
+```bash
+cd backend
+uv run python run_evaluation.py --live --save-predictions
+uv run python analyse_failures.py \
+  data/eval/predictions/holdout-categorise-v3.jsonl \
+  --json ../docs/eval/failure-analysis.json
+uv run python build_public_results.py
+```
+
+This V2 work compares the deterministic rule baseline with the existing Claude categoriser. OpenAI, agents, and MCP are outside this result and belong to a separate next phase.
 
 ## Deployment and Verification
 
 The deterministic demo is deployed as a container on Render and uses marked synthetic inputs. The first request after an idle period may wait for the free service to wake.
 
-The repository's quality command runs formatting, linting, strict type checks, architecture contracts, and tests. The August 23 development record verified all five gates and recorded 1,089 passing tests. That record also verified 742 real transactions imported locally across seven accounts and seven import batches.
+The repository's quality command runs formatting, linting, strict type checks, architecture contracts, and tests. The August 24 development record verified all five gates and recorded 1,186 passing tests. Across the local data path, 742 real transactions were imported from three financial institutions and four CSV formats into seven accounts and seven import batches.
 
-The transaction data, annotation dataset, and credentials remain gitignored. Import and categorisation are not deployed, so the live URL demonstrates the deterministic comparison rather than presenting local data handling as a production feature.
+The transaction data, row-level predictions, and credentials remain gitignored. Import, live categorisation, and model access are not deployed. The public application serves the deterministic comparison and aggregate evaluation artifacts, so no unauthenticated request reaches real transaction data or a model. The public routes were verified without a key or database, and `/v1/transactions` is absent from the deployed API schema.
 
 ## Result
 
-Personal Finance Copilot now joins two different kinds of work without blurring their trust boundaries: language-assisted interpretation for messy descriptions and deterministic arithmetic for decisions.
+This project gave me a practical way to study FastAPI, PostgreSQL, data modelling, CSV processing, LLM integration, and model evaluation in one connected workflow. Using real exports also showed me that cleaning and understanding the data was a larger part of personal-finance analysis than drawing a chart at the end.
 
-The strongest result is not a model score. It is that a transaction can retain its source identity, a categoriser can abstain inside a closed schema, and every downstream amount can be traced back through exact calculations and evidence.
+The evaluation answered a concrete question. Keyword rules were free and easy to understand, but they answered only 20% of the benchmark. Claude covered every row and performed better overall, but it added cost, latency, and new kinds of mistakes. One prompt revision was rejected after measurement, while a later revision was kept because it improved several measures together.
 
-The main remaining work is completing the hand-labelled dataset, running the staged live evaluation, replacing synthetic comparison inputs with user-editable forms, and validating the transaction path before any deployment.
+The larger lesson was that a change that works well on development data may move a separate benchmark much less—and sometimes for a different reason. Keeping those splits separate made the experiment more useful than simply reporting the highest score.
+
+The main remaining work is testing confidence-based abstention, improving the travel-versus-commute boundary, benchmarking a second model provider on the same frozen validation set, replacing synthetic comparison inputs with user-editable forms, and validating the transaction path before any deployment.
 
 ## Links
 
-- [Live deterministic demo](https://offerdelta.onrender.com)
+- [Live aggregate evaluation and deterministic demo](https://offerdelta.onrender.com)
 - [GitHub repository](https://github.com/jfloww/wdo-delta)
 - [Log 1 — Scope and architecture](/posts/personal-finance-copilot-log1)
 - [Log 2 — Deterministic engine and deployment](/posts/personal-finance-copilot-log2)
 - [Log 3 — Real imports and evaluation path](/posts/personal-finance-copilot-log3)
+- [Log 4 — Prompt iteration and measured split difficulty](/posts/personal-finance-copilot-log4)

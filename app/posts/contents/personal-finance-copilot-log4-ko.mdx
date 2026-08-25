@@ -1,0 +1,215 @@
+---
+title: 'Personal Finance Copilot Log 4: Rules와 Claude 비교'
+date: '20260824'
+id: personal-finance-copilot-log4-ko
+category: 'Personal Finance Copilot'
+tags: ['devlog', 'llm-evaluation', 'prompt-experiment', 'failure-analysis', 'ko']
+techStack: 'Python, Claude Haiku 4.5, PostgreSQL'
+locale: 'ko'
+translationKey: personal-finance-copilot-log4
+hidden: false
+---
+
+## 목적
+
+Transaction을 import한 뒤에는 현실적인 질문 하나가 남았다. 간단한 keyword rules만으로 내 소비 내역을 충분히 분류할 수 있을까, 아니면 LLM이 더 잘할까?
+
+둘을 공정하게 비교하기 위해 실제 transaction을 직접 label하고, 개선에 사용하는 data와 평가에 사용하는 data를 분리했다. Accuracy뿐 아니라 coverage, cost, latency도 함께 측정했다. 8월 24일은 이 전체 workflow를 처음으로 live model에서 실행한 날이었다.
+
+하루 동안 세 prompt version을 다뤘다. Version 1은 baseline을 만들었고, version 2는 macro F1이 올랐지만 거절했으며, version 3은 development split에서 설계한 뒤 benchmark에서 한 번 측정하고 채택했다.
+
+## 스케치
+
+Evaluation path는 prompt 작업을 위한 development split과 frozen validation benchmark를 분리한다.
+
+```text
+742 imported transactions
+  -> 한 annotator가 두 번 label한 400 rows
+  -> merchant-disjoint split
+       ├─ 265 development rows
+       │    -> failure 확인
+       │    -> prompt change 선택
+       └─ 135-row frozen validation benchmark
+            -> 선택한 prompt를 한 번 측정
+            -> aggregate result만 공개
+```
+
+Prediction은 failure analysis를 위해 저장하지만 repository나 public artifact에는 넣지 않는다.
+
+```text
+live run
+  -> archived aggregate report
+  -> private row-level predictions
+       -> failure analyser
+       -> counts-only public JSON
+```
+
+## 계획
+
+1. Counterparty를 노출하지 않는 reproducible 400-row subset을 만든다.
+2. 초기 design이 아니라 annotation evidence에서 taxonomy를 마무리한다.
+3. Frozen benchmark에서 rules, Claude Haiku 4.5, hybrid를 실행한다.
+4. Prompt, dataset, model, cost, latency, coverage, accuracy를 함께 archive한다.
+5. Failure를 다시 보기 위해 또 inference 비용을 내지 않도록 row-level prediction을 private하게 저장한다.
+6. Prompt change는 development에서 선택하고 benchmark는 그 뒤 한 번만 사용한다.
+7. JSON과 page copy를 모두 확인하는 containment test와 함께 aggregate result를 공개한다.
+
+## 첫 Live Result
+
+`categorise/v1`의 frozen 135-row benchmark 결과는 다음과 같았다.
+
+| System | Macro F1 | Weighted F1 | Accuracy | Coverage |
+|---|---:|---:|---:|---:|
+| Keyword rules | 0.0464 | 0.0549 | 0.0667 | 20% |
+| Claude Haiku 4.5 | 0.4277 | 0.7201 | 0.6593 | 100% |
+| Rules + Claude | 0.4223 | 0.7142 | 0.6519 | 100% |
+
+Claude run은 135 rows에 $0.2404, row당 $0.00178이 들었다. 첫 archived run의 p50 latency는 1,358 ms, p95는 1,859 ms였다.
+
+Macro와 weighted F1의 차이가 중요했다. 일반적인 row는 weighted figure에 가까운 결과를 경험하지만, macro F1은 represented category에 같은 weight를 주어 small class에서 model이 약한 정도를 보여준다.
+
+## 거절한 Prompt Change
+
+Version 1은 benchmark에 실제로 하나뿐인 `LIVING_OTHER`를 열여덟 번 예측했다. Version 2는 이 label을 last resort로 만드는 rule 하나를 추가했다. Model, rows, split, taxonomy, scoring, inference setting은 그대로 유지했다. 아래 수치는 첫 paired v1–v2 run에서 나왔다.
+
+| Metric | v1 | v2 |
+|---|---:|---:|
+| Macro F1 | 0.4277 | **0.4397** |
+| Weighted F1 | **0.7201** | 0.7108 |
+| Accuracy | **0.6593** | 0.6519 |
+| Cost / row | **$0.001781** | $0.001864 |
+| p95 latency | **1,859 ms** | 3,000 ms |
+| `LIVING_OTHER` F1 | 0.1053 | 0.1053 |
+
+Macro F1은 올랐지만 target category는 움직이지 않았다. Weighted F1, accuracy, cost, p95 latency는 나빠졌고 coverage는 100%로 유지됐다.
+
+원인은 arithmetic이었다. Macro F1은 benchmark에 존재하는 label과 model이 예측한 label의 union을 평균낸다. Version 2가 한 번도 맞히지 못한 `LIVING_GYM`을 더 이상 예측하지 않으면서 denominator가 21 labels에서 20으로 줄었다.
+
+| | v1 → v2 |
+|---|---:|
+| Labels in the average | 21 → 20 |
+| Summed per-label F1 | 8.9814 → **8.7936** |
+| Macro F1 | 0.4277 → 0.4397 |
+
+Sum은 떨어졌지만 mean은 올랐다. Version 2는 거절했고 archived result를 재현할 수 있도록 code에는 남겼다.
+
+## 채택한 Prompt Change
+
+Development split에서는 benchmark aggregate만으로 볼 수 없던 두 failure가 드러났다.
+
+`REFUND`는 development의 19 rows에서 F1 0.0000이었다. Model은 credit이나 refund라고 올바르게 설명한 뒤에도 original merchant category를 label로 선택했다. Money의 direction보다 merchant가 무엇인지 먼저 reasoning했다.
+
+`TRANSFER`는 26 rows 중 13개를 `LIVING_CARD_FEE`로 잃었다. Model은 credit-card payment를 알아봤지만 balance를 내는 것과 membership fee를 청구받는 것을 혼동했다.
+
+Version 3은 rejected v2가 아니라 v1에 rule 두 개를 추가했다. Rule을 작성하기 전에 development gold에서 확인했다.
+
+```text
+card balance payment              -> TRANSFER
+inbound person-to-person credit   -> REFUND
+```
+
+선택된 benchmark result는 다음과 같았다.
+
+| System | Macro F1 | Weighted F1 | Accuracy | Mean | p95 | Cost / row |
+|---|---:|---:|---:|---:|---:|---:|
+| Claude v1 | 0.4277 | 0.7201 | 0.6593 | 1,779 ms | 2,327 ms | $0.001781 |
+| Claude v2, rejected | 0.4397 | 0.7108 | 0.6519 | — | — | $0.001864 |
+| **Claude v3, selected** | **0.4724** | **0.7298** | **0.6667** | **1,472 ms** | **1,781 ms** | $0.001913 |
+
+Public summary는 첫 archived v2 run의 timing을 이후 v1 rerun과 한 표에서 섞지 않고 blank로 둔다. Version 3은 macro F1뿐 아니라 weighted F1과 accuracy도 좋아져 선택했다. 해당 run의 latency도 낮았지만 반복 실행이 없으므로 그 차이를 prompt 효과로 단정하지 않는다.
+
+## Development와 Benchmark의 차이
+
+가장 중요한 결과는 새 headline score가 아니었다.
+
+| | Development, tuned on | Benchmark, independent |
+|---|---:|---:|
+| Macro F1 | 0.4263 → 0.5699 (**+0.1436**) | 0.4277 → 0.4724 (**+0.0447**) |
+| Accuracy | 0.6302 → 0.7434 | 0.6593 → 0.6667 |
+| `REFUND` F1 | 0.0000 → 0.6896 | 0.6667 → 0.6667 |
+| `TRANSFER` F1 | 0.3111 → 0.7576 | 0.8421 → 0.8292 |
+
+Fix는 development를 크게 바꿨지만 benchmark는 조금만 움직였다. 그리고 benchmark에서는 다른 category를 통해 움직였다. `REFUND`는 이미 잘 동작했기 때문에 prompt가 고치려던 failure가 그쪽에는 없었다. Benchmark gain의 대부분은 `LIVING_CARD_FEE`가 0.0000에서 0.5000으로 오른 데서 나왔다.
+
+두 merchant-disjoint split은 이번 run에서 서로 다른 failure pattern을 보였다. 유용한 관찰이지만, 한 쌍의 run만으로 prompt가 얼마나 generalize했는지 또는 gap의 원인이 무엇인지 증명하지는 못한다.
+
+Version 3도 macro denominator를 21에서 20으로 줄였지만 v2와 달리 summed per-label F1이 증가했다.
+
+| | v1 → v2 | v1 → v3 |
+|---|---:|---:|
+| Summed per-label F1 | 8.9814 → **8.7936** | 8.9814 → **9.4480** |
+| Macro F1 | 0.4277 → 0.4397 | 0.4277 → 0.4724 |
+
+Version 2의 gain은 전부 arithmetic이었다. Version 3 macro gain은 약 절반이 실제로 나아진 answer에서, 나머지 절반이 작은 divisor에서 왔다.
+
+## Failure Analysis
+
+Prediction을 저장하면서 inference를 다시 실행하지 않고 error를 group할 수 있었다.
+
+| Failure mode | Rows |
+|---|---:|
+| Abstention would have been better | 20 |
+| Thin description, 15자 미만 | 9 |
+| Confident but wrong, 0.80 이상 | 7 |
+| Polysemous merchant | 5 |
+| Annotators disagreed too | 3 |
+| Rules right, model wrong | 1 |
+| **Model right, rules wrong** | **82** |
+
+정답일 때 mean confidence는 0.8411, 오답일 때는 0.6078이었다. 오답 20개는 confidence 0.60 미만인데도 답했고 대부분 `LIVING_OTHER`로 모였다. 다음 유효한 change가 prompt sentence 추가보다 confidence-based abstention threshold일 가능성을 보여준다.
+
+## 결정
+
+### Annotation pass 간 disagreement는 ambiguity가 아니라 difficulty다
+
+400 rows 중 31개는 두 annotation pass가 다른 label을 선택했다. 이 disagreement를 acceptable-label set으로 바꾸면 모든 score가 올라가지만, disagreement는 보통 한 pass가 틀렸다는 뜻이다. Ambiguity는 사람이 여러 답이 가능하다고 기록하고 이유를 설명한 경우에만 authored 상태로 둔다.
+
+Disagreement row는 difficulty stratum으로 따로 보고한다. Model이 사람도 어려워한 곳에서 실패하는지는 측정하지만 두 답이 모두 맞았다고 주장하지 않는다.
+
+### Prompt change는 development에서 선택한다
+
+Version 2는 benchmark를 본 뒤 설계했기 때문에 같은 data로 change를 선택하고 평가했다. Version 3은 265 development rows에서 설계하고 benchmark에서는 이후 한 번만 측정했다. CLI도 이 separation을 명시한다.
+
+### Prediction은 저장하지만 공개하지 않는다
+
+Row-level prediction은 rescoring과 failure analysis 비용을 없애지만 real transaction id와 model output이 함께 있는 file이다. Git-denied data path에 유지하고 aggregate count와 rate만 public artifact로 보낸다.
+
+### Fitted rule baseline은 lookup table이다
+
+Rule은 자신을 fit한 development split에서 macro F1 1.0000을 기록했다. 완벽한 categorisation의 증거가 아니다. Development에서 rules-vs-model comparison은 memorization을 측정하며, system을 공정하게 비교할 수 있는 곳은 merchant-disjoint benchmark다.
+
+## 잘못된 점
+
+### Line-ending check가 모든 line을 match했다
+
+`grep -c $'\r'`는 CRLF를 찾으려 했지만 pattern이 grep까지 유지되지 않아 모든 line을 match했다. 그날의 여러 “no churn” 결론은 실제로 line count일 뿐이었다.
+
+Byte-level check로 실제 mechanism을 찾았다. `Path.read_text`는 memory에서 line ending을 normalize하고, Windows의 `Path.write_text`는 `os.linesep`으로 다시 쓴다. 작은 edit가 whole-file rewrite가 될 수 있었다.
+
+같은 bug가 이를 기록하는 commit 안에서 다시 발생했다. 이 history entry를 `Path.write_text`로 쓰면서 LF가 CRLF로 바뀌었고, 188-line addition이 306/115 rewrite가 됐다. 결론은 `write_text`를 더 조심하는 것이 아니라 line ending을 보존해야 할 때 `read_bytes`와 `write_bytes`만 사용하는 것이다.
+
+### Public output 검사가 surrounding page를 확인하지 않았다
+
+Aggregate JSON은 깨끗했지만 landing-page copy에 실제 merchant name이 들어갔다. Payload containment test는 처음부터 merchant를 scan했지만 주변 prose는 검사하지 않았다. 이제 JSON과 모든 served page를 함께 확인한다.
+
+### 손으로 쓴 cost summary가 computed field와 달랐다
+
+한 문장은 cost increase를 9.6%라고 했지만 옆 computed field는 7.4%였다. Prose가 number를 따로 복사하지 않고 computed value에 bind되도록 바꿨다.
+
+### UTC 때문에 잘못된 local filename이 그럴듯해 보였다
+
+Run log 네 개를 local 8월 24일에 만들었지만 처음에는 8월 25일로 이름 붙였다. Artifact 내부 UTC timestamp는 실제로 25일이어서 local-date convention을 확인하기 전까지 filename이 자연스러워 보였다.
+
+## 완성된 상태
+
+8월 24일이 끝날 때:
+
+- 400 rows를 두 번씩 hand-label했다.
+- 총 $1.4775로 네 번의 live benchmark run을 마쳤다.
+- `categorise/v3`를 선택하고 published decision과 code를 일치시켰다.
+- Aggregate evaluation result와 showcase page를 deploy했다.
+- Private prediction과 counts-only failure analysis를 만들었다.
+- 1,186 tests와 다섯 quality check가 모두 green이었다.
+- PR #3에 V2 작업이 모였고 CI가 green이었다.
+
+다음 proposed phase는 deterministic comparison engine 위에서 동작하는 evaluated tool-using agent다. Model이 propose하고 engine이 compute한다는 같은 규칙을 유지한다. 이 design은 categoriser와 분리되어 있으며 이 로그가 끝날 때는 아직 review를 기다리고 있었다.
