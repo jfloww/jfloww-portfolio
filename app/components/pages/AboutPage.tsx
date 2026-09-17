@@ -70,14 +70,15 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
 
               <div className="os-about-document">
                 <section id="about-profile" className="grid grid-cols-[210px_1fr] gap-10 border-b border-[var(--os-divider)] pb-10">
-                  <div className="relative aspect-[3/4] w-full self-start overflow-hidden rounded-[8px] shadow-[0_14px_32px_rgba(4,14,24,0.18)] ring-1 ring-black/10 dark:ring-white/10">
+                  <div className="relative aspect-[4/5] w-full self-start overflow-hidden rounded-[8px] shadow-[0_14px_32px_rgba(4,14,24,0.18)] ring-1 ring-black/10 dark:ring-white/10">
                     <Image
                       src="/photo/my-profile.jpg"
                       alt="Jay Jaehoon Jung"
                       fill
                       priority
-                      sizes="(max-width: 1180px) 160px, 210px"
-                      className="origin-[50%_74%] scale-[1.25] object-cover"
+                      quality={90}
+                      sizes="210px"
+                      className="object-cover object-[52%_center]"
                     />
                   </div>
                   <div>
@@ -195,8 +196,9 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
                   alt="Jay Jaehoon Jung"
                   fill
                   priority
+                  quality={90}
                   sizes="240px"
-                  className="origin-[50%_74%] scale-[1.25] object-cover"
+                  className="object-cover object-[52%_center]"
                 />
               </div>
 
