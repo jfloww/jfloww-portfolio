@@ -10,21 +10,23 @@ import { localePrefix, type SupportedLocale } from '@/app/lib/i18n';
 const sectionClass = 'grid gap-6 py-10 md:grid-cols-[180px_1fr] md:gap-12 md:py-12';
 const sectionTitleClass = 'text-sm font-semibold uppercase tracking-[0.14em] text-[var(--muted)]';
 const skills = [
-  { label: 'Programming', value: 'TypeScript/JavaScript, Python, SQL, C#' },
-  { label: 'Frontend', value: 'Vue.js, React, Next.js' },
-  { label: 'Backend', value: 'Node.js, FastAPI, Django, ASP.NET' },
-  { label: 'Databases', value: 'PostgreSQL, Oracle Database, MySQL' },
-  { label: 'Integration', value: 'EDI (X12), AS2, SFTP, CData Arc, TCP sockets' },
-  { label: 'Cloud & Tools', value: 'AWS, Google Cloud Run, Docker, Git' },
+  { label: 'Programming', value: 'Python, TypeScript/JavaScript, SQL, C#, Java' },
+  { label: 'Backend', value: 'Node.js, FastAPI, Django, ASP.NET, REST APIs, Java Spring' },
+  { label: 'Frontend', value: 'Vue.js, React, Next.js, HTML, CSS' },
+  { label: 'Databases', value: 'PostgreSQL, Oracle, MySQL' },
+  { label: 'Integration', value: 'EDI (X12), AS2, SFTP, TCP sockets' },
+  { label: 'Cloud & DevOps', value: 'CI/CD, Linux, Windows Server, AWS, Google Cloud Platform, Docker, Git' },
 ];
 const comgenDescription = 'Logistics, scanning, and EDI/EAI systems for automotive OEM and supplier plants (Hyundai, Kia, Ford, and GM).';
 const comgenExperience = [
-  'Built production applications end to end — system design, API development, deployment, monitoring, and incident response — delivering WMS, EDI, and JIS workflows (inventory, production planning, part validation, ASN generation, and shipping) with client stakeholders across five partner environments.',
-  'Redesigned EDI ingestion from per-document sequential processing to staged bulk loading (temporary tables, indexing, validation, and transactional batch inserts), cutting processing time from 23 seconds to about 5 seconds for a roughly 1,000-transaction-per-day pipeline across five B2B partners.',
-  'Migrated socket-based partner integrations from on-premises servers to AWS (EC2, VPC, S3, IAM, CloudWatch, and Site-to-Site VPN), reducing connectivity-related downtime from about three incidents per month to about one per year and cutting infrastructure maintenance cost to 30% of the on-premises baseline.',
-  'Cut recurring support calls by making failures self-diagnosable for end users: standardized error codes, restructured application logs, and exposed real-time health checks and CloudWatch dashboards, allowing operators to distinguish partner-side and network faults from application faults without escalation and providing evidence for fault isolation during partner incidents.',
-  'Modernized legacy C# and ASP.NET applications into TypeScript and Vue interfaces backed by Node.js or Django services; established shared application patterns, reviewed pull requests from junior engineers, and ran staged test-server-to-production releases with stakeholder UAT before deployment.',
-  'Built an internal web application that automated corporate credit card statement processing, including transaction grouping, categorization, and report generation, replacing a manual Excel workflow and reducing monthly reconciliation from about one hour to about 10 seconds.',
+  'Own full-stack logistics and manufacturing applications end to end, including requirements analysis, system design, API and UI development, testing, deployment, monitoring, and production support across Windows Server, Linux, and cloud environments.',
+  'Developed and optimized Python ETL pipelines that ingest X12 EDI documents through AS2 or SFTP, validate and transform partner-specific order and shipping data, and load it into Oracle with staging tables, indexing, and transactional batch inserts, reducing processing time by approximately 60% for roughly 1,000 daily transactions.',
+  'Built and maintained full-stack applications, REST APIs, and system integrations with C#/.NET, Java Spring, React, and Vue.js for inventory, production planning, part validation, ASN generation, shipping, and real-time shop-floor workflows across five partner environments.',
+  'Improved production reliability through structured logging, health checks, CI validation, and operational dashboards, enabling faster isolation of application, network, and partner-side failures.',
+  'Migrated partner integrations from on-premises infrastructure to AWS with EC2, VPC, S3, IAM, CloudWatch, and Site-to-Site VPN, improving connectivity reliability and operational visibility.',
+  'Modernized legacy C#/ASP.NET and Java applications with TypeScript/JavaScript, Vue, Node.js, and Django while preserving established business rules and integration behavior; coordinated code reviews, UAT, staged releases, and production troubleshooting.',
+  'Developed and introduced a custom AI coding agent using codebase context, structured instructions, and legacy design patterns, reducing implementation rework and simplifying ongoing maintenance for the team.',
+  'Automated corporate-card transaction categorization and reconciliation reporting with an internal web application, reducing a monthly manual Excel process from approximately one hour to 10 seconds.',
 ];
 
 interface AboutPageProps {
@@ -70,14 +72,14 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
 
               <div className="os-about-document">
                 <section id="about-profile" className="grid grid-cols-[210px_1fr] gap-10 border-b border-[var(--os-divider)] pb-10">
-                  <div className="relative aspect-[4/5] w-full self-start overflow-hidden rounded-[8px] shadow-[0_14px_32px_rgba(4,14,24,0.18)] ring-1 ring-black/10 dark:ring-white/10">
+                  <div className="relative aspect-[2/3] w-full self-center overflow-hidden rounded-[8px] shadow-[0_14px_32px_rgba(4,14,24,0.18)] ring-1 ring-black/10 dark:ring-white/10">
                     <Image
                       src="/photo/my-profile.jpg"
                       alt="Jay Jaehoon Jung"
                       fill
                       priority
                       quality={90}
-                      sizes="210px"
+                      sizes="420px"
                       className="object-cover object-[52%_center]"
                     />
                   </div>
@@ -98,7 +100,7 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
                       </div>
                       <div className="grid grid-cols-[90px_1fr] gap-4 py-3">
                         <dt className="text-[var(--os-muted)]">Focus</dt>
-                        <dd className="font-medium">Backend systems, APIs, databases, and application reliability</dd>
+                        <dd className="font-medium">Backend systems, APIs, data pipelines, and application reliability</dd>
                       </div>
                       <div className="grid grid-cols-[90px_1fr] gap-4 py-3">
                         <dt className="text-[var(--os-muted)]">Education</dt>
@@ -197,7 +199,7 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
                   fill
                   priority
                   quality={90}
-                  sizes="240px"
+                  sizes="400px"
                   className="object-cover object-[52%_center]"
                 />
               </div>
@@ -214,7 +216,7 @@ export default function AboutPage({ locale = 'en' }: AboutPageProps) {
                   </div>
                   <div className="grid grid-cols-[100px_1fr] gap-5 py-4">
                     <dt className="text-[var(--muted)]">Focus</dt>
-                    <dd className="font-medium">Backend systems, APIs, databases, and application reliability</dd>
+                    <dd className="font-medium">Backend systems, APIs, data pipelines, and application reliability</dd>
                   </div>
                   <div className="grid grid-cols-[100px_1fr] gap-5 py-4">
                     <dt className="text-[var(--muted)]">Education</dt>
